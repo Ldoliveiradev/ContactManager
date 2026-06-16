@@ -3,7 +3,7 @@ using ContactManager.Domain.ValueObjects;
 
 namespace ContactManager.Domain.Models;
 
-public sealed class Account : AggregateRoot
+public sealed class AccountDomain : AggregateRoot
 {
     public Guid Id { get; }
     public Username Username { get; private set; }
@@ -11,7 +11,7 @@ public sealed class Account : AggregateRoot
     public Email Email { get; private set; }
     public string PasswordHash { get; private set; }
 
-    private Account(Guid id, Username username, FullName fullName, Email email, string passwordHash)
+    private AccountDomain(Guid id, Username username, FullName fullName, Email email, string passwordHash)
     {
         Id = id;
         Username = username;
@@ -20,7 +20,7 @@ public sealed class Account : AggregateRoot
         PasswordHash = passwordHash;
     }
 
-    public static Account Create(
+    public static AccountDomain Create(
         Guid id,
         string username,
         string firstName,
@@ -33,7 +33,7 @@ public sealed class Account : AggregateRoot
         if (string.IsNullOrWhiteSpace(passwordHash))
             throw new ArgumentException("Password hash is required.", nameof(passwordHash));
 
-        return new Account(
+        return new AccountDomain(
             id,
             Username.From(username),
             FullName.From(firstName, lastName),

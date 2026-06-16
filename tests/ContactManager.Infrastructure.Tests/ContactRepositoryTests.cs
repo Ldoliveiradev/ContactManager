@@ -1,6 +1,5 @@
 using ContactManager.Domain.Models;
-using ContactManager.Infrastructure.Data;
-using ContactManager.Infrastructure.Identity.Models;
+using ContactManager.Infrastructure.Data.Repositories;
 using ContactManager.Infrastructure.Tests.Database;
 using FluentAssertions;
 
@@ -22,7 +21,7 @@ public class ContactRepositoryTests
 
     private async Task<Guid> SeedAccountAsync(string username = "owner")
     {
-        var account = Account.Create(Guid.NewGuid(), username, "Test", "User", $"{username}@example.com", "hash");
+        var account = AccountDomain.Create(Guid.NewGuid(), username, "Test", "User", $"{username}@example.com", "hash");
         await _accounts.AddAsync(account);
         return account.Id;
     }
@@ -34,7 +33,7 @@ public class ContactRepositoryTests
         await _db.ResetAsync();
         var accountId = await SeedAccountAsync();
 
-        var contact = Contact.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", "+1-202-555-0100");
+        var contact = ContactDomain.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", "+1-202-555-0100");
         await _sut.AddAsync(contact);
 
         var loaded = await _sut.GetByIdAsync(contact.Id);
@@ -55,9 +54,9 @@ public class ContactRepositoryTests
         var owner = await SeedAccountAsync("owner");
         var other = await SeedAccountAsync("other");
 
-        await _sut.AddAsync(Contact.Create(Guid.NewGuid(), owner, "Ada", "ada@example.com", null));
-        await _sut.AddAsync(Contact.Create(Guid.NewGuid(), owner, "Alan", "alan@example.com", null));
-        await _sut.AddAsync(Contact.Create(Guid.NewGuid(), other, "Grace", "grace@example.com", null));
+        await _sut.AddAsync(ContactDomain.Create(Guid.NewGuid(), owner, "Ada", "ada@example.com", null));
+        await _sut.AddAsync(ContactDomain.Create(Guid.NewGuid(), owner, "Alan", "alan@example.com", null));
+        await _sut.AddAsync(ContactDomain.Create(Guid.NewGuid(), other, "Grace", "grace@example.com", null));
 
         var (items, totalCount) = await _sut.GetByAccountAsync(owner, null, null, false, 1, 10);
 
@@ -72,7 +71,7 @@ public class ContactRepositoryTests
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await _db.ResetAsync();
         var accountId = await SeedAccountAsync();
-        var contact = Contact.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", null);
         await _sut.AddAsync(contact);
 
         contact.Update("Ada L.", "ada.l@example.com", "+1-202-555-0199");
@@ -90,7 +89,7 @@ public class ContactRepositoryTests
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await _db.ResetAsync();
         var accountId = await SeedAccountAsync();
-        var contact = Contact.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", null);
         await _sut.AddAsync(contact);
 
         await _sut.DeleteAsync(contact.Id);

@@ -43,7 +43,7 @@ public sealed class ContactService(IContactRepository contacts) : IContactServic
         if (!validation.IsValid)
             return ContactResponse.Failure(validation.Errors[0].ErrorMessage);
 
-        var contact = Contact.Create(Guid.NewGuid(), accountId, request.Name, request.Email, request.Phone);
+        var contact = ContactDomain.Create(Guid.NewGuid(), accountId, request.Name, request.Email, request.Phone);
         await contacts.AddAsync(contact, ct);
         return ContactResponse.Success(ToDto(contact));
     }
@@ -76,6 +76,6 @@ public sealed class ContactService(IContactRepository contacts) : IContactServic
         return ContactResponse.Success(ToDto(contact));
     }
 
-    private static ContactDto ToDto(Contact c) =>
+    private static ContactDto ToDto(ContactDomain c) =>
         new(c.Id, c.Name.Value, c.Email.Value, c.Phone?.Value);
 }

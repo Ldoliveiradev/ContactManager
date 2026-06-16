@@ -19,9 +19,9 @@ public class JwtTokenGeneratorTests
     private readonly JwtTokenGenerator _sut = new(Options);
 
     [Fact]
-    public void Generate_ProducesTokenWithAccountIdAndUsernameClaims()
+    public void Generate_ProducesTokenWithAccountDomainIdAndUsernameClaims()
     {
-        var account = Account.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "hash");
+        var account = AccountDomain.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "hash");
 
         var token = _sut.Generate(account);
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -36,7 +36,7 @@ public class JwtTokenGeneratorTests
     [Fact]
     public void Generate_TokenIsSignedAndValidatesAgainstConfiguredKey()
     {
-        var account = Account.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "hash");
+        var account = AccountDomain.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "hash");
         var token = _sut.Generate(account);
 
         var parameters = new TokenValidationParameters
@@ -61,7 +61,7 @@ public class JwtTokenGeneratorTests
     [Fact]
     public void Generate_TokenFailsValidationWithWrongKey()
     {
-        var account = Account.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "hash");
+        var account = AccountDomain.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "hash");
         var token = _sut.Generate(account);
 
         var parameters = new TokenValidationParameters

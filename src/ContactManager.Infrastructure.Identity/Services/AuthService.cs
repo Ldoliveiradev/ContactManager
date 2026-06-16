@@ -27,7 +27,7 @@ public sealed class AuthService(
         if (await accounts.GetByUsernameAsync(username, ct) is not null)
             throw new UsernameAlreadyExistsException(username);
 
-        var account = Account.Create(
+        var account = AccountDomain.Create(
             Guid.NewGuid(),
             username,
             request.FirstName,

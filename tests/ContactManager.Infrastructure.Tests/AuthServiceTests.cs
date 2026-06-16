@@ -25,7 +25,7 @@ public class AuthServiceTests
     public async Task RegisterAsync_WithNewUsername_HashesPasswordAndPersists()
     {
         _accounts.Setup(r => r.GetByUsernameAsync("demo", It.IsAny<CancellationToken>()))
-              .ReturnsAsync((Account?)null);
+              .ReturnsAsync((AccountDomain?)null);
         _hasher.Setup(h => h.Hash("Secret123!")).Returns("hashed");
 
         var sut = CreateSut();
@@ -33,14 +33,14 @@ public class AuthServiceTests
 
         result.Username.Should().Be("demo");
         _accounts.Verify(r => r.AddAsync(
-            It.Is<Account>(u => u.Username.Value == "demo" && u.PasswordHash == "hashed"),
+            It.Is<AccountDomain>(u => u.Username.Value == "demo" && u.PasswordHash == "hashed"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task RegisterAsync_WithExistingUsername_ThrowsConflict()
     {
-        var existing = Account.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "h");
+        var existing = AccountDomain.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "h");
         _accounts.Setup(r => r.GetByUsernameAsync("demo", It.IsAny<CancellationToken>()))
               .ReturnsAsync(existing);
 
@@ -48,7 +48,7 @@ public class AuthServiceTests
         var act = () => sut.RegisterAsync(new RegisterRequest("demo", "Test", "User", "demo@example.com", "Secret123!"));
 
         await act.Should().ThrowAsync<UsernameAlreadyExistsException>();
-        _accounts.Verify(r => r.AddAsync(It.IsAny<Account>(), It.IsAny<CancellationToken>()), Times.Never);
+        _accounts.Verify(r => r.AddAsync(It.IsAny<AccountDomain>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Theory]
@@ -69,7 +69,7 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_WithValidCredentials_ReturnsToken()
     {
-        var account = Account.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "stored-hash");
+        var account = AccountDomain.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "stored-hash");
         _accounts.Setup(r => r.GetByUsernameAsync("demo", It.IsAny<CancellationToken>()))
               .ReturnsAsync(account);
         _hasher.Setup(h => h.Verify("Secret123!", "stored-hash")).Returns(true);
@@ -84,7 +84,7 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_WithWrongPassword_ThrowsInvalidCredentials()
     {
-        var account = Account.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "stored-hash");
+        var account = AccountDomain.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "stored-hash");
         _accounts.Setup(r => r.GetByUsernameAsync("demo", It.IsAny<CancellationToken>()))
               .ReturnsAsync(account);
         _hasher.Setup(h => h.Verify(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
@@ -99,7 +99,7 @@ public class AuthServiceTests
     public async Task LoginAsync_WithUnknownUser_ThrowsInvalidCredentials()
     {
         _accounts.Setup(r => r.GetByUsernameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-              .ReturnsAsync((Account?)null);
+              .ReturnsAsync((AccountDomain?)null);
 
         var sut = CreateSut();
         var act = () => sut.LoginAsync(new LoginRequest("ghost", "Secret123!"));

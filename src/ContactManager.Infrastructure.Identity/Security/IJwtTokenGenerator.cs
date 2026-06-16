@@ -4,5 +4,5 @@ namespace ContactManager.Infrastructure.Identity.Security;
 
 public interface IJwtTokenGenerator
 {
-    string Generate(Account account);
+    string Generate(AccountDomain account);
 }

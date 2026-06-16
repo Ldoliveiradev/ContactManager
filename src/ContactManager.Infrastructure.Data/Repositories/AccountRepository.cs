@@ -2,12 +2,12 @@ using ContactManager.Domain.Interfaces;
 using ContactManager.Domain.Models;
 using Npgsql;
 
-namespace ContactManager.Infrastructure.Data;
+namespace ContactManager.Infrastructure.Data.Repositories;
 
 public sealed class AccountRepository(string connectionString)
     : BaseRepository(connectionString), IAccountRepository
 {
-    public async Task<Account?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<AccountDomain?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         const string sql = """
             SELECT id, username, first_name, last_name, email, password_hash
@@ -23,7 +23,7 @@ public sealed class AccountRepository(string connectionString)
         return await reader.ReadAsync(ct) ? Map(reader) : null;
     }
 
-    public async Task<Account?> GetByUsernameAsync(string username, CancellationToken ct = default)
+    public async Task<AccountDomain?> GetByUsernameAsync(string username, CancellationToken ct = default)
     {
         const string sql = """
             SELECT id, username, first_name, last_name, email, password_hash
@@ -39,7 +39,7 @@ public sealed class AccountRepository(string connectionString)
         return await reader.ReadAsync(ct) ? Map(reader) : null;
     }
 
-    public async Task AddAsync(Account account, CancellationToken ct = default)
+    public async Task AddAsync(AccountDomain account, CancellationToken ct = default)
     {
         const string sql = """
             INSERT INTO accounts (id, username, first_name, last_name, email, password_hash)
@@ -52,7 +52,7 @@ public sealed class AccountRepository(string connectionString)
         await cmd.ExecuteNonQueryAsync(ct);
     }
 
-    public async Task UpdateAsync(Account account, CancellationToken ct = default)
+    public async Task UpdateAsync(AccountDomain account, CancellationToken ct = default)
     {
         const string sql = """
             UPDATE accounts
@@ -71,7 +71,7 @@ public sealed class AccountRepository(string connectionString)
         await cmd.ExecuteNonQueryAsync(ct);
     }
 
-    private static void BindAccount(NpgsqlCommand cmd, Account account)
+    private static void BindAccount(NpgsqlCommand cmd, AccountDomain account)
     {
         cmd.Parameters.AddWithValue("@id", account.Id);
         cmd.Parameters.AddWithValue("@username", account.Username.Value);
@@ -81,7 +81,7 @@ public sealed class AccountRepository(string connectionString)
         cmd.Parameters.AddWithValue("@passwordHash", account.PasswordHash);
     }
 
-    private static Account Map(NpgsqlDataReader reader) => Account.Create(
+    private static AccountDomain Map(NpgsqlDataReader reader) => AccountDomain.Create(
         reader.GetGuid(0),
         reader.GetString(1),
         reader.GetString(2),

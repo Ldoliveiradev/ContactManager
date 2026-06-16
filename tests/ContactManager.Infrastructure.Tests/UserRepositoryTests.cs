@@ -1,5 +1,5 @@
 using ContactManager.Domain.Models;
-using ContactManager.Infrastructure.Data;
+using ContactManager.Infrastructure.Data.Repositories;
 using ContactManager.Infrastructure.Tests.Database;
 using FluentAssertions;
 
@@ -18,12 +18,12 @@ public class AccountRepositoryTests
     }
 
     [SkippableFact]
-    public async Task AddAsync_ThenGetByUsername_ReturnsPersistedAccount()
+    public async Task AddAsync_ThenGetByUsername_ReturnsPersistedAccountDomain()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await _db.ResetAsync();
 
-        var account = Account.Create(Guid.NewGuid(), "alice", "Alice", "Smith", "alice@example.com", "hashed-pw");
+        var account = AccountDomain.Create(Guid.NewGuid(), "alice", "Alice", "Smith", "alice@example.com", "hashed-pw");
         await _sut.AddAsync(account);
 
         var loaded = await _sut.GetByUsernameAsync("alice");
@@ -49,12 +49,12 @@ public class AccountRepositoryTests
     }
 
     [SkippableFact]
-    public async Task GetByIdAsync_ReturnsPersistedAccount()
+    public async Task GetByIdAsync_ReturnsPersistedAccountDomain()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await _db.ResetAsync();
 
-        var account = Account.Create(Guid.NewGuid(), "bob", "Bob", "Jones", "bob@example.com", "hashed-pw");
+        var account = AccountDomain.Create(Guid.NewGuid(), "bob", "Bob", "Jones", "bob@example.com", "hashed-pw");
         await _sut.AddAsync(account);
 
         var loaded = await _sut.GetByIdAsync(account.Id);
@@ -70,9 +70,9 @@ public class AccountRepositoryTests
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await _db.ResetAsync();
 
-        await _sut.AddAsync(Account.Create(Guid.NewGuid(), "carol", "Carol", "White", "carol@example.com", "h1"));
+        await _sut.AddAsync(AccountDomain.Create(Guid.NewGuid(), "carol", "Carol", "White", "carol@example.com", "h1"));
 
-        var act = () => _sut.AddAsync(Account.Create(Guid.NewGuid(), "carol", "Carol", "White", "carol2@example.com", "h2"));
+        var act = () => _sut.AddAsync(AccountDomain.Create(Guid.NewGuid(), "carol", "Carol", "White", "carol2@example.com", "h2"));
 
         await act.Should().ThrowAsync<Exception>();
     }

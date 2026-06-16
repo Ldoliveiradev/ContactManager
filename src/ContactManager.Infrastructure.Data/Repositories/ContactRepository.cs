@@ -4,7 +4,7 @@ using ContactManager.Domain.ValueObjects;
 using Npgsql;
 using NpgsqlTypes;
 
-namespace ContactManager.Infrastructure.Data;
+namespace ContactManager.Infrastructure.Data.Repositories;
 
 public sealed class ContactRepository(string connectionString)
     : BaseRepository(connectionString), IContactRepository
@@ -12,7 +12,7 @@ public sealed class ContactRepository(string connectionString)
     private static readonly HashSet<string> AllowedSortColumns =
         new(StringComparer.OrdinalIgnoreCase) { "name", "email", "phone", "created_at" };
 
-    public async Task<(IReadOnlyList<Contact> Items, int TotalCount)> GetByAccountAsync(
+    public async Task<(IReadOnlyList<ContactDomain> Items, int TotalCount)> GetByAccountAsync(
         Guid accountId, string? search, string? sortBy, bool sortDesc, int page, int pageSize,
         CancellationToken ct = default)
     {
@@ -40,7 +40,7 @@ public sealed class ContactRepository(string connectionString)
         cmd.Parameters.AddWithValue("@pageSize", pageSize);
         cmd.Parameters.AddWithValue("@offset", offset);
 
-        var items = new List<Contact>();
+        var items = new List<ContactDomain>();
         var totalCount = 0;
 
         await using var reader = await cmd.ExecuteReaderAsync(ct);
@@ -54,7 +54,7 @@ public sealed class ContactRepository(string connectionString)
         return (items, totalCount);
     }
 
-    public async Task<Contact?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<ContactDomain?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         const string sql = """
             SELECT id, account_id, name, email, phone
@@ -70,7 +70,7 @@ public sealed class ContactRepository(string connectionString)
         return await reader.ReadAsync(ct) ? Map(reader) : null;
     }
 
-    public async Task AddAsync(Contact contact, CancellationToken ct = default)
+    public async Task AddAsync(ContactDomain contact, CancellationToken ct = default)
     {
         const string sql = """
             INSERT INTO contacts (id, account_id, name, email, phone)
@@ -83,7 +83,7 @@ public sealed class ContactRepository(string connectionString)
         await cmd.ExecuteNonQueryAsync(ct);
     }
 
-    public async Task UpdateAsync(Contact contact, CancellationToken ct = default)
+    public async Task UpdateAsync(ContactDomain contact, CancellationToken ct = default)
     {
         const string sql = """
             UPDATE contacts
@@ -110,7 +110,7 @@ public sealed class ContactRepository(string connectionString)
         await cmd.ExecuteNonQueryAsync(ct);
     }
 
-    private static void BindContact(NpgsqlCommand cmd, Contact contact)
+    private static void BindContact(NpgsqlCommand cmd, ContactDomain contact)
     {
         cmd.Parameters.AddWithValue("@id", contact.Id);
         cmd.Parameters.AddWithValue("@accountId", contact.AccountId);
@@ -119,7 +119,7 @@ public sealed class ContactRepository(string connectionString)
         cmd.Parameters.AddWithValue("@phone", (object?)contact.Phone?.Value ?? DBNull.Value);
     }
 
-    private static Contact Map(NpgsqlDataReader reader) => Contact.Create(
+    private static ContactDomain Map(NpgsqlDataReader reader) => ContactDomain.Create(
         reader.GetGuid(0),
         reader.GetGuid(1),
         reader.GetString(2),

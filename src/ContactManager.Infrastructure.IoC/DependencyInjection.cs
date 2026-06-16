@@ -2,7 +2,7 @@ using System.Text;
 using ContactManager.Application.Contacts.Interfaces;
 using ContactManager.Application.Contacts.Services;
 using ContactManager.Domain.Interfaces;
-using ContactManager.Infrastructure.Data;
+using ContactManager.Infrastructure.Data.Repositories;
 using ContactManager.Infrastructure.Identity.Interfaces;
 using ContactManager.Infrastructure.Identity.Security;
 using ContactManager.Infrastructure.Identity.Services;

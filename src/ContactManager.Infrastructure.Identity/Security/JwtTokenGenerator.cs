@@ -8,7 +8,7 @@ namespace ContactManager.Infrastructure.Identity.Security;
 
 public sealed class JwtTokenGenerator(JwtOptions options) : IJwtTokenGenerator
 {
-    public string Generate(Account account)
+    public string Generate(AccountDomain account)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

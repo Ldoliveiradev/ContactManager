@@ -3,14 +3,14 @@ using FluentAssertions;
 
 namespace ContactManager.Infrastructure.Tests;
 
-public class AccountTests
+public class AccountDomainTests
 {
     [Fact]
     public void Create_WithValidData_SetsProperties()
     {
         var id = Guid.NewGuid();
 
-        var account = Account.Create(id, "demo", "John", "Doe", "john@example.com", "hashed-password");
+        var account = AccountDomain.Create(id, "demo", "John", "Doe", "john@example.com", "hashed-password");
 
         account.Id.Should().Be(id);
         account.Username.Value.Should().Be("demo");
@@ -23,7 +23,7 @@ public class AccountTests
     [Fact]
     public void Create_TrimsUsernameAndNormalizesEmail()
     {
-        var account = Account.Create(Guid.NewGuid(), "  demo  ", "John", "Doe", "  JOHN@Example.COM  ", "hash");
+        var account = AccountDomain.Create(Guid.NewGuid(), "  demo  ", "John", "Doe", "  JOHN@Example.COM  ", "hash");
 
         account.Username.Value.Should().Be("demo");
         account.Email.Value.Should().Be("john@example.com");
@@ -35,7 +35,7 @@ public class AccountTests
     [InlineData(null)]
     public void Create_WithBlankUsername_Throws(string? username)
     {
-        var act = () => Account.Create(Guid.NewGuid(), username!, "John", "Doe", "john@example.com", "hash");
+        var act = () => AccountDomain.Create(Guid.NewGuid(), username!, "John", "Doe", "john@example.com", "hash");
 
         act.Should().Throw<ArgumentException>();
     }
@@ -46,7 +46,7 @@ public class AccountTests
     [InlineData(null)]
     public void Create_WithBlankPasswordHash_Throws(string? hash)
     {
-        var act = () => Account.Create(Guid.NewGuid(), "demo", "John", "Doe", "john@example.com", hash!);
+        var act = () => AccountDomain.Create(Guid.NewGuid(), "demo", "John", "Doe", "john@example.com", hash!);
 
         act.Should().Throw<ArgumentException>().WithParameterName("passwordHash");
     }
@@ -54,7 +54,7 @@ public class AccountTests
     [Fact]
     public void Create_WithEmptyId_Throws()
     {
-        var act = () => Account.Create(Guid.Empty, "demo", "John", "Doe", "john@example.com", "hash");
+        var act = () => AccountDomain.Create(Guid.Empty, "demo", "John", "Doe", "john@example.com", "hash");
 
         act.Should().Throw<ArgumentException>().WithParameterName("id");
     }
@@ -62,7 +62,7 @@ public class AccountTests
     [Fact]
     public void UpdateProfile_ChangesNameAndEmail()
     {
-        var account = Account.Create(Guid.NewGuid(), "demo", "John", "Doe", "john@example.com", "hash");
+        var account = AccountDomain.Create(Guid.NewGuid(), "demo", "John", "Doe", "john@example.com", "hash");
 
         account.UpdateProfile("Jane", "Smith", "jane@example.com");
 

@@ -4,7 +4,7 @@ using ContactManager.Domain.ValueObjects;
 
 namespace ContactManager.Domain.Models;
 
-public sealed class Contact : AggregateRoot
+public sealed class ContactDomain : AggregateRoot
 {
     public Guid Id { get; }
     public Guid AccountId { get; }
@@ -12,7 +12,7 @@ public sealed class Contact : AggregateRoot
     public Email Email { get; private set; }
     public PhoneNumber? Phone { get; private set; }
 
-    private Contact(Guid id, Guid accountId, ContactName name, Email email, PhoneNumber? phone)
+    private ContactDomain(Guid id, Guid accountId, ContactName name, Email email, PhoneNumber? phone)
     {
         Id = id;
         AccountId = accountId;
@@ -21,14 +21,14 @@ public sealed class Contact : AggregateRoot
         Phone = phone;
     }
 
-    public static Contact Create(Guid id, Guid accountId, string name, string email, string? phone)
+    public static ContactDomain Create(Guid id, Guid accountId, string name, string email, string? phone)
     {
         if (id == Guid.Empty)
             throw new ArgumentException("Contact id must not be empty.", nameof(id));
         if (accountId == Guid.Empty)
             throw new ArgumentException("Account id must not be empty.", nameof(accountId));
 
-        var contact = new Contact(
+        var contact = new ContactDomain(
             id,
             accountId,
             ContactName.From(name),

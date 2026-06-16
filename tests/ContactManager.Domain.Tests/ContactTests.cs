@@ -12,7 +12,7 @@ public class ContactTests
     {
         var id = Guid.NewGuid();
 
-        var contact = Contact.Create(id, OwnerId, "Ada Lovelace", "ada@example.com", "+1-202-555-0100");
+        var contact = ContactDomain.Create(id, OwnerId, "Ada Lovelace", "ada@example.com", "+1-202-555-0100");
 
         contact.Id.Should().Be(id);
         contact.AccountId.Should().Be(OwnerId);
@@ -24,7 +24,7 @@ public class ContactTests
     [Fact]
     public void Create_TrimsNameAndNormalizesEmail()
     {
-        var contact = Contact.Create(Guid.NewGuid(), OwnerId, "  Ada  ", "  ADA@Example.COM  ", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), OwnerId, "  Ada  ", "  ADA@Example.COM  ", null);
 
         contact.Name.Value.Should().Be("Ada");
         contact.Email.Value.Should().Be("ada@example.com");
@@ -33,7 +33,7 @@ public class ContactTests
     [Fact]
     public void Create_WithNullPhone_IsAllowed()
     {
-        var contact = Contact.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
 
         contact.Phone.Should().BeNull();
     }
@@ -41,7 +41,7 @@ public class ContactTests
     [Fact]
     public void Create_RaisesDomainEvent()
     {
-        var contact = Contact.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
 
         contact.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<Domain.Events.ContactCreatedEvent>();
@@ -53,7 +53,7 @@ public class ContactTests
     [InlineData(null)]
     public void Create_WithBlankName_Throws(string? name)
     {
-        var act = () => Contact.Create(Guid.NewGuid(), OwnerId, name!, "ada@example.com", null);
+        var act = () => ContactDomain.Create(Guid.NewGuid(), OwnerId, name!, "ada@example.com", null);
 
         act.Should().Throw<ArgumentException>().WithParameterName("value");
     }
@@ -65,7 +65,7 @@ public class ContactTests
     [InlineData("@nodomain.com")]
     public void Create_WithInvalidEmail_Throws(string email)
     {
-        var act = () => Contact.Create(Guid.NewGuid(), OwnerId, "Ada", email, null);
+        var act = () => ContactDomain.Create(Guid.NewGuid(), OwnerId, "Ada", email, null);
 
         act.Should().Throw<ArgumentException>().WithParameterName("value");
     }
@@ -73,7 +73,7 @@ public class ContactTests
     [Fact]
     public void Create_WithEmptyAccountId_Throws()
     {
-        var act = () => Contact.Create(Guid.NewGuid(), Guid.Empty, "Ada", "ada@example.com", null);
+        var act = () => ContactDomain.Create(Guid.NewGuid(), Guid.Empty, "Ada", "ada@example.com", null);
 
         act.Should().Throw<ArgumentException>().WithParameterName("accountId");
     }
@@ -81,7 +81,7 @@ public class ContactTests
     [Fact]
     public void Update_ChangesMutableFields()
     {
-        var contact = Contact.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
         contact.ClearDomainEvents();
 
         contact.Update("Ada L.", "ada.l@example.com", "+1-202-555-0199");
@@ -96,7 +96,7 @@ public class ContactTests
     [Fact]
     public void Update_WithInvalidEmail_Throws()
     {
-        var contact = Contact.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
 
         var act = () => contact.Update("Ada", "bad-email", null);
 
@@ -106,7 +106,7 @@ public class ContactTests
     [Fact]
     public void Delete_RaisesDomainEvent()
     {
-        var contact = Contact.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
         contact.ClearDomainEvents();
 
         contact.Delete();
