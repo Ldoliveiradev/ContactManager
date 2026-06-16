@@ -20,5 +20,27 @@ services:
       timeout: 5s
       retries: 5
 
+  api:
+    build:
+      context: .
+      dockerfile: src/ContactManager.API/Dockerfile
+    container_name: contactmanager-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Inside the Docker network the DB is reached by its service name, not localhost.
+      # Double-underscore maps to the nested config key ConnectionStrings:Postgres.
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=contactmanager;Username=contactmanager;Password=contactmanager_dev_pwd"
+      Jwt__Secret: "dev-only-signing-secret-change-me-at-least-32-characters-long"
+      Jwt__Issuer: "contactmanager-api"
+      Jwt__Audience: "contactmanager-clients"
+      Jwt__ExpiryMinutes: "60"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    ports:
+      # Host 8085 → container 8080, to avoid colliding with other local services.
+      - "8085:8080"
+
 volumes:
   contactmanager-pgdata:

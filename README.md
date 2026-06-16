@@ -33,15 +33,34 @@ All data access is hand-written, parameterized SQL via Npgsql.
 
 ## Quick start
 
+There are two ways to run the backend.
+
+### Option A — everything in Docker (one command)
+
 ```bash
-# 1. Start PostgreSQL (schema + seed data are applied automatically on first run)
-docker compose up -d
+docker compose up -d --build
+```
 
-# 2. Run the API
+Brings up PostgreSQL **and** the API together. On the Docker network the API reaches the
+database by its service name (`Host=postgres`), not `localhost`.
+
+- API:      <http://localhost:8085>
+- Postgres: `localhost:5433`
+
+### Option B — DB in Docker, API on your host (handy for debugging)
+
+```bash
+# 1. Start only PostgreSQL (schema + seed applied automatically on first run)
+docker compose up -d postgres
+
+# 2. Run the API on your machine (uses Host=localhost:5433 from appsettings.json)
 dotnet run --project src/ContactManager.API
+```
 
-# 3. Run the frontend (in another terminal)
-cd web && npm start
+### Frontend (either option)
+
+```bash
+cd web && npm start    # Angular dev server on http://localhost:4200
 ```
 
 ### Demo credentials
