@@ -1,5 +1,6 @@
 using ContactManager.Domain.Interfaces;
 using ContactManager.Domain.Models;
+using ContactManager.Infrastructure.Data.Base;
 using Npgsql;
 
 namespace ContactManager.Infrastructure.Data.Repositories;

@@ -1,6 +1,6 @@
 using Npgsql;
 
-namespace ContactManager.Infrastructure.Data;
+namespace ContactManager.Infrastructure.Data.Base;
 
 public abstract class BaseRepository(string connectionString)
 {
