@@ -14,12 +14,19 @@ model, API reference, demo credentials) see the [root README](../README.md).
 
 ```text
 src/app/
-  core/        services (auth, contacts, theme), JWT interceptor, auth guard, models
-  features/    auth (login) and contacts (list, form)
-  shared/      ui-button, ui-card, ui-alert, ui-form-field, ui-pagination,
-               ui-data-view (generic searchable/sortable/paginated collection);
-               PhonePipe; AutofocusDirective; form validators
-  styles/      design tokens, mixins, breakpoints
+  core/          JWT interceptor, auth guard, theme service
+  features/
+    auth/        login + register — models/, services/, components/login/
+    contacts/    contact CRUD — models/, services/, components/contact-list/ + contact-form/
+    accounts/    profile + password — models/, services/, components/profile/
+  shared/
+    ui/          ui-button, ui-card, ui-alert, ui-form-field, ui-pagination,
+                 ui-data-view (searchable / sortable / paginated card grid),
+                 ui-skeleton (shimmer loading placeholder)
+    pipes/       PhonePipe
+    directives/  AutofocusDirective
+    validators/  contact field validators
+  styles/        SCSS design system: tokens, mixins, breakpoints
 ```
 
 ## Commands

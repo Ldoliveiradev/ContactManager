@@ -51,18 +51,20 @@ infrastructure or the web layer:
 
 ```text
 src/
-  ContactManager.Domain          # entities + invariants — zero dependencies
-  ContactManager.Application     # services, validation, DTOs, repository INTERFACES
-  ContactManager.Infrastructure  # raw ADO.NET (Npgsql) repositories, JWT, PBKDF2 hashing
-  ContactManager.API             # controllers, middleware, DI composition root
+  ContactManager.Domain/                  # entities + invariants — zero dependencies
+  ContactManager.Application/             # services, validation, DTOs, repository INTERFACES
+  ContactManager.Infrastructure.Data/     # raw ADO.NET (Npgsql) repositories — all SQL here
+  ContactManager.Infrastructure.Identity/ # JWT token generation, PBKDF2 password hashing
+  ContactManager.Infrastructure.IoC/      # DI composition root — wires Infrastructure → Application
+  ContactManager.API/                     # controllers, middleware, startup
 tests/
-  ContactManager.Domain.Tests
-  ContactManager.Application.Tests
-  ContactManager.Infrastructure.Tests   # integration tests vs a real Postgres
-  ContactManager.API.Tests              # endpoint tests via WebApplicationFactory
-db/init/                         # schema + seed SQL (auto-applied by the Postgres container)
-web/                             # Angular 20 SPA
-docs/genai/                      # GenAI prompt log + critical evaluation
+  ContactManager.Domain.Tests/
+  ContactManager.Application.Tests/
+  ContactManager.Infrastructure.Tests/    # integration tests vs a real Postgres
+  ContactManager.API.Tests/               # endpoint tests via WebApplicationFactory
+db/init/                                  # schema + seed SQL (auto-applied on first container run)
+web/                                      # Angular 20 SPA
+docs/genai/                               # GenAI prompt log + critical evaluation
 ```
 
 Key rules enforced:
@@ -176,10 +178,10 @@ Base URL: `http://localhost:8085` (Docker) — all routes are under `/api`.
 
 ### Auth API (anonymous — the "non-authorized" endpoints)
 
-| Method | Route                | Body                     | Success             | Errors                              |
-| ------ | -------------------- | ------------------------ | ------------------- | ----------------------------------- |
-| POST   | `/api/auth/register` | `{ username, password }` | `201`               | `400` invalid, `409` username taken |
-| POST   | `/api/auth/login`    | `{ username, password }` | `200` + `{ token }` | `401` invalid credentials           |
+| Method | Route                | Body                                                  | Success              | Errors                              |
+| ------ | -------------------- | ----------------------------------------------------- | -------------------- | ----------------------------------- |
+| POST   | `/api/auth/register` | `{ username, firstName, lastName, email, password }`  | `201`                | `400` invalid, `409` username taken |
+| POST   | `/api/auth/login`    | `{ username, password }`                              | `200` + `{ token }`  | `401` invalid credentials           |
 
 ### Contacts API (`[Authorize]` — the "authorized" endpoints, JWT bearer required)
 
@@ -205,6 +207,14 @@ Base URL: `http://localhost:8085` (Docker) — all routes are under `/api`.
 - These rules are enforced **server-side** in the Application/Domain layers (the UI also
   validates for UX, but the API is authoritative). Errors use RFC 7807 `ProblemDetails`.
 
+### Accounts API (`[Authorize]` — profile management)
+
+| Method | Route                     | Body                                          | Success | Errors              |
+| ------ | ------------------------- | --------------------------------------------- | ------- | ------------------- |
+| GET    | `/api/accounts`           | —                                             | `200`   | `401`               |
+| PUT    | `/api/accounts`           | `{ firstName, lastName, email }`              | `200`   | `400`, `401`        |
+| PUT    | `/api/accounts/password`  | `{ currentPassword, newPassword }`            | `204`   | `400`, `401`        |
+
 > **On roles/claims:** the brief asks for *authorized vs non-authorized* endpoints
 > (authentication), which is implemented. Role-based authorization was intentionally left
 > out as it isn't required; the JWT already carries `sub` (user id) and `unique_name`
@@ -225,11 +235,18 @@ manual toggle, persisted), and responsive (mobile-first) layouts.
 
 ```text
 web/src/app/
-  core/          services (auth, contacts, theme), JWT interceptor, auth guard, models
-  features/      auth (login) and contacts (list, form) feature components
-  shared/        reusable UI: ui-button, ui-card, ui-alert, ui-form-field,
-                 ui-pagination, ui-data-view (generic searchable/sortable/paginated
-                 collection); PhonePipe; AutofocusDirective; form validators
+  core/          JWT interceptor, auth guard, theme service
+  features/
+    auth/        login + register (models, service, component)
+    contacts/    contact CRUD (models, service, list + form components)
+    accounts/    profile + password management (models, service, component)
+  shared/
+    ui/          ui-button, ui-card, ui-alert, ui-form-field, ui-pagination,
+                 ui-data-view (generic searchable/sortable/paginated grid),
+                 ui-skeleton (shimmer placeholder for loading states)
+    pipes/       PhonePipe
+    directives/  AutofocusDirective
+    validators/  contact field validators
   styles/        SCSS design system: tokens, mixins, breakpoints
 ```
 
