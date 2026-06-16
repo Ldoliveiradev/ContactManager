@@ -1,78 +1,51 @@
-<div class="auth-page">
-  <ui-card class="auth-card">
-    <form [formGroup]="form" (ngSubmit)="submit()">
-      <header class="auth-card__head">
-        <h1>Contact Manager</h1>
-        <p class="auth-card__subtitle">
-          {{ mode() === 'login' ? 'Sign in to your account' : 'Create an account' }}
-        </p>
-      </header>
+<ui-card class="auth-card">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <header class="auth-card__head">
+      <h1>Contact Manager</h1>
+      <p class="auth-card__subtitle">Sign in to your account</p>
+    </header>
 
-      @if (error()) {
-        <ui-alert>{{ error() }}</ui-alert>
-      }
+    @if (error()) {
+      <ui-alert>{{ error() }}</ui-alert>
+    }
 
-      <ui-form-field
-        label="Username"
-        [error]="form.controls.username.touched && form.controls.username.invalid ? 'Username is required.' : null"
-      >
-        <input
-          id="username"
-          name="username"
-          type="text"
-          formControlName="username"
-          autocomplete="username"
-          aria-label="Username"
-          placeholder="your-username"
-          appAutofocus
-        />
-      </ui-form-field>
+    <ui-form-field
+      label="Username"
+      [error]="form.controls.username.touched && form.controls.username.invalid ? 'Username is required.' : null"
+    >
+      <input
+        id="username"
+        name="username"
+        type="text"
+        formControlName="username"
+        autocomplete="username"
+        aria-label="Username"
+        placeholder="your-username"
+        appAutofocus
+      />
+    </ui-form-field>
 
-      @if (isRegister()) {
-        <ui-form-field
-          label="First name"
-          [error]="form.controls.firstName.touched && form.controls.firstName.invalid ? 'First name is required.' : null"
-        >
-          <input id="firstName" name="firstName" type="text" formControlName="firstName" aria-label="First name" placeholder="Jane" />
-        </ui-form-field>
+    <ui-form-field
+      label="Password"
+      [error]="form.controls.password.touched && form.controls.password.invalid ? 'Password must be at least 8 characters.' : null"
+    >
+      <input
+        id="password"
+        name="password"
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        aria-label="Password"
+        placeholder="••••••••"
+      />
+    </ui-form-field>
 
-        <ui-form-field
-          label="Last name"
-          [error]="form.controls.lastName.touched && form.controls.lastName.invalid ? 'Last name is required.' : null"
-        >
-          <input id="lastName" name="lastName" type="text" formControlName="lastName" aria-label="Last name" placeholder="Doe" />
-        </ui-form-field>
+    <ui-button type="submit" [disabled]="loading()">
+      {{ loading() ? 'Please wait…' : 'Sign in' }}
+    </ui-button>
 
-        <ui-form-field
-          label="Email"
-          [error]="form.controls.email.touched && form.controls.email.invalid ? 'Enter a valid email address.' : null"
-        >
-          <input id="email" name="email" type="email" formControlName="email" autocomplete="email" aria-label="Email" placeholder="jane@example.com" />
-        </ui-form-field>
-      }
-
-      <ui-form-field
-        label="Password"
-        [error]="form.controls.password.touched && form.controls.password.invalid ? 'Password must be at least 8 characters.' : null"
-      >
-        <input
-          id="password"
-          name="password"
-          type="password"
-          formControlName="password"
-          autocomplete="current-password"
-          aria-label="Password"
-          placeholder="••••••••"
-        />
-      </ui-form-field>
-
-      <ui-button type="submit" [disabled]="loading()">
-        {{ loading() ? 'Please wait…' : (mode() === 'login' ? 'Sign in' : 'Register') }}
-      </ui-button>
-
-      <ui-button type="button" variant="ghost" (click)="toggleMode()">
-        {{ mode() === 'login' ? "Don't have an account? Register" : 'Already have an account? Sign in' }}
-      </ui-button>
-    </form>
-  </ui-card>
-</div>
+    <ui-button type="button" variant="ghost" (click)="switchToRegister.emit()">
+      Don't have an account? Register
+    </ui-button>
+  </form>
+</ui-card>

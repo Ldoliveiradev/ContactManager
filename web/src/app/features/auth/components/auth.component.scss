@@ -1,1 +1,10 @@
-// Auth shell — layout handled by child components
+@use 'tokens' as t;
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: t.space(4);
+  background: var(--bg);
+}
