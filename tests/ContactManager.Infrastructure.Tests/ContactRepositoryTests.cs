@@ -178,16 +178,16 @@ public class ContactRepositoryTests
         var (page1, total1) = await _sut.GetByAccountAsync(owner, null, "name", false, 1, 6);
         page1.Should().HaveCount(6);
         total1.Should().Be(15);
-        page1.First().Name.Value.Should().Be("Contact 00");
+        page1[0].Name.Value.Should().Be("Contact 00");
 
         var (page2, total2) = await _sut.GetByAccountAsync(owner, null, "name", false, 2, 6);
         page2.Should().HaveCount(6);
         total2.Should().Be(15);
-        page2.First().Name.Value.Should().Be("Contact 06");
+        page2[0].Name.Value.Should().Be("Contact 06");
 
         var (page3, total3) = await _sut.GetByAccountAsync(owner, null, "name", false, 3, 6);
         page3.Should().HaveCount(3);
         total3.Should().Be(15);
-        page3.First().Name.Value.Should().Be("Contact 12");
+        page3[0].Name.Value.Should().Be("Contact 12");
     }
 }
