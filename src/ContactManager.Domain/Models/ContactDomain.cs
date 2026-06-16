@@ -1,12 +1,8 @@
 using System.Text.RegularExpressions;
 
-namespace ContactManager.Domain.Entities;
+namespace ContactManager.Domain.Models;
 
-/// <summary>
-/// A contact owned by a <see cref="User"/>. Created and mutated only through methods that
-/// enforce its invariants (owner present, name required, email required and well-formed).
-/// </summary>
-public sealed partial class Contact
+public sealed partial class ContactDomain
 {
     public Guid Id { get; }
     public Guid UserId { get; }
@@ -14,7 +10,7 @@ public sealed partial class Contact
     public string Email { get; private set; }
     public string? Phone { get; private set; }
 
-    private Contact(Guid id, Guid userId, string name, string email, string? phone)
+    private ContactDomain(Guid id, Guid userId, string name, string email, string? phone)
     {
         Id = id;
         UserId = userId;
@@ -23,7 +19,7 @@ public sealed partial class Contact
         Phone = phone;
     }
 
-    public static Contact Create(Guid id, Guid userId, string name, string email, string? phone)
+    public static ContactDomain Create(Guid id, Guid userId, string name, string email, string? phone)
     {
         if (id == Guid.Empty)
             throw new ArgumentException("Contact id must not be empty.", nameof(id));
@@ -31,7 +27,7 @@ public sealed partial class Contact
             throw new ArgumentException("Owner user id must not be empty.", nameof(userId));
 
         var (cleanName, cleanEmail, cleanPhone) = Normalize(name, email, phone);
-        return new Contact(id, userId, cleanName, cleanEmail, cleanPhone);
+        return new ContactDomain(id, userId, cleanName, cleanEmail, cleanPhone);
     }
 
     public void Update(string name, string email, string? phone)
@@ -53,7 +49,6 @@ public sealed partial class Contact
         return (name.Trim(), email.Trim(), cleanPhone);
     }
 
-    // Pragmatic email check: non-empty local part, "@", domain with a dot and a TLD.
     [GeneratedRegex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$")]
     private static partial Regex EmailRegex();
 }

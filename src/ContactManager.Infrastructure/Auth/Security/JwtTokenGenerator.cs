@@ -1,14 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using ContactManager.Domain.Entities;
+using ContactManager.Infrastructure.Auth.Models;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ContactManager.Infrastructure.Security;
+namespace ContactManager.Infrastructure.Auth.Security;
 
 public sealed class JwtTokenGenerator(JwtOptions options) : IJwtTokenGenerator
 {
-    public string Generate(User user)
+    public string Generate(UserModel user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

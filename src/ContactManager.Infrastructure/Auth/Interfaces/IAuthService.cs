@@ -1,4 +1,6 @@
-namespace ContactManager.Infrastructure.Services;
+using ContactManager.Infrastructure.Auth.Models;
+
+namespace ContactManager.Infrastructure.Auth.Interfaces;
 
 public interface IAuthService
 {

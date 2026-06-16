@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using ContactManager.Domain.Entities;
-using ContactManager.Infrastructure.Security;
+using ContactManager.Infrastructure.Auth.Models;
+using ContactManager.Infrastructure.Auth.Security;
 using FluentAssertions;
 using Microsoft.IdentityModel.Tokens;
 
@@ -22,7 +21,7 @@ public class JwtTokenGeneratorTests
     [Fact]
     public void Generate_ProducesTokenWithUserIdAndUsernameClaims()
     {
-        var user = User.Create(Guid.NewGuid(), "demo", "hash");
+        var user = UserModel.Create(Guid.NewGuid(), "demo", "hash");
 
         var token = _sut.Generate(user);
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -35,7 +34,7 @@ public class JwtTokenGeneratorTests
     [Fact]
     public void Generate_TokenIsSignedAndValidatesAgainstConfiguredKey()
     {
-        var user = User.Create(Guid.NewGuid(), "demo", "hash");
+        var user = UserModel.Create(Guid.NewGuid(), "demo", "hash");
         var token = _sut.Generate(user);
 
         var parameters = new TokenValidationParameters
@@ -50,19 +49,17 @@ public class JwtTokenGeneratorTests
             ValidateLifetime = true
         };
 
-        var act = () => new JwtSecurityTokenHandler()
-            .ValidateToken(token, parameters, out _);
+        var act = () => new JwtSecurityTokenHandler().ValidateToken(token, parameters, out _);
 
         act.Should().NotThrow();
-        new JwtSecurityTokenHandler()
-            .ValidateToken(token, parameters, out var validated);
+        new JwtSecurityTokenHandler().ValidateToken(token, parameters, out var validated);
         validated.Should().NotBeNull();
     }
 
     [Fact]
     public void Generate_TokenFailsValidationWithWrongKey()
     {
-        var user = User.Create(Guid.NewGuid(), "demo", "hash");
+        var user = UserModel.Create(Guid.NewGuid(), "demo", "hash");
         var token = _sut.Generate(user);
 
         var parameters = new TokenValidationParameters
@@ -75,8 +72,7 @@ public class JwtTokenGeneratorTests
             ValidateLifetime = false
         };
 
-        var act = () => new JwtSecurityTokenHandler()
-            .ValidateToken(token, parameters, out _);
+        var act = () => new JwtSecurityTokenHandler().ValidateToken(token, parameters, out _);
 
         act.Should().Throw<SecurityTokenInvalidSignatureException>();
     }

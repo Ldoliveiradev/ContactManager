@@ -1,4 +1,4 @@
-using ContactManager.Domain.Entities;
+using ContactManager.Domain.Models;
 using FluentAssertions;
 
 namespace ContactManager.Domain.Tests;
@@ -12,7 +12,7 @@ public class ContactTests
     {
         var id = Guid.NewGuid();
 
-        var contact = Contact.Create(id, OwnerId, "Ada Lovelace", "ada@example.com", "+1-202-555-0100");
+        var contact = ContactDomain.Create(id, OwnerId, "Ada Lovelace", "ada@example.com", "+1-202-555-0100");
 
         contact.Id.Should().Be(id);
         contact.UserId.Should().Be(OwnerId);
@@ -24,7 +24,7 @@ public class ContactTests
     [Fact]
     public void Create_TrimsNameAndEmail()
     {
-        var contact = Contact.Create(Guid.NewGuid(), OwnerId, "  Ada  ", "  ada@example.com  ", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), OwnerId, "  Ada  ", "  ada@example.com  ", null);
 
         contact.Name.Should().Be("Ada");
         contact.Email.Should().Be("ada@example.com");
@@ -33,7 +33,7 @@ public class ContactTests
     [Fact]
     public void Create_WithNullPhone_IsAllowed()
     {
-        var contact = Contact.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
 
         contact.Phone.Should().BeNull();
     }
@@ -44,7 +44,7 @@ public class ContactTests
     [InlineData(null)]
     public void Create_WithBlankName_Throws(string? name)
     {
-        var act = () => Contact.Create(Guid.NewGuid(), OwnerId, name!, "ada@example.com", null);
+        var act = () => ContactDomain.Create(Guid.NewGuid(), OwnerId, name!, "ada@example.com", null);
 
         act.Should().Throw<ArgumentException>().WithParameterName("name");
     }
@@ -56,7 +56,7 @@ public class ContactTests
     [InlineData("@nodomain.com")]
     public void Create_WithInvalidEmail_Throws(string email)
     {
-        var act = () => Contact.Create(Guid.NewGuid(), OwnerId, "Ada", email, null);
+        var act = () => ContactDomain.Create(Guid.NewGuid(), OwnerId, "Ada", email, null);
 
         act.Should().Throw<ArgumentException>().WithParameterName("email");
     }
@@ -64,7 +64,7 @@ public class ContactTests
     [Fact]
     public void Create_WithEmptyOwner_Throws()
     {
-        var act = () => Contact.Create(Guid.NewGuid(), Guid.Empty, "Ada", "ada@example.com", null);
+        var act = () => ContactDomain.Create(Guid.NewGuid(), Guid.Empty, "Ada", "ada@example.com", null);
 
         act.Should().Throw<ArgumentException>().WithParameterName("userId");
     }
@@ -72,7 +72,7 @@ public class ContactTests
     [Fact]
     public void Update_ChangesMutableFields()
     {
-        var contact = Contact.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
 
         contact.Update("Ada L.", "ada.l@example.com", "+1-202-555-0199");
 
@@ -84,7 +84,7 @@ public class ContactTests
     [Fact]
     public void Update_WithInvalidEmail_Throws()
     {
-        var contact = Contact.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);
 
         var act = () => contact.Update("Ada", "bad-email", null);
 

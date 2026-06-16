@@ -1,4 +1,5 @@
-using ContactManager.Infrastructure.Services;
+using ContactManager.Infrastructure.Auth.Models;
+using ContactManager.Infrastructure.Auth.Validators;
 using FluentAssertions;
 
 namespace ContactManager.Infrastructure.Tests;

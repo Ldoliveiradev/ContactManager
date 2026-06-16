@@ -1,4 +1,4 @@
-namespace ContactManager.Infrastructure.Services;
+namespace ContactManager.Infrastructure.Auth.Models;
 
 public record RegisterRequest(string Username, string Password);
 

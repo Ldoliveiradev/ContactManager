@@ -1,10 +1,11 @@
 using System.Text;
-using ContactManager.Domain.Repositories;
 using ContactManager.Application.Contacts.Interfaces;
 using ContactManager.Application.Contacts.Services;
+using ContactManager.Domain.Interfaces;
+using ContactManager.Infrastructure.Auth.Interfaces;
+using ContactManager.Infrastructure.Auth.Security;
+using ContactManager.Infrastructure.Auth.Services;
 using ContactManager.Infrastructure.Persistence;
-using ContactManager.Infrastructure.Security;
-using ContactManager.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

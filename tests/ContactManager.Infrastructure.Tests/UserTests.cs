@@ -1,7 +1,7 @@
-using ContactManager.Domain.Entities;
+using ContactManager.Infrastructure.Auth.Models;
 using FluentAssertions;
 
-namespace ContactManager.Domain.Tests;
+namespace ContactManager.Infrastructure.Tests;
 
 public class UserTests
 {
@@ -10,7 +10,7 @@ public class UserTests
     {
         var id = Guid.NewGuid();
 
-        var user = User.Create(id, "demo", "hashed-password");
+        var user = UserModel.Create(id, "demo", "hashed-password");
 
         user.Id.Should().Be(id);
         user.Username.Should().Be("demo");
@@ -20,7 +20,7 @@ public class UserTests
     [Fact]
     public void Create_TrimsUsername()
     {
-        var user = User.Create(Guid.NewGuid(), "  demo  ", "hash");
+        var user = UserModel.Create(Guid.NewGuid(), "  demo  ", "hash");
 
         user.Username.Should().Be("demo");
     }
@@ -31,7 +31,7 @@ public class UserTests
     [InlineData(null)]
     public void Create_WithBlankUsername_Throws(string? username)
     {
-        var act = () => User.Create(Guid.NewGuid(), username!, "hash");
+        var act = () => UserModel.Create(Guid.NewGuid(), username!, "hash");
 
         act.Should().Throw<ArgumentException>()
             .WithParameterName("username");
@@ -43,7 +43,7 @@ public class UserTests
     [InlineData(null)]
     public void Create_WithBlankPasswordHash_Throws(string? hash)
     {
-        var act = () => User.Create(Guid.NewGuid(), "demo", hash!);
+        var act = () => UserModel.Create(Guid.NewGuid(), "demo", hash!);
 
         act.Should().Throw<ArgumentException>()
             .WithParameterName("passwordHash");
@@ -52,7 +52,7 @@ public class UserTests
     [Fact]
     public void Create_WithEmptyId_Throws()
     {
-        var act = () => User.Create(Guid.Empty, "demo", "hash");
+        var act = () => UserModel.Create(Guid.Empty, "demo", "hash");
 
         act.Should().Throw<ArgumentException>()
             .WithParameterName("id");

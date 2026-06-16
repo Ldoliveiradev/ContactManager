@@ -1,4 +1,4 @@
-using ContactManager.Infrastructure.Security;
+using ContactManager.Infrastructure.Auth.Security;
 using FluentAssertions;
 
 namespace ContactManager.Infrastructure.Tests;

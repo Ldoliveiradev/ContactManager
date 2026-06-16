@@ -1,17 +1,12 @@
-using ContactManager.Domain.Repositories;
-using ContactManager.Domain.Entities;
+using ContactManager.Infrastructure.Auth.Interfaces;
+using ContactManager.Infrastructure.Auth.Models;
 using Npgsql;
 
-namespace ContactManager.Infrastructure.Persistence;
+namespace ContactManager.Infrastructure.Auth.Services;
 
-/// <summary>
-/// User persistence with hand-written, parameterized SQL via Npgsql (raw ADO.NET).
-/// No ORM is used — per the exercise constraint. All queries are parameterized to
-/// prevent SQL injection.
-/// </summary>
 public sealed class UserRepository(string connectionString) : IUserRepository
 {
-    public async Task<User?> GetByUsernameAsync(string username, CancellationToken ct = default)
+    public async Task<UserModel?> GetByUsernameAsync(string username, CancellationToken ct = default)
     {
         const string sql = """
             SELECT id, username, password_hash
@@ -29,13 +24,13 @@ public sealed class UserRepository(string connectionString) : IUserRepository
         if (!await reader.ReadAsync(ct))
             return null;
 
-        return User.Create(
+        return UserModel.Create(
             reader.GetGuid(0),
             reader.GetString(1),
             reader.GetString(2));
     }
 
-    public async Task AddAsync(User user, CancellationToken ct = default)
+    public async Task AddAsync(UserModel user, CancellationToken ct = default)
     {
         const string sql = """
             INSERT INTO users (id, username, password_hash)

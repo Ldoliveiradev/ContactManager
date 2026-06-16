@@ -1,10 +1,10 @@
-using ContactManager.Domain.Repositories;
-using ContactManager.Infrastructure.Security;
 using ContactManager.Domain.Exceptions;
-using FluentValidation;
-using ContactManager.Domain.Entities;
-using ContactManager.Infrastructure.Services;
+using ContactManager.Infrastructure.Auth.Interfaces;
+using ContactManager.Infrastructure.Auth.Models;
+using ContactManager.Infrastructure.Auth.Security;
+using ContactManager.Infrastructure.Auth.Services;
 using FluentAssertions;
+using FluentValidation;
 using Moq;
 
 namespace ContactManager.Infrastructure.Tests;
@@ -23,7 +23,7 @@ public class AuthServiceTests
     public async Task RegisterAsync_WithNewUsername_HashesPasswordAndPersists()
     {
         _users.Setup(r => r.GetByUsernameAsync("demo", It.IsAny<CancellationToken>()))
-              .ReturnsAsync((User?)null);
+              .ReturnsAsync((UserModel?)null);
         _hasher.Setup(h => h.Hash("Secret123!")).Returns("hashed");
 
         var sut = CreateSut();
@@ -31,7 +31,7 @@ public class AuthServiceTests
 
         result.Username.Should().Be("demo");
         _users.Verify(r => r.AddAsync(
-            It.Is<User>(u => u.Username == "demo" && u.PasswordHash == "hashed"),
+            It.Is<UserModel>(u => u.Username == "demo" && u.PasswordHash == "hashed"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -39,13 +39,13 @@ public class AuthServiceTests
     public async Task RegisterAsync_WithExistingUsername_ThrowsConflict()
     {
         _users.Setup(r => r.GetByUsernameAsync("demo", It.IsAny<CancellationToken>()))
-              .ReturnsAsync(User.Create(Guid.NewGuid(), "demo", "h"));
+              .ReturnsAsync(UserModel.Create(Guid.NewGuid(), "demo", "h"));
 
         var sut = CreateSut();
         var act = () => sut.RegisterAsync(new RegisterRequest("demo", "Secret123!"));
 
         await act.Should().ThrowAsync<UsernameAlreadyExistsException>();
-        _users.Verify(r => r.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
+        _users.Verify(r => r.AddAsync(It.IsAny<UserModel>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Theory]
@@ -66,7 +66,7 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_WithValidCredentials_ReturnsToken()
     {
-        var user = User.Create(Guid.NewGuid(), "demo", "stored-hash");
+        var user = UserModel.Create(Guid.NewGuid(), "demo", "stored-hash");
         _users.Setup(r => r.GetByUsernameAsync("demo", It.IsAny<CancellationToken>()))
               .ReturnsAsync(user);
         _hasher.Setup(h => h.Verify("Secret123!", "stored-hash")).Returns(true);
@@ -81,7 +81,7 @@ public class AuthServiceTests
     [Fact]
     public async Task LoginAsync_WithWrongPassword_ThrowsInvalidCredentials()
     {
-        var user = User.Create(Guid.NewGuid(), "demo", "stored-hash");
+        var user = UserModel.Create(Guid.NewGuid(), "demo", "stored-hash");
         _users.Setup(r => r.GetByUsernameAsync("demo", It.IsAny<CancellationToken>()))
               .ReturnsAsync(user);
         _hasher.Setup(h => h.Verify(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
@@ -96,7 +96,7 @@ public class AuthServiceTests
     public async Task LoginAsync_WithUnknownUser_ThrowsInvalidCredentials()
     {
         _users.Setup(r => r.GetByUsernameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-              .ReturnsAsync((User?)null);
+              .ReturnsAsync((UserModel?)null);
 
         var sut = CreateSut();
         var act = () => sut.LoginAsync(new LoginRequest("ghost", "Secret123!"));

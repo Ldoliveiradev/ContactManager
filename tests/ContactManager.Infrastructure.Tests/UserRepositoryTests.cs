@@ -1,5 +1,5 @@
-using ContactManager.Domain.Entities;
-using ContactManager.Infrastructure.Persistence;
+using ContactManager.Infrastructure.Auth.Models;
+using ContactManager.Infrastructure.Auth.Services;
 using ContactManager.Infrastructure.Tests.Database;
 using FluentAssertions;
 
@@ -23,7 +23,7 @@ public class UserRepositoryTests
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await _db.ResetAsync();
 
-        var user = User.Create(Guid.NewGuid(), "alice", "hashed-pw");
+        var user = UserModel.Create(Guid.NewGuid(), "alice", "hashed-pw");
         await _sut.AddAsync(user);
 
         var loaded = await _sut.GetByUsernameAsync("alice");
@@ -51,9 +51,9 @@ public class UserRepositoryTests
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await _db.ResetAsync();
 
-        await _sut.AddAsync(User.Create(Guid.NewGuid(), "bob", "h1"));
+        await _sut.AddAsync(UserModel.Create(Guid.NewGuid(), "bob", "h1"));
 
-        var act = () => _sut.AddAsync(User.Create(Guid.NewGuid(), "bob", "h2"));
+        var act = () => _sut.AddAsync(UserModel.Create(Guid.NewGuid(), "bob", "h2"));
 
         await act.Should().ThrowAsync<Exception>();
     }

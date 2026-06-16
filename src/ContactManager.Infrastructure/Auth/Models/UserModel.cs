@@ -1,23 +1,19 @@
-namespace ContactManager.Domain.Entities;
+namespace ContactManager.Infrastructure.Auth.Models;
 
-/// <summary>
-/// A user who can authenticate and own contacts. Created only through <see cref="Create"/>
-/// so its invariants (non-empty id, username, and password hash) are always enforced.
-/// </summary>
-public sealed class User
+public sealed class UserModel
 {
     public Guid Id { get; }
     public string Username { get; }
     public string PasswordHash { get; }
 
-    private User(Guid id, string username, string passwordHash)
+    private UserModel(Guid id, string username, string passwordHash)
     {
         Id = id;
         Username = username;
         PasswordHash = passwordHash;
     }
 
-    public static User Create(Guid id, string username, string passwordHash)
+    public static UserModel Create(Guid id, string username, string passwordHash)
     {
         if (id == Guid.Empty)
             throw new ArgumentException("User id must not be empty.", nameof(id));
@@ -26,6 +22,6 @@ public sealed class User
         if (string.IsNullOrWhiteSpace(passwordHash))
             throw new ArgumentException("Password hash is required.", nameof(passwordHash));
 
-        return new User(id, username.Trim(), passwordHash);
+        return new UserModel(id, username.Trim(), passwordHash);
     }
 }

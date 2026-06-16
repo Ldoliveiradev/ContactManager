@@ -4,8 +4,8 @@ using ContactManager.Application.Contacts.Models.Dto;
 using ContactManager.Application.Contacts.Models.Requests;
 using ContactManager.Application.Contacts.Models.Responses;
 using ContactManager.Application.Contacts.Validators;
-using ContactManager.Domain.Entities;
-using ContactManager.Domain.Repositories;
+using ContactManager.Domain.Interfaces;
+using ContactManager.Domain.Models;
 
 namespace ContactManager.Application.Contacts.Services;
 
@@ -43,7 +43,7 @@ public sealed class ContactService(IContactRepository contacts) : IContactServic
         if (!validation.IsValid)
             return ContactResponse.Failure(validation.Errors[0].ErrorMessage);
 
-        var contact = Contact.Create(Guid.NewGuid(), userId, request.Name, request.Email, request.Phone);
+        var contact = ContactDomain.Create(Guid.NewGuid(), userId, request.Name, request.Email, request.Phone);
         await contacts.AddAsync(contact, ct);
         return ContactResponse.Success(ToDto(contact));
     }
@@ -74,5 +74,5 @@ public sealed class ContactService(IContactRepository contacts) : IContactServic
         return ContactResponse.Success(ToDto(contact));
     }
 
-    private static ContactDto ToDto(Contact c) => new(c.Id, c.Name, c.Email, c.Phone);
+    private static ContactDto ToDto(ContactDomain c) => new(c.Id, c.Name, c.Email, c.Phone);
 }

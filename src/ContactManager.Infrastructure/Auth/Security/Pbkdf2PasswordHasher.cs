@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 
-namespace ContactManager.Infrastructure.Security;
+namespace ContactManager.Infrastructure.Auth.Security;
 
 public sealed class Pbkdf2PasswordHasher : IPasswordHasher
 {

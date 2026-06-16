@@ -1,10 +1,11 @@
-using ContactManager.Domain.Entities;
 using ContactManager.Domain.Exceptions;
-using ContactManager.Domain.Repositories;
-using ContactManager.Infrastructure.Security;
+using ContactManager.Infrastructure.Auth.Interfaces;
+using ContactManager.Infrastructure.Auth.Models;
+using ContactManager.Infrastructure.Auth.Security;
+using ContactManager.Infrastructure.Auth.Validators;
 using FluentValidation;
 
-namespace ContactManager.Infrastructure.Services;
+namespace ContactManager.Infrastructure.Auth.Services;
 
 public sealed class AuthService(
     IUserRepository users,
@@ -24,7 +25,7 @@ public sealed class AuthService(
         if (await users.GetByUsernameAsync(username, ct) is not null)
             throw new UsernameAlreadyExistsException(username);
 
-        var user = User.Create(Guid.NewGuid(), username, hasher.Hash(request.Password));
+        var user = UserModel.Create(Guid.NewGuid(), username, hasher.Hash(request.Password));
         await users.AddAsync(user, ct);
 
         return new RegisterResult(user.Id, user.Username);
