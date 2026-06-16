@@ -15,7 +15,7 @@ public class AuthEndpointsTests
     public async Task Register_WithValidData_Returns201()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
         var resp = await client.PostAsJsonAsync("/api/auth/register", new
@@ -34,7 +34,7 @@ public class AuthEndpointsTests
     public async Task Register_DuplicateUsername_Returns409()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
         var body = new { username = "dupe", firstName = "Dupe", lastName = "User", email = "dupe@example.com", password = "Secret123!" };
@@ -48,7 +48,7 @@ public class AuthEndpointsTests
     public async Task Register_ShortPassword_Returns400()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
         var resp = await client.PostAsJsonAsync("/api/auth/register", new
@@ -67,7 +67,7 @@ public class AuthEndpointsTests
     public async Task Login_WithValidCredentials_ReturnsToken()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
         await client.PostAsJsonAsync("/api/auth/register", new
@@ -91,7 +91,7 @@ public class AuthEndpointsTests
     public async Task Login_WithWrongPassword_Returns401()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
         await client.PostAsJsonAsync("/api/auth/register", new

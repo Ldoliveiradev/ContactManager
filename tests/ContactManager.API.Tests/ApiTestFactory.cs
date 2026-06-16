@@ -66,7 +66,7 @@ public sealed class ApiTestFactory : WebApplicationFactory<Program>, IAsyncLifet
         catch (SocketException) { DbAvailable = false; }
     }
 
-    public async Task ResetDatabaseAsync()
+    public static async Task ResetDatabaseAsync()
     {
         await using var conn = new NpgsqlConnection(TestConnectionString);
         await conn.OpenAsync();

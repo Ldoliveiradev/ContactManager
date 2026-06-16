@@ -30,7 +30,7 @@ public class ContactRepositoryTests
     public async Task AddAsync_ThenGetById_ReturnsPersistedContact()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
-        await _db.ResetAsync();
+        await PostgresTestFixture.ResetAsync();
         var accountId = await SeedAccountAsync();
 
         var contact = ContactDomain.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", "+1-202-555-0100");
@@ -50,7 +50,7 @@ public class ContactRepositoryTests
     public async Task GetByAccountAsync_ReturnsOnlyThatAccountsContacts()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
-        await _db.ResetAsync();
+        await PostgresTestFixture.ResetAsync();
         var owner = await SeedAccountAsync("owner");
         var other = await SeedAccountAsync("other");
 
@@ -69,7 +69,7 @@ public class ContactRepositoryTests
     public async Task UpdateAsync_PersistsChanges()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
-        await _db.ResetAsync();
+        await PostgresTestFixture.ResetAsync();
         var accountId = await SeedAccountAsync();
         var contact = ContactDomain.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", null);
         await _sut.AddAsync(contact);
@@ -87,7 +87,7 @@ public class ContactRepositoryTests
     public async Task DeleteAsync_RemovesContact()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
-        await _db.ResetAsync();
+        await PostgresTestFixture.ResetAsync();
         var accountId = await SeedAccountAsync();
         var contact = ContactDomain.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", null);
         await _sut.AddAsync(contact);
@@ -101,7 +101,7 @@ public class ContactRepositoryTests
     public async Task GetByIdAsync_WhenMissing_ReturnsNull()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
-        await _db.ResetAsync();
+        await PostgresTestFixture.ResetAsync();
 
         (await _sut.GetByIdAsync(Guid.NewGuid())).Should().BeNull();
     }

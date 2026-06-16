@@ -21,7 +21,7 @@ public class AccountRepositoryTests
     public async Task AddAsync_ThenGetByUsername_ReturnsPersistedAccountDomain()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
-        await _db.ResetAsync();
+        await PostgresTestFixture.ResetAsync();
 
         var account = AccountDomain.Create(Guid.NewGuid(), "alice", "Alice", "Smith", "alice@example.com", "hashed-pw");
         await _sut.AddAsync(account);
@@ -41,7 +41,7 @@ public class AccountRepositoryTests
     public async Task GetByUsernameAsync_WhenMissing_ReturnsNull()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
-        await _db.ResetAsync();
+        await PostgresTestFixture.ResetAsync();
 
         var loaded = await _sut.GetByUsernameAsync("nobody");
 
@@ -52,7 +52,7 @@ public class AccountRepositoryTests
     public async Task GetByIdAsync_ReturnsPersistedAccountDomain()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
-        await _db.ResetAsync();
+        await PostgresTestFixture.ResetAsync();
 
         var account = AccountDomain.Create(Guid.NewGuid(), "bob", "Bob", "Jones", "bob@example.com", "hashed-pw");
         await _sut.AddAsync(account);
@@ -68,7 +68,7 @@ public class AccountRepositoryTests
     public async Task AddAsync_WithDuplicateUsername_Throws()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
-        await _db.ResetAsync();
+        await PostgresTestFixture.ResetAsync();
 
         await _sut.AddAsync(AccountDomain.Create(Guid.NewGuid(), "carol", "Carol", "White", "carol@example.com", "h1"));
 

@@ -55,7 +55,7 @@ public sealed class PostgresTestFixture : IAsyncLifetime
         }
     }
 
-    public async Task ResetAsync()
+    public static async Task ResetAsync()
     {
         await using var conn = new NpgsqlConnection(TestConnectionString);
         await conn.OpenAsync();

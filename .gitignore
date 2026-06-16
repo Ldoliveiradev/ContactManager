@@ -433,3 +433,6 @@ FodyWeavers.xsd
 
 # SonarLint Connected Mode binding (machine-specific)
 .sonarlint/
+
+# Local dev secrets (DB password, JWT signing key) — use the .example template
+src/ContactManager.API/appsettings.Development.json

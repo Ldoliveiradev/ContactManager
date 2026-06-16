@@ -1,0 +1,14 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "Postgres": "Host=localhost;Port=5433;Database=contactmanager;Username=contactmanager;Password=<your-local-db-password>"
+  },
+  "Jwt": {
+    "Secret": "<a-local-dev-signing-secret-at-least-32-characters-long>"
+  }
+}

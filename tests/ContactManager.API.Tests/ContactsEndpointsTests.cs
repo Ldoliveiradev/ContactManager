@@ -35,7 +35,7 @@ public class ContactsEndpointsTests
     public async Task GetContacts_WithoutToken_Returns401()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
         var resp = await client.GetAsync("/api/contacts");
@@ -47,7 +47,7 @@ public class ContactsEndpointsTests
     public async Task CreateThenGet_ReturnsContact()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
         var client = await AuthenticatedClientAsync("crud-user");
 
         var create = await client.PostAsJsonAsync("/api/contacts",
@@ -66,7 +66,7 @@ public class ContactsEndpointsTests
     public async Task Create_WithInvalidEmail_Returns400()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
         var client = await AuthenticatedClientAsync("val-user");
 
         var resp = await client.PostAsJsonAsync("/api/contacts",
@@ -79,7 +79,7 @@ public class ContactsEndpointsTests
     public async Task GetList_ReturnsOnlyOwnContacts()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
 
         var alice = await AuthenticatedClientAsync("alice");
         var bob = await AuthenticatedClientAsync("bob");
@@ -97,7 +97,7 @@ public class ContactsEndpointsTests
     public async Task GetOthersContact_Returns404_NotLeakingOwnership()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
 
         var alice = await AuthenticatedClientAsync("alice2");
         var bob = await AuthenticatedClientAsync("bob2");
@@ -115,7 +115,7 @@ public class ContactsEndpointsTests
     public async Task UpdateThenDelete_Works()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
         var client = await AuthenticatedClientAsync("ud-user");
 
         var create = await client.PostAsJsonAsync("/api/contacts",
@@ -138,7 +138,7 @@ public class ContactsEndpointsTests
     public async Task UpdateOthersContact_Returns404_AndDoesNotModify()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
 
         var alice = await AuthenticatedClientAsync("up-alice");
         var bob = await AuthenticatedClientAsync("up-bob");
@@ -159,7 +159,7 @@ public class ContactsEndpointsTests
     public async Task DeleteOthersContact_Returns404_AndContactSurvives()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
 
         var alice = await AuthenticatedClientAsync("del-alice");
         var bob = await AuthenticatedClientAsync("del-bob");
@@ -179,7 +179,7 @@ public class ContactsEndpointsTests
     public async Task Create_IgnoresSpoofedOwnerInBody_AssignsCallerAsOwner()
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        await _factory.ResetDatabaseAsync();
+        await ApiTestFactory.ResetDatabaseAsync();
 
         var alice = await AuthenticatedClientAsync("spoof-alice");
         var bob = await AuthenticatedClientAsync("spoof-bob");

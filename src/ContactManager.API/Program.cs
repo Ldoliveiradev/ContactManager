@@ -40,7 +40,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();
 
 // Exposed so the integration test host (WebApplicationFactory) can reference the entry point.
-public partial class Program { }
+public abstract partial class Program;
