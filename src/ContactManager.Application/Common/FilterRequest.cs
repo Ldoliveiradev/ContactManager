@@ -1,7 +1,7 @@
 namespace ContactManager.Application.Common;
 
 public record FilterRequest<T>(
-    T Request,
+    T? Request = null,
     string? Search = null,
     string? SortBy = null,
     bool SortDesc = false,
