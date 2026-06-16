@@ -10,19 +10,22 @@ Angular 20 · JWT auth · Clean Architecture · TDD · Docker.
 
 ## User story
 
-> As a sales rep, I want to sign up and log in securely, then manage and quickly find my
-> contacts (create, view, search, edit, delete), so my contact list stays current and
-> private to me.
+> As an **account manager**, I want to register and securely access my account, so that I
+> can manage my book of business contacts — adding clients and partners with their name,
+> email and phone, quickly finding someone when I need to follow up, keeping details
+> current as people change roles or companies, and removing contacts that are no longer
+> relevant — ensuring my contact list stays organised, current, and private to my account.
 
 This story drove the design end-to-end — each clause maps to a concrete decision:
 
 | Story clause | What it drove |
 | --- | --- |
-| "sign up and log in securely" | Register + login endpoints, JWT auth, PBKDF2 password hashing |
-| "manage … contacts (create, view, edit, delete)" | Full CRUD API + Angular UI |
-| "quickly find my contacts" | Client-side search, sortable columns, pagination with page-size |
-| "stays current" | Edit/delete with optimistic list updates |
-| "private to me" | User-scoped queries; a non-owned contact returns `404`, never leaking that it exists (IDOR protection) |
+| "register and securely access my account" | Register + login endpoints, JWT auth, PBKDF2 password hashing |
+| "adding clients and partners with their name, email and phone" | Contact create with name, email, phone fields |
+| "quickly finding someone when I need to follow up" | Client-side search, sortable columns, pagination with page-size |
+| "keeping details current as people change roles or companies" | Edit contact + update profile/password (Accounts API) |
+| "removing contacts that are no longer relevant" | Delete with confirmation |
+| "private to my account" | User-scoped queries; non-owned contact returns `404`, not `403` (IDOR protection) |
 
 ---
 
