@@ -96,7 +96,7 @@ public class ContactServiceTests
         var result = await _sut.GetAllAsync(Owner, new GetContactsRequest());
 
         result.IsSuccess.Should().BeTrue();
-        result.Items.Should().HaveCount(1);
+        result.Data.Should().HaveCount(1);
         result.TotalCount.Should().Be(1);
     }
 
