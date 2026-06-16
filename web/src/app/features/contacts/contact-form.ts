@@ -3,10 +3,15 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContactInput } from '../../core/models/contact.model';
 import { ContactService } from '../../core/services/contact.service';
+import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
+import { Alert } from '../../shared/ui/alert/alert';
+import { Button } from '../../shared/ui/button/button';
+import { Card } from '../../shared/ui/card/card';
+import { FormField } from '../../shared/ui/form-field/form-field';
 
 @Component({
   selector: 'app-contact-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, AutofocusDirective, Alert, Button, Card, FormField],
   templateUrl: './contact-form.html',
   styleUrl: './contact-form.scss',
 })

@@ -1,0 +1,42 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.pagination {
+  @include m.flex(column, center, center, t.space(3));
+  margin-top: t.space(5);
+
+  @include m.respond('sm') {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  &__range {
+    color: var(--text-muted);
+    font-size: t.font-size('sm');
+  }
+
+  &__controls {
+    @include m.flex(row, center, center, t.space(1));
+  }
+
+  &__btn {
+    @include m.button-base;
+    width: auto;
+    min-width: 38px;
+    background: var(--surface);
+    color: var(--text);
+    border-color: var(--border);
+    padding: t.space(2) t.space(3);
+    font-size: t.font-size('sm');
+
+    &:hover:not(:disabled) {
+      background: var(--surface-alt);
+    }
+
+    &.is-active {
+      background: var(--primary);
+      color: var(--primary-contrast);
+      border-color: var(--primary);
+    }
+  }
+}

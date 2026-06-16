@@ -1,53 +1,76 @@
-/* Global styles + theme tokens */
+// =============================================================================
+// Global stylesheet — surfaces design tokens as themeable CSS custom properties
+// and sets base element styles. Component styles consume the system via
+// `@use 'styles/tokens'`, `'styles/mixins'`, `'styles/breakpoints'`.
+// =============================================================================
+
+@use 'tokens' as t;
+
+// Self-hosted Inter (modern UI font) — specific weights to keep the bundle lean.
+// Plain CSS imports (not @use) since these are vendor stylesheets, not Sass modules.
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+
+// ---- Theme: light (default) -------------------------------------------------
 :root {
-  --bg: #f5f6f8;
-  --surface: #ffffff;
-  --surface-alt: #f5f6f8;
-  --text: #1a1a2e;
-  --text-muted: #666666;
-  --border: #e0e0e8;
-  --input-border: #ccccdd;
-  --primary: #3b5bdb;
-  --primary-contrast: #ffffff;
-  --danger: #c62828;
-  --danger-bg: #fdecea;
-  --shadow: rgba(0, 0, 0, 0.08);
+  --bg: #{t.color('slate-50')};
+  --surface: #{t.color('white')};
+  --surface-alt: #{t.color('slate-100')};
+  --surface-hover: #{t.color('slate-200')};
+  --text: #{t.color('ink')};
+  --text-muted: #{t.color('slate-500')};
+  --border: #{t.color('slate-200')};
+  --input-border: #{t.color('slate-200')};
+  --primary: #{t.color('indigo-600')};
+  --primary-hover: #{t.color('indigo-700')};
+  --primary-contrast: #{t.color('white')};
+  --primary-ring: rgba(67, 97, 238, 0.25);
+  --danger: #{t.color('red-500')};
+  --danger-bg: #{t.color('red-100')};
+  --shadow-sm: #{t.$shadow-sm};
+  --shadow-md: #{t.$shadow-md};
+  --shadow-lg: #{t.$shadow-lg};
+
+  color-scheme: light;
 }
 
-/* Manual dark theme (toggled via [data-theme="dark"] on <html>). */
-:root[data-theme='dark'] {
-  --bg: #15161a;
-  --surface: #1f2128;
-  --surface-alt: #262932;
-  --text: #e8e8ec;
-  --text-muted: #9aa0aa;
-  --border: #343844;
-  --input-border: #3d4250;
+// ---- Theme: dark ------------------------------------------------------------
+@mixin dark-theme {
+  --bg: #0d0f14;
+  --surface: #181b22;
+  --surface-alt: #21252e;
+  --surface-hover: #2a2f3a;
+  --text: #e8eaed;
+  --text-muted: #9aa3b2;
+  --border: #2c313c;
+  --input-border: #353b48;
   --primary: #5c7cfa;
+  --primary-hover: #7088f7;
   --primary-contrast: #ffffff;
+  --primary-ring: rgba(92, 124, 250, 0.3);
   --danger: #ff6b6b;
-  --danger-bg: #3a2222;
-  --shadow: rgba(0, 0, 0, 0.4);
+  --danger-bg: #3a2424;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
+
+  color-scheme: dark;
 }
 
-/* Follow the OS preference when the user hasn't chosen explicitly. */
+:root[data-theme='dark'] {
+  @include dark-theme;
+}
+
+// Follow the OS preference when the user hasn't explicitly chosen light.
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #15161a;
-    --surface: #1f2128;
-    --surface-alt: #262932;
-    --text: #e8e8ec;
-    --text-muted: #9aa0aa;
-    --border: #343844;
-    --input-border: #3d4250;
-    --primary: #5c7cfa;
-    --primary-contrast: #ffffff;
-    --danger: #ff6b6b;
-    --danger-bg: #3a2222;
-    --shadow: rgba(0, 0, 0, 0.4);
+    @include dark-theme;
   }
 }
 
+// ---- Base element styles ----------------------------------------------------
 * {
   box-sizing: border-box;
 }
@@ -56,7 +79,21 @@ html,
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: t.$font-family-base;
+  font-size: t.font-size('base');
+  line-height: 1.5;
   background: var(--bg);
   color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 t.space(3);
+  font-weight: t.$font-weight-bold;
+  letter-spacing: -0.02em; // tighter tracking for headings, modern look
+  line-height: 1.2;
 }

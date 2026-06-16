@@ -1,133 +1,80 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
 .list-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+  @include m.flex(row, center, space-between, t.space(3));
   flex-wrap: wrap;
-  gap: 0.5rem;
+  margin-bottom: t.space(5);
 
   h2 {
     margin: 0;
-    color: var(--text);
   }
 }
 
-.btn-primary {
-  background: var(--primary);
-  color: var(--primary-contrast);
-  padding: 0.55rem 0.9rem;
-  border-radius: 8px;
+.new-link {
   text-decoration: none;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  display: inline-block;
 }
 
-.contacts-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--surface);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px var(--shadow);
-  color: var(--text);
+/* Custom grid cell: name + avatar */
+.cell-name {
+  @include m.flex(row, center, flex-start, t.space(3));
+  min-width: 0;
 
-  th,
-  td {
-    text-align: left;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  th {
-    background: var(--surface-alt);
-    font-size: 0.85rem;
+  &__avatar {
+    @include m.flex-center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: t.$radius-pill;
+    background: var(--primary);
+    color: var(--primary-contrast);
+    font-weight: t.$font-weight-bold;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--text-muted);
   }
 
-  .actions {
-    display: flex;
-    gap: 0.5rem;
+  &__text {
+    font-weight: t.$font-weight-semibold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
-.btn-link {
-  color: var(--primary);
-  text-decoration: none;
+.cell-muted {
+  color: var(--text-muted);
+  font-size: t.font-size('sm');
 }
 
-.btn-danger {
+.icon-action {
+  @include m.flex(row, center, center, t.space(1));
   background: none;
   border: none;
-  color: var(--danger);
   cursor: pointer;
-  padding: 0;
+  font: inherit;
+  font-size: t.font-size('sm');
+  color: var(--text-muted);
+  padding: t.space(2);
+  border-radius: t.$radius-sm;
+  transition: background-color t.$transition-fast, color t.$transition-fast;
+  @include m.focus-ring;
+
+  &:hover {
+    background: var(--surface-alt);
+    color: var(--text);
+  }
+
+  &--danger:hover {
+    color: var(--danger);
+  }
 }
 
 .empty {
+  @include m.flex(column, center, center, t.space(4));
   text-align: center;
-  padding: 3rem 1rem;
+  padding: t.space(10) t.space(4);
   color: var(--text-muted);
-
-  .btn-primary {
-    margin-top: 1rem;
-  }
-}
-
-.alert {
-  background: var(--danger-bg);
-  color: var(--danger);
-  padding: 0.6rem 0.75rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
 }
 
 .muted {
   color: var(--text-muted);
-}
-
-/* Responsive: collapse the table into stacked cards on narrow screens. */
-@media (max-width: 600px) {
-  .contacts-table thead {
-    display: none;
-  }
-
-  .contacts-table,
-  .contacts-table tbody,
-  .contacts-table tr,
-  .contacts-table td {
-    display: block;
-    width: 100%;
-  }
-
-  .contacts-table tr {
-    margin-bottom: 1rem;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 0.5rem;
-  }
-
-  .contacts-table td {
-    border: none;
-    display: flex;
-    justify-content: space-between;
-    padding: 0.4rem 0.5rem;
-
-    &::before {
-      content: attr(data-label);
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-  }
-
-  .contacts-table td.actions {
-    justify-content: flex-end;
-  }
-
-  .contacts-table td.actions::before {
-    content: '';
-  }
 }

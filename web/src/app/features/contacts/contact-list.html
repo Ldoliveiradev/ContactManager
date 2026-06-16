@@ -1,10 +1,12 @@
-<div class="list-header">
+<header class="list-header">
   <h2>Your contacts</h2>
-  <a class="btn-primary" routerLink="/contacts/new">+ New contact</a>
-</div>
+  <a class="new-link" routerLink="/contacts/new">
+    <ui-button><fa-icon [icon]="faPlus" /> New contact</ui-button>
+  </a>
+</header>
 
 @if (error()) {
-  <div class="alert" role="alert">{{ error() }}</div>
+  <ui-alert>{{ error() }}</ui-alert>
 }
 
 @if (loading()) {
@@ -12,31 +14,52 @@
 } @else if (items().length === 0) {
   <div class="empty">
     <p>No contacts yet.</p>
-    <a class="btn-primary" routerLink="/contacts/new">Add your first contact</a>
+    <a routerLink="/contacts/new"><ui-button>Add your first contact</ui-button></a>
   </div>
 } @else {
-  <!-- Card grid on small screens, table on larger ones -->
-  <table class="contacts-table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th class="actions-col">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (contact of items(); track contact.id) {
-        <tr>
-          <td data-label="Name">{{ contact.name }}</td>
-          <td data-label="Email">{{ contact.email }}</td>
-          <td data-label="Phone">{{ contact.phone || '—' }}</td>
-          <td data-label="Actions" class="actions">
-            <a class="btn-link" [routerLink]="['/contacts', contact.id, 'edit']">Edit</a>
-            <button type="button" class="btn-danger" (click)="remove(contact)">Delete</button>
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
+  <ui-grid
+    [items]="items()"
+    [columns]="columns"
+    [pageSize]="6"
+    searchPlaceholder="Search contacts…"
+    emptyMessage="No contacts match your search."
+  >
+    <!-- Custom cell: name with avatar -->
+    <ng-template uiGridCell="name" let-row>
+      <div class="cell-name">
+        <span class="cell-name__avatar" aria-hidden="true">{{ row.name.charAt(0) }}</span>
+        <span class="cell-name__text" [title]="row.name">{{ row.name }}</span>
+      </div>
+    </ng-template>
+
+    <!-- Custom cell: email -->
+    <ng-template uiGridCell="email" let-row>
+      <span class="cell-muted" [title]="row.email"><fa-icon [icon]="faEnvelope" /> {{ row.email }}</span>
+    </ng-template>
+
+    <!-- Custom cell: phone (formatted) -->
+    <ng-template uiGridCell="phone" let-row>
+      <span class="cell-muted"><fa-icon [icon]="faPhone" /> {{ row.phone | phone }}</span>
+    </ng-template>
+
+    <!-- Row actions -->
+    <ng-template uiGridActions let-row>
+      <button
+        type="button"
+        class="icon-action"
+        [attr.aria-label]="'Edit ' + row.name"
+        (click)="editContact(row)"
+      >
+        <fa-icon [icon]="faPenToSquare" /> <span>Edit</span>
+      </button>
+      <button
+        type="button"
+        class="icon-action icon-action--danger"
+        [attr.aria-label]="'Delete ' + row.name"
+        (click)="remove(row)"
+      >
+        <fa-icon [icon]="faTrashCan" /> <span>Delete</span>
+      </button>
+    </ng-template>
+  </ui-grid>
 }

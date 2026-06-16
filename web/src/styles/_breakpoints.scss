@@ -1,0 +1,20 @@
+// Shared responsive breakpoints (mobile-first).
+// Values follow the standard Bootstrap 5 device-tier scale, the most widely
+// recognized convention. Base styles target the smallest screens; each breakpoint
+// progressively enhances upward with `min-width` queries.
+//
+//   xs  <576px   phones (portrait)        → the mobile-first base, no query needed
+//   sm  ≥576px   phones (landscape)
+//   md  ≥768px   tablets
+//   lg  ≥992px   desktops
+//   xl  ≥1200px  large desktops
+//   xxl ≥1400px  extra-large desktops
+
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+$breakpoint-xxl: 1400px;
+
+// To use these in a component stylesheet, load this partial with `@use` under a
+// namespace (e.g. `bp`) and reference a token inside a min-width media query.

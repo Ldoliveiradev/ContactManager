@@ -2,16 +2,18 @@
   <header class="app-header">
     <span class="brand">Contact Manager</span>
     <div class="header-actions">
-      <button type="button" class="icon-btn" (click)="toggleTheme()" [attr.aria-label]="'Toggle theme'">
-        {{ theme() === 'dark' ? '☀️' : '🌙' }}
+      <button type="button" class="icon-btn" (click)="toggleTheme()" aria-label="Toggle theme">
+        <fa-icon [icon]="themeIcon()" />
       </button>
-      <button type="button" class="logout" (click)="logout()">Log out</button>
+      <button type="button" class="logout" (click)="logout()">
+        <fa-icon [icon]="faLogout" /> Log out
+      </button>
     </div>
   </header>
 } @else {
   <!-- Floating theme toggle for the login screen -->
-  <button type="button" class="floating-theme" (click)="toggleTheme()" [attr.aria-label]="'Toggle theme'">
-    {{ theme() === 'dark' ? '☀️' : '🌙' }}
+  <button type="button" class="floating-theme" (click)="toggleTheme()" aria-label="Toggle theme">
+    <fa-icon [icon]="themeIcon()" />
   </button>
 }
 

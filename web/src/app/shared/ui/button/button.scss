@@ -1,0 +1,21 @@
+@use 'mixins' as m;
+
+:host {
+  display: inline-flex;
+}
+
+.btn {
+  width: 100%;
+
+  &--primary {
+    @include m.button-primary;
+  }
+
+  &--secondary {
+    @include m.button-secondary;
+  }
+
+  &--ghost {
+    @include m.button-ghost;
+  }
+}

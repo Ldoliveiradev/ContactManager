@@ -1,0 +1,39 @@
+@if (totalPages() > 1) {
+  <nav class="pagination" aria-label="Pagination">
+    <span class="pagination__range">{{ rangeLabel() }}</span>
+
+    <div class="pagination__controls">
+      <button
+        type="button"
+        class="pagination__btn"
+        [disabled]="!canPrev()"
+        (click)="go(page() - 1)"
+        aria-label="Previous page"
+      >
+        <fa-icon [icon]="faPrev" />
+      </button>
+
+      @for (p of pages(); track p) {
+        <button
+          type="button"
+          class="pagination__btn"
+          [class.is-active]="p === page()"
+          [attr.aria-current]="p === page() ? 'page' : null"
+          (click)="go(p)"
+        >
+          {{ p }}
+        </button>
+      }
+
+      <button
+        type="button"
+        class="pagination__btn"
+        [disabled]="!canNext()"
+        (click)="go(page() + 1)"
+        aria-label="Next page"
+      >
+        <fa-icon [icon]="faNext" />
+      </button>
+    </div>
+  </nav>
+}

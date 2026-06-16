@@ -1,34 +1,51 @@
 <div class="auth-page">
-  <form class="auth-card" [formGroup]="form" (ngSubmit)="submit()">
-    <h1>Contact Manager</h1>
-    <p class="subtitle">{{ mode() === 'login' ? 'Sign in to your account' : 'Create an account' }}</p>
+  <ui-card class="auth-card">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <header class="auth-card__head">
+        <h1>Contact Manager</h1>
+        <p class="auth-card__subtitle">
+          {{ mode() === 'login' ? 'Sign in to your account' : 'Create an account' }}
+        </p>
+      </header>
 
-    @if (error()) {
-      <div class="alert" role="alert">{{ error() }}</div>
-    }
-
-    <label>
-      <span>Username</span>
-      <input type="text" formControlName="username" autocomplete="username" />
-      @if (form.controls.username.touched && form.controls.username.invalid) {
-        <small class="field-error">Username is required.</small>
+      @if (error()) {
+        <ui-alert>{{ error() }}</ui-alert>
       }
-    </label>
 
-    <label>
-      <span>Password</span>
-      <input type="password" formControlName="password" autocomplete="current-password" />
-      @if (form.controls.password.touched && form.controls.password.invalid) {
-        <small class="field-error">Password must be at least 8 characters.</small>
-      }
-    </label>
+      <ui-form-field
+        label="Username"
+        [error]="form.controls.username.touched && form.controls.username.invalid ? 'Username is required.' : null"
+      >
+        <input
+          type="text"
+          formControlName="username"
+          autocomplete="username"
+          aria-label="Username"
+          placeholder="your-username"
+          appAutofocus
+        />
+      </ui-form-field>
 
-    <button type="submit" [disabled]="loading()">
-      {{ loading() ? 'Please wait…' : (mode() === 'login' ? 'Sign in' : 'Register') }}
-    </button>
+      <ui-form-field
+        label="Password"
+        [error]="form.controls.password.touched && form.controls.password.invalid ? 'Password must be at least 8 characters.' : null"
+      >
+        <input
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          aria-label="Password"
+          placeholder="••••••••"
+        />
+      </ui-form-field>
 
-    <button type="button" class="link" (click)="toggleMode()">
-      {{ mode() === 'login' ? "Don't have an account? Register" : 'Already have an account? Sign in' }}
-    </button>
-  </form>
+      <ui-button type="submit" [disabled]="loading()">
+        {{ loading() ? 'Please wait…' : (mode() === 'login' ? 'Sign in' : 'Register') }}
+      </ui-button>
+
+      <ui-button type="button" variant="ghost" (click)="toggleMode()">
+        {{ mode() === 'login' ? "Don't have an account? Register" : 'Already have an account? Sign in' }}
+      </ui-button>
+    </form>
+  </ui-card>
 </div>

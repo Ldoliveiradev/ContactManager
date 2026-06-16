@@ -1,37 +1,32 @@
-<div class="form-wrapper">
+<ui-card class="form-card">
   <h2>{{ editId() ? 'Edit contact' : 'New contact' }}</h2>
 
   @if (error()) {
-    <div class="alert" role="alert">{{ error() }}</div>
+    <ui-alert>{{ error() }}</ui-alert>
   }
 
   <form [formGroup]="form" (ngSubmit)="submit()">
-    <label>
-      <span>Name</span>
-      <input type="text" formControlName="name" />
-      @if (form.controls.name.touched && form.controls.name.invalid) {
-        <small class="field-error">Name is required.</small>
-      }
-    </label>
+    <ui-form-field
+      label="Name"
+      [error]="form.controls.name.touched && form.controls.name.invalid ? 'Name is required.' : null"
+    >
+      <input type="text" formControlName="name" aria-label="Name" placeholder="Jane Doe" appAutofocus />
+    </ui-form-field>
 
-    <label>
-      <span>Email</span>
-      <input type="email" formControlName="email" />
-      @if (form.controls.email.touched && form.controls.email.invalid) {
-        <small class="field-error">A valid email is required.</small>
-      }
-    </label>
+    <ui-form-field
+      label="Email"
+      [error]="form.controls.email.touched && form.controls.email.invalid ? 'A valid email is required.' : null"
+    >
+      <input type="email" formControlName="email" aria-label="Email" placeholder="jane@example.com" />
+    </ui-form-field>
 
-    <label>
-      <span>Phone <em>(optional)</em></span>
-      <input type="tel" formControlName="phone" />
-    </label>
+    <ui-form-field label="Phone" [optional]="true">
+      <input type="tel" formControlName="phone" aria-label="Phone" placeholder="(202) 555-0100" />
+    </ui-form-field>
 
     <div class="form-actions">
-      <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
-      <button type="submit" class="btn-primary" [disabled]="saving()">
-        {{ saving() ? 'Saving…' : 'Save' }}
-      </button>
+      <ui-button type="button" variant="secondary" (click)="cancel()">Cancel</ui-button>
+      <ui-button type="submit" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save' }}</ui-button>
     </div>
   </form>
-</div>
+</ui-card>
