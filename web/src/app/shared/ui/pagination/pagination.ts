@@ -1,15 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 /**
  * Presentational pagination control. The parent owns the page state and reacts to
- * the `pageChange` output; this component only renders controls and emits intent.
+ * the `pageChange` / `pageSizeChange` outputs; this component only renders controls.
  */
 @Component({
   selector: 'ui-pagination',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FaIconComponent],
+  imports: [FaIconComponent, FormsModule],
   templateUrl: './pagination.html',
   styleUrl: './pagination.scss',
 })
@@ -17,11 +18,16 @@ export class Pagination {
   readonly page = input.required<number>(); // 1-based
   readonly pageSize = input.required<number>();
   readonly totalItems = input.required<number>();
+  /** Selectable page sizes; an empty array hides the selector. */
+  readonly pageSizeOptions = input<number[]>([]);
 
   readonly pageChange = output<number>();
+  readonly pageSizeChange = output<number>();
 
   protected readonly faPrev = faChevronLeft;
   protected readonly faNext = faChevronRight;
+
+  protected readonly showSizeSelector = computed(() => this.pageSizeOptions().length > 0);
 
   protected readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.totalItems() / this.pageSize())),
@@ -58,5 +64,9 @@ export class Pagination {
     if (page >= 1 && page <= this.totalPages() && page !== this.page()) {
       this.pageChange.emit(page);
     }
+  }
+
+  protected onSizeChange(value: string): void {
+    this.pageSizeChange.emit(Number(value));
   }
 }

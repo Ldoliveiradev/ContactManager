@@ -61,12 +61,14 @@
     }
   </ul>
 
-  @if (pageSize() > 0) {
+  @if (currentPageSize() > 0) {
     <ui-pagination
       [page]="page()"
-      [pageSize]="pageSize()"
+      [pageSize]="currentPageSize()"
       [totalItems]="filteredCount()"
+      [pageSizeOptions]="pageSizeOptions()"
       (pageChange)="setPage($event)"
+      (pageSizeChange)="setPageSize($event)"
     />
   }
 }

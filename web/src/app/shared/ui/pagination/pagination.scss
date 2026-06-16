@@ -10,9 +10,31 @@
     justify-content: space-between;
   }
 
+  &__meta {
+    @include m.flex(row, center, flex-start, t.space(4));
+    flex-wrap: wrap;
+  }
+
   &__range {
     color: var(--text-muted);
     font-size: t.font-size('sm');
+  }
+}
+
+.page-size {
+  @include m.flex(row, center, flex-start, t.space(2));
+
+  &__label {
+    color: var(--text-muted);
+    font-size: t.font-size('sm');
+  }
+
+  &__select {
+    @include m.input;
+    width: auto;
+    padding: t.space(1) t.space(2);
+    font-size: t.font-size('sm');
+    cursor: pointer;
   }
 
   &__controls {

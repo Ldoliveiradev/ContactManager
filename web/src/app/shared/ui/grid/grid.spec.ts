@@ -10,7 +10,14 @@ interface Row {
 
 @Component({
   imports: [Grid],
-  template: `<ui-grid [items]="items()" [columns]="columns" [pageSize]="pageSize" />`,
+  template: `
+    <ui-grid
+      [items]="items()"
+      [columns]="columns"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+    />
+  `,
 })
 class Host {
   items = signal<Row[]>([
@@ -23,6 +30,7 @@ class Host {
     { key: 'email', header: 'Email', searchable: true },
   ];
   pageSize = 0;
+  pageSizeOptions: number[] = [];
 }
 
 describe('Grid', () => {
@@ -79,5 +87,20 @@ describe('Grid', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelectorAll('.grid-card').length).toBe(2);
     expect(fixture.nativeElement.querySelector('.pagination')).toBeTruthy();
+  });
+
+  it('changing page size via the selector re-slices the rows', () => {
+    fixture.componentInstance.pageSize = 2;
+    fixture.componentInstance.pageSizeOptions = [2, 5];
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('.grid-card').length).toBe(2);
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector('.page-size__select');
+    select.value = select.options[1].value; // 5
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    // All 3 rows now fit on one page.
+    expect(fixture.nativeElement.querySelectorAll('.grid-card').length).toBe(3);
   });
 });

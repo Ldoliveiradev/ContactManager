@@ -39,8 +39,10 @@ export class Grid<T extends object> {
   readonly columns = input.required<GridColumn<T>[]>();
   readonly searchPlaceholder = input('Search…');
   readonly emptyMessage = input('No results.');
-  /** Rows per page; 0 disables pagination. */
+  /** Initial rows per page; 0 disables pagination. */
   readonly pageSize = input(0);
+  /** Selectable page sizes shown in the pagination control (empty hides the selector). */
+  readonly pageSizeOptions = input<number[]>([]);
 
   private readonly cellTemplates = contentChildren(GridCellDirective);
   private readonly actionsDir = contentChild(GridActionsDirective);
@@ -49,12 +51,18 @@ export class Grid<T extends object> {
   protected readonly sortKey = signal<(keyof T & string) | null>(null);
   protected readonly sortDir = signal<SortDirection>('asc');
   protected readonly page = signal(1);
+  // Effective page size: seeded from the input, mutable via the selector.
+  protected readonly currentPageSize = signal(0);
 
   constructor() {
-    // Reset to the first page whenever the filtered result set changes.
+    // Seed the effective page size from the input.
+    effect(() => this.currentPageSize.set(this.pageSize()));
+
+    // Reset to the first page whenever the result set or page size changes.
     effect(() => {
       this.query();
       this.items();
+      this.currentPageSize();
       this.page.set(1);
     });
   }
@@ -95,7 +103,7 @@ export class Grid<T extends object> {
 
   /** The slice of rows shown on the current page (or all rows if paging is off). */
   protected readonly visible = computed(() => {
-    const size = this.pageSize();
+    const size = this.currentPageSize();
     if (size <= 0) {
       return this.filtered();
     }
@@ -116,6 +124,10 @@ export class Grid<T extends object> {
 
   protected setPage(page: number): void {
     this.page.set(page);
+  }
+
+  protected setPageSize(size: number): void {
+    this.currentPageSize.set(size);
   }
 
   protected sortBy(col: GridColumn<T>): void {
