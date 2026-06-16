@@ -1,5 +1,5 @@
 using ContactManager.API.Middleware;
-using ContactManager.Infrastructure;
+using ContactManager.Infrastructure.IoC;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,4 +1,5 @@
 using ContactManager.Domain.Exceptions;
+using ContactManager.Infrastructure.Identity.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 

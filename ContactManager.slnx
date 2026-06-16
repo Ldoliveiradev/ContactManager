@@ -13,7 +13,9 @@
     <Project Path="src/ContactManager.Domain/ContactManager.Domain.csproj" />
   </Folder>
   <Folder Name="/04 - Infrastructure/">
-    <Project Path="src/ContactManager.Infrastructure/ContactManager.Infrastructure.csproj" />
+    <Project Path="src/ContactManager.Infrastructure.Data/ContactManager.Infrastructure.Data.csproj" />
+    <Project Path="src/ContactManager.Infrastructure.Identity/ContactManager.Infrastructure.Identity.csproj" />
+    <Project Path="src/ContactManager.Infrastructure.IoC/ContactManager.Infrastructure.IoC.csproj" />
   </Folder>
   <Folder Name="/05 - Tests/">
     <Project Path="tests/ContactManager.API.Tests/ContactManager.API.Tests.csproj" />

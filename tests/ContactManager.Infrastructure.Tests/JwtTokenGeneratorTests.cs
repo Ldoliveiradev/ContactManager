@@ -1,6 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
-using ContactManager.Infrastructure.Auth.Models;
-using ContactManager.Infrastructure.Auth.Security;
+using ContactManager.Domain.Models;
+using ContactManager.Infrastructure.Identity.Security;
 using FluentAssertions;
 using Microsoft.IdentityModel.Tokens;
 
@@ -19,23 +19,25 @@ public class JwtTokenGeneratorTests
     private readonly JwtTokenGenerator _sut = new(Options);
 
     [Fact]
-    public void Generate_ProducesTokenWithUserIdAndUsernameClaims()
+    public void Generate_ProducesTokenWithAccountIdAndUsernameClaims()
     {
-        var user = UserModel.Create(Guid.NewGuid(), "demo", "hash");
+        var account = Account.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "hash");
 
-        var token = _sut.Generate(user);
+        var token = _sut.Generate(account);
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
 
-        jwt.Subject.Should().Be(user.Id.ToString());
+        jwt.Subject.Should().Be(account.Id.ToString());
         jwt.Claims.Should().Contain(c =>
             c.Type == JwtRegisteredClaimNames.UniqueName && c.Value == "demo");
+        jwt.Claims.Should().Contain(c =>
+            c.Type == JwtRegisteredClaimNames.Email && c.Value == "demo@example.com");
     }
 
     [Fact]
     public void Generate_TokenIsSignedAndValidatesAgainstConfiguredKey()
     {
-        var user = UserModel.Create(Guid.NewGuid(), "demo", "hash");
-        var token = _sut.Generate(user);
+        var account = Account.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "hash");
+        var token = _sut.Generate(account);
 
         var parameters = new TokenValidationParameters
         {
@@ -59,8 +61,8 @@ public class JwtTokenGeneratorTests
     [Fact]
     public void Generate_TokenFailsValidationWithWrongKey()
     {
-        var user = UserModel.Create(Guid.NewGuid(), "demo", "hash");
-        var token = _sut.Generate(user);
+        var account = Account.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "hash");
+        var token = _sut.Generate(account);
 
         var parameters = new TokenValidationParameters
         {

@@ -2,23 +2,23 @@
 --
 -- Demo logins:  demo / Demo123!   and   sales2 / Demo123!
 --
--- Two users with the SAME password ("Demo123!") so the demo can show that contacts are
--- private per user. The password_hash is identical for both because PBKDF2 verification
+-- Two accounts with the SAME password ("Demo123!") so the demo can show that contacts are
+-- private per account. The password_hash is identical for both because PBKDF2 verification
 -- uses the salt embedded in the hash, so the same stored hash validates "Demo123!" for
--- either user. The hash was produced by
--- ContactManager.Infrastructure.Security.Pbkdf2PasswordHasher (format
+-- either account. The hash was produced by
+-- ContactManager.Infrastructure.Identity.Security.Pbkdf2PasswordHasher (format
 -- "iterations.saltBase64.keyBase64").
 
-INSERT INTO users (id, username, password_hash)
+INSERT INTO accounts (id, username, first_name, last_name, email, password_hash)
 VALUES
-    ('4a814ae2-5bc8-48d1-982c-95b6e6d14848', 'demo',
+    ('4a814ae2-5bc8-48d1-982c-95b6e6d14848', 'demo',   'Alex',  'Demo',   'demo@example.com',
      '100000.bv0wMexe7CQRY1URyMmNQw==.KUBwEsTLOzSNIejt7V2AEgVOEFHTbIjw7dujeeJkUQ8='),
-    ('9487f2c3-c5b3-457d-a540-c50d3f4840e6', 'sales2',
+    ('9487f2c3-c5b3-457d-a540-c50d3f4840e6', 'sales2', 'Jamie', 'Sales',  'sales2@example.com',
      '100000.bv0wMexe7CQRY1URyMmNQw==.KUBwEsTLOzSNIejt7V2AEgVOEFHTbIjw7dujeeJkUQ8=')
 ON CONFLICT (username) DO NOTHING;
 
 -- "demo" owns a larger set so search / sort / pagination are demonstrable.
-INSERT INTO contacts (id, user_id, name, email, phone)
+INSERT INTO contacts (id, account_id, name, email, phone)
 VALUES
     ('c23a6f96-6d1e-4cfd-9920-1591a122929a', '4a814ae2-5bc8-48d1-982c-95b6e6d14848', 'Ada Lovelace',      'ada@example.com',      '2025550100'),
     ('2dd87b0d-1042-4b7d-93fc-063d471917a0', '4a814ae2-5bc8-48d1-982c-95b6e6d14848', 'Alan Turing',       'alan@example.com',     '2025550101'),
@@ -35,7 +35,7 @@ VALUES
     ('b9e7adae-d444-4655-b8ef-4b65dd36d304', '4a814ae2-5bc8-48d1-982c-95b6e6d14848', 'Hedy Lamarr',       'hedy@example.com',     '2025550112'),
     ('4b2bc0c0-ecef-4398-b3fe-0e7cc9c2bbbe', '4a814ae2-5bc8-48d1-982c-95b6e6d14848', 'John von Neumann',  'john@example.com',     '2025550113'),
     ('f88c3893-788e-4d8a-8e7b-61497e3bc78b', '4a814ae2-5bc8-48d1-982c-95b6e6d14848', 'Edsger Dijkstra',   'edsger@example.com',   '2025550114'),
-    -- "sales2" owns a separate set — demonstrates that each user sees only their own data.
+    -- "sales2" owns a separate set — demonstrates that each account sees only their own data.
     ('de1a4960-b04c-4c73-b47f-db85abe6132f', '9487f2c3-c5b3-457d-a540-c50d3f4840e6', 'Marie Curie',       'marie@example.com',    '2025550201'),
     ('3bfe8698-1d38-438c-bf13-31ffeaeceec7', '9487f2c3-c5b3-457d-a540-c50d3f4840e6', 'Rosalind Franklin', 'rosalind@example.com', '2025550202'),
     ('e2a346d0-d4ae-407d-a2cb-47f2afa4cfc3', '9487f2c3-c5b3-457d-a540-c50d3f4840e6', 'Nikola Tesla',      'nikola@example.com',   '2025550203')

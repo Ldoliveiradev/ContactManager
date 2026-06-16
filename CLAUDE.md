@@ -6,13 +6,30 @@ AI was used as a *guided collaborator*, not an unguided code generator.
 
 ## What this project is
 
-A full-stack **Contact Manager**: an authenticated user manages their own contacts
-(create / read / update / delete). Built for a .NET technical interview exercise.
+A full-stack **Contact Manager** built for account managers who maintain relationships
+across multiple clients and partners. Account managers live by their contact book: they
+follow up on ongoing business, coordinate with partners, and stay on top of who to reach
+and when. Knowing *who* to call, having the right email and phone number, and keeping that
+information current as people change roles or companies is core to their job. A stale or
+shared contact list is a business liability.
+
+Each account manager registers their own account and manages a **private book of business
+contacts** — clients, partners, and key stakeholders. The contact list is scoped to the
+account holder: no account manager can see or modify another's contacts. Search and quick
+lookup are essential because an account manager may have hundreds of contacts and needs to
+find the right person before a call or a meeting.
 
 **User story (drives the work):**
-> As a sales rep, I want to sign up and log in securely, then manage and quickly find my
-> contacts (create, view, search, edit, delete), so my contact list stays current and
-> private to me.
+> As an **account manager**, I want to register and securely access my account, so that I
+> can manage my book of business contacts — adding clients and partners with their name,
+> email and phone, quickly finding someone when I need to follow up, keeping details
+> current as people change roles or companies, and removing contacts that are no longer
+> relevant — ensuring my contact list stays organized, current, and private to my account.
+
+**Domain concepts:**
+
+- **Account** — the authenticated identity of an account manager; owns a contact book.
+- **Contact** — a prospect, client, or partner: name, email, phone. Belongs to one account.
 
 ## Tech stack
 

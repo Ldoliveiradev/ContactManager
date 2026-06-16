@@ -1,36 +1,39 @@
-using ContactManager.Infrastructure.Auth.Models;
-using ContactManager.Infrastructure.Auth.Services;
+using ContactManager.Domain.Models;
+using ContactManager.Infrastructure.Data;
 using ContactManager.Infrastructure.Tests.Database;
 using FluentAssertions;
 
 namespace ContactManager.Infrastructure.Tests;
 
 [Collection("postgres")]
-public class UserRepositoryTests
+public class AccountRepositoryTests
 {
     private readonly PostgresTestFixture _db;
-    private readonly UserRepository _sut;
+    private readonly AccountRepository _sut;
 
-    public UserRepositoryTests(PostgresTestFixture db)
+    public AccountRepositoryTests(PostgresTestFixture db)
     {
         _db = db;
-        _sut = new UserRepository(PostgresTestFixture.TestConnectionString);
+        _sut = new AccountRepository(PostgresTestFixture.TestConnectionString);
     }
 
     [SkippableFact]
-    public async Task AddAsync_ThenGetByUsername_ReturnsPersistedUser()
+    public async Task AddAsync_ThenGetByUsername_ReturnsPersistedAccount()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await _db.ResetAsync();
 
-        var user = UserModel.Create(Guid.NewGuid(), "alice", "hashed-pw");
-        await _sut.AddAsync(user);
+        var account = Account.Create(Guid.NewGuid(), "alice", "Alice", "Smith", "alice@example.com", "hashed-pw");
+        await _sut.AddAsync(account);
 
         var loaded = await _sut.GetByUsernameAsync("alice");
 
         loaded.Should().NotBeNull();
-        loaded!.Id.Should().Be(user.Id);
-        loaded.Username.Should().Be("alice");
+        loaded!.Id.Should().Be(account.Id);
+        loaded.Username.Value.Should().Be("alice");
+        loaded.FullName.FirstName.Should().Be("Alice");
+        loaded.FullName.LastName.Should().Be("Smith");
+        loaded.Email.Value.Should().Be("alice@example.com");
         loaded.PasswordHash.Should().Be("hashed-pw");
     }
 
@@ -46,14 +49,30 @@ public class UserRepositoryTests
     }
 
     [SkippableFact]
+    public async Task GetByIdAsync_ReturnsPersistedAccount()
+    {
+        Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
+        await _db.ResetAsync();
+
+        var account = Account.Create(Guid.NewGuid(), "bob", "Bob", "Jones", "bob@example.com", "hashed-pw");
+        await _sut.AddAsync(account);
+
+        var loaded = await _sut.GetByIdAsync(account.Id);
+
+        loaded.Should().NotBeNull();
+        loaded!.Id.Should().Be(account.Id);
+        loaded.Username.Value.Should().Be("bob");
+    }
+
+    [SkippableFact]
     public async Task AddAsync_WithDuplicateUsername_Throws()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await _db.ResetAsync();
 
-        await _sut.AddAsync(UserModel.Create(Guid.NewGuid(), "bob", "h1"));
+        await _sut.AddAsync(Account.Create(Guid.NewGuid(), "carol", "Carol", "White", "carol@example.com", "h1"));
 
-        var act = () => _sut.AddAsync(UserModel.Create(Guid.NewGuid(), "bob", "h2"));
+        var act = () => _sut.AddAsync(Account.Create(Guid.NewGuid(), "carol", "Carol", "White", "carol2@example.com", "h2"));
 
         await act.Should().ThrowAsync<Exception>();
     }

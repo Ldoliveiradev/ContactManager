@@ -15,8 +15,14 @@ public class ContactsEndpointsTests
     private async Task<HttpClient> AuthenticatedClientAsync(string username)
     {
         var client = _factory.CreateClient();
-        await client.PostAsJsonAsync("/api/auth/register",
-            new { username, password = "Secret123!" });
+        await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            username,
+            firstName = "Test",
+            lastName = "User",
+            email = $"{username}@example.com",
+            password = "Secret123!"
+        });
         var login = await client.PostAsJsonAsync("/api/auth/login",
             new { username, password = "Secret123!" });
         var token = (await login.Content.ReadFromJsonAsync<TokenResponse>())!.Token;

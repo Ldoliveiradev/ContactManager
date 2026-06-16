@@ -15,11 +15,11 @@ public sealed class ContactService(IContactRepository contacts) : IContactServic
     private static readonly UpdateContactRequestValidator UpdateValidator = new();
 
     public async Task<ContactListResponse> GetAllAsync(
-        Guid userId, GetContactsRequest request, CancellationToken ct = default)
+        Guid accountId, GetContactsRequest request, CancellationToken ct = default)
     {
         var f = request.Filter;
-        var (items, totalCount) = await contacts.GetByUserAsync(
-            userId, f.Search, f.SortBy, f.SortDesc, f.Page, f.PageSize, ct);
+        var (items, totalCount) = await contacts.GetByAccountAsync(
+            accountId, f.Search, f.SortBy, f.SortDesc, f.Page, f.PageSize, ct);
 
         return ContactListResponse.Success(
             items.Select(ToDto).ToList(),
@@ -27,36 +27,36 @@ public sealed class ContactService(IContactRepository contacts) : IContactServic
     }
 
     public async Task<ContactResponse> GetByIdAsync(
-        Guid userId, GetContactRequest request, CancellationToken ct = default)
+        Guid accountId, GetContactRequest request, CancellationToken ct = default)
     {
         var contact = await contacts.GetByIdAsync(request.ContactId, ct);
-        if (contact is null || contact.UserId != userId)
+        if (contact is null || contact.AccountId != accountId)
             return ContactResponse.Failure(ErrorMessages.Contact.NotFound);
 
         return ContactResponse.Success(ToDto(contact));
     }
 
     public async Task<ContactResponse> CreateAsync(
-        Guid userId, CreateContactRequest request, CancellationToken ct = default)
+        Guid accountId, CreateContactRequest request, CancellationToken ct = default)
     {
         var validation = CreateValidator.Validate(request);
         if (!validation.IsValid)
             return ContactResponse.Failure(validation.Errors[0].ErrorMessage);
 
-        var contact = ContactDomain.Create(Guid.NewGuid(), userId, request.Name, request.Email, request.Phone);
+        var contact = Contact.Create(Guid.NewGuid(), accountId, request.Name, request.Email, request.Phone);
         await contacts.AddAsync(contact, ct);
         return ContactResponse.Success(ToDto(contact));
     }
 
     public async Task<ContactResponse> UpdateAsync(
-        Guid userId, Guid contactId, UpdateContactRequest request, CancellationToken ct = default)
+        Guid accountId, Guid contactId, UpdateContactRequest request, CancellationToken ct = default)
     {
         var validation = UpdateValidator.Validate(request);
         if (!validation.IsValid)
             return ContactResponse.Failure(validation.Errors[0].ErrorMessage);
 
         var contact = await contacts.GetByIdAsync(contactId, ct);
-        if (contact is null || contact.UserId != userId)
+        if (contact is null || contact.AccountId != accountId)
             return ContactResponse.Failure(ErrorMessages.Contact.NotFound);
 
         contact.Update(request.Name, request.Email, request.Phone);
@@ -64,15 +64,18 @@ public sealed class ContactService(IContactRepository contacts) : IContactServic
         return ContactResponse.Success(ToDto(contact));
     }
 
-    public async Task<ContactResponse> DeleteAsync(Guid userId, DeleteContactRequest request, CancellationToken ct = default)
+    public async Task<ContactResponse> DeleteAsync(
+        Guid accountId, DeleteContactRequest request, CancellationToken ct = default)
     {
         var contact = await contacts.GetByIdAsync(request.ContactId, ct);
-        if (contact is null || contact.UserId != userId)
+        if (contact is null || contact.AccountId != accountId)
             return ContactResponse.Failure(ErrorMessages.Contact.NotFound);
 
+        contact.Delete();
         await contacts.DeleteAsync(contact.Id, ct);
         return ContactResponse.Success(ToDto(contact));
     }
 
-    private static ContactDto ToDto(ContactDomain c) => new(c.Id, c.Name, c.Email, c.Phone);
+    private static ContactDto ToDto(Contact c) =>
+        new(c.Id, c.Name.Value, c.Email.Value, c.Phone?.Value);
 }

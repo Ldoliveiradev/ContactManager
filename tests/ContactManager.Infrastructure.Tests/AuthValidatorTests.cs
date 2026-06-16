@@ -1,5 +1,5 @@
-using ContactManager.Infrastructure.Auth.Models;
-using ContactManager.Infrastructure.Auth.Validators;
+using ContactManager.Infrastructure.Identity.Models;
+using ContactManager.Infrastructure.Identity.Validators;
 using FluentAssertions;
 
 namespace ContactManager.Infrastructure.Tests;
@@ -14,7 +14,8 @@ public class AuthValidatorTests
     [InlineData("  ", "Secret123!")]
     public void RegisterValidator_EmptyUsername_Fails(string username, string password)
     {
-        var result = _registerValidator.Validate(new RegisterRequest(username, password));
+        var result = _registerValidator.Validate(
+            new RegisterRequest(username, "First", "Last", "test@example.com", password));
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == nameof(RegisterRequest.Username));
     }
@@ -24,7 +25,8 @@ public class AuthValidatorTests
     [InlineData("demo", "short")]
     public void RegisterValidator_InvalidPassword_Fails(string username, string password)
     {
-        var result = _registerValidator.Validate(new RegisterRequest(username, password));
+        var result = _registerValidator.Validate(
+            new RegisterRequest(username, "First", "Last", "test@example.com", password));
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == nameof(RegisterRequest.Password));
     }
@@ -32,7 +34,8 @@ public class AuthValidatorTests
     [Fact]
     public void RegisterValidator_ValidRequest_Passes()
     {
-        var result = _registerValidator.Validate(new RegisterRequest("demo", "Secret123!"));
+        var result = _registerValidator.Validate(
+            new RegisterRequest("demo", "First", "Last", "demo@example.com", "Secret123!"));
         result.IsValid.Should().BeTrue();
     }
 

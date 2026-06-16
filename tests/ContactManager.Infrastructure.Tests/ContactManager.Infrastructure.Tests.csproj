@@ -22,7 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ContactManager.Infrastructure\ContactManager.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\ContactManager.Infrastructure.Data\ContactManager.Infrastructure.Data.csproj" />
+    <ProjectReference Include="..\..\src\ContactManager.Infrastructure.Identity\ContactManager.Infrastructure.Identity.csproj" />
   </ItemGroup>
 
 </Project>
