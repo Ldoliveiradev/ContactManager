@@ -1,4 +1,4 @@
-using ContactManager.Application.Abstractions;
+using ContactManager.Domain.Repositories;
 using ContactManager.Domain.Entities;
 using Npgsql;
 

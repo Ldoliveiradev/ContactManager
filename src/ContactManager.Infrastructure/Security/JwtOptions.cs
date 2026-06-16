@@ -1,6 +1,5 @@
 namespace ContactManager.Infrastructure.Security;
 
-/// <summary>Strongly-typed JWT settings, bound from configuration ("Jwt" section).</summary>
 public sealed class JwtOptions
 {
     public const string SectionName = "Jwt";

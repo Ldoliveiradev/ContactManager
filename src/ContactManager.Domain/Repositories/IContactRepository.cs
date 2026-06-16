@@ -1,14 +1,11 @@
 using ContactManager.Domain.Entities;
 
-namespace ContactManager.Application.Abstractions;
+namespace ContactManager.Domain.Repositories;
 
-/// <summary>
-/// Persistence contract for contacts. Implemented in Infrastructure with hand-written SQL.
-/// Reads are scoped to a user where ownership matters.
-/// </summary>
 public interface IContactRepository
 {
-    Task<IReadOnlyList<Contact>> GetByUserAsync(Guid userId, CancellationToken ct = default);
+    Task<(IReadOnlyList<Contact> Items, int TotalCount)> GetByUserAsync(
+        Guid userId, string? search, string? sortBy, bool sortDesc, int page, int pageSize, CancellationToken ct = default);
     Task<Contact?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task AddAsync(Contact contact, CancellationToken ct = default);
     Task UpdateAsync(Contact contact, CancellationToken ct = default);

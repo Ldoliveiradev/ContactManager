@@ -1,19 +1,24 @@
-using ContactManager.Application.Abstractions;
-using ContactManager.Application.Exceptions;
 using ContactManager.Domain.Entities;
+using ContactManager.Domain.Exceptions;
+using ContactManager.Domain.Repositories;
+using ContactManager.Infrastructure.Security;
+using FluentValidation;
 
-namespace ContactManager.Application.Auth;
+namespace ContactManager.Infrastructure.Services;
 
 public sealed class AuthService(
     IUserRepository users,
     IPasswordHasher hasher,
     IJwtTokenGenerator tokens) : IAuthService
 {
-    private const int MinPasswordLength = 8;
+    private static readonly RegisterRequestValidator RegisterValidator = new();
+    private static readonly LoginRequestValidator LoginValidator = new();
 
     public async Task<RegisterResult> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
     {
-        Validate(request.Username, request.Password);
+        var validation = RegisterValidator.Validate(request);
+        if (!validation.IsValid)
+            throw new ValidationException(validation.Errors);
 
         var username = request.Username.Trim();
         if (await users.GetByUsernameAsync(username, ct) is not null)
@@ -27,23 +32,15 @@ public sealed class AuthService(
 
     public async Task<LoginResult> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
+        var validation = LoginValidator.Validate(request);
+        if (!validation.IsValid)
+            throw new ValidationException(validation.Errors);
+
         var user = await users.GetByUsernameAsync(request.Username.Trim(), ct);
 
-        // Verify even on a miss would be ideal to avoid timing leaks, but at minimum
-        // we return the same exception for "no user" and "wrong password".
         if (user is null || !hasher.Verify(request.Password, user.PasswordHash))
             throw new InvalidCredentialsException();
 
         return new LoginResult(tokens.Generate(user));
-    }
-
-    private static void Validate(string username, string password)
-    {
-        if (string.IsNullOrWhiteSpace(username))
-            throw new ValidationException("Username is required.");
-        if (string.IsNullOrWhiteSpace(password))
-            throw new ValidationException("Password is required.");
-        if (password.Length < MinPasswordLength)
-            throw new ValidationException($"Password must be at least {MinPasswordLength} characters.");
     }
 }

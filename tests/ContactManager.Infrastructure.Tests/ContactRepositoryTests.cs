@@ -58,10 +58,11 @@ public class ContactRepositoryTests
         await _sut.AddAsync(Contact.Create(Guid.NewGuid(), owner, "Alan", "alan@example.com", null));
         await _sut.AddAsync(Contact.Create(Guid.NewGuid(), other, "Grace", "grace@example.com", null));
 
-        var ownerContacts = await _sut.GetByUserAsync(owner);
+        var (items, totalCount) = await _sut.GetByUserAsync(owner, null, null, false, 1, 10);
 
-        ownerContacts.Should().HaveCount(2);
-        ownerContacts.Select(c => c.UserId).Should().AllBeEquivalentTo(owner);
+        items.Should().HaveCount(2);
+        totalCount.Should().Be(2);
+        items.Select(c => c.UserId).Should().AllBeEquivalentTo(owner);
     }
 
     [SkippableFact]

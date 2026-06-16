@@ -1,8 +1,5 @@
-namespace ContactManager.Application.Auth;
+namespace ContactManager.Infrastructure.Services;
 
-/// <summary>
-/// Application service for user registration and login (JWT issuance).
-/// </summary>
 public interface IAuthService
 {
     Task<RegisterResult> RegisterAsync(RegisterRequest request, CancellationToken ct = default);

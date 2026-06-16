@@ -1,17 +1,11 @@
 using System.Security.Cryptography;
-using ContactManager.Application.Abstractions;
 
 namespace ContactManager.Infrastructure.Security;
 
-/// <summary>
-/// Password hashing with PBKDF2 (HMAC-SHA256), a random per-password salt, and a
-/// constant-time comparison on verify. Hand-rolled on top of the BCL so the project
-/// avoids extra dependencies; the stored format is "iterations.saltBase64.hashBase64".
-/// </summary>
 public sealed class Pbkdf2PasswordHasher : IPasswordHasher
 {
-    private const int SaltSize = 16;       // 128-bit salt
-    private const int KeySize = 32;        // 256-bit derived key
+    private const int SaltSize = 16;
+    private const int KeySize = 32;
     private const int Iterations = 100_000;
     private static readonly HashAlgorithmName Algorithm = HashAlgorithmName.SHA256;
 

@@ -1,35 +1,55 @@
-using ContactManager.Application.Abstractions;
 using ContactManager.Domain.Entities;
+using ContactManager.Domain.Repositories;
 using Npgsql;
+using NpgsqlTypes;
 
 namespace ContactManager.Infrastructure.Persistence;
 
-/// <summary>
-/// Contact persistence with hand-written, parameterized SQL via Npgsql (raw ADO.NET).
-/// No ORM — per the exercise constraint. All queries are parameterized (injection-safe).
-/// </summary>
 public sealed class ContactRepository(string connectionString) : IContactRepository
 {
-    public async Task<IReadOnlyList<Contact>> GetByUserAsync(Guid userId, CancellationToken ct = default)
+    private static readonly HashSet<string> AllowedSortColumns =
+        new(StringComparer.OrdinalIgnoreCase) { "name", "email", "phone", "created_at" };
+
+    public async Task<(IReadOnlyList<Contact> Items, int TotalCount)> GetByUserAsync(
+        Guid userId, string? search, string? sortBy, bool sortDesc, int page, int pageSize, CancellationToken ct = default)
     {
-        const string sql = """
-            SELECT id, user_id, name, email, phone
+        var column = AllowedSortColumns.Contains(sortBy ?? "") ? sortBy! : "name";
+        var direction = sortDesc ? "DESC" : "ASC";
+        var offset = (page - 1) * pageSize;
+
+        var sql = $"""
+            SELECT id, user_id, name, email, phone,
+                   COUNT(*) OVER() AS total_count
             FROM contacts
             WHERE user_id = @userId
-            ORDER BY name
+              AND (@search IS NULL OR name ILIKE @search OR email ILIKE @search OR phone ILIKE @search)
+            ORDER BY {column} {direction}
+            LIMIT @pageSize OFFSET @offset
             """;
 
         await using var conn = new NpgsqlConnection(connectionString);
         await conn.OpenAsync(ct);
         await using var cmd = new NpgsqlCommand(sql, conn);
         cmd.Parameters.AddWithValue("@userId", userId);
+        cmd.Parameters.Add(new NpgsqlParameter("@search", NpgsqlDbType.Text)
+        {
+            Value = string.IsNullOrWhiteSpace(search) ? DBNull.Value : $"%{search.Trim()}%"
+        });
+        cmd.Parameters.AddWithValue("@pageSize", pageSize);
+        cmd.Parameters.AddWithValue("@offset", offset);
 
-        var results = new List<Contact>();
+        var items = new List<Contact>();
+        var totalCount = 0;
+
         await using var reader = await cmd.ExecuteReaderAsync(ct);
         while (await reader.ReadAsync(ct))
-            results.Add(Map(reader));
+        {
+            items.Add(Map(reader));
+            if (totalCount == 0)
+                totalCount = reader.GetInt32(5);
+        }
 
-        return results;
+        return (items, totalCount);
     }
 
     public async Task<Contact?> GetByIdAsync(Guid id, CancellationToken ct = default)

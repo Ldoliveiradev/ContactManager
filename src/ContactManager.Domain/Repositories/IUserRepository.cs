@@ -1,10 +1,7 @@
 using ContactManager.Domain.Entities;
 
-namespace ContactManager.Application.Abstractions;
+namespace ContactManager.Domain.Repositories;
 
-/// <summary>
-/// Persistence contract for users. Implemented in Infrastructure with hand-written SQL.
-/// </summary>
 public interface IUserRepository
 {
     Task<User?> GetByUsernameAsync(string username, CancellationToken ct = default);

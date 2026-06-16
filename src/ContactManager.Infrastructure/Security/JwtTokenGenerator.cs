@@ -1,16 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using ContactManager.Application.Abstractions;
 using ContactManager.Domain.Entities;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ContactManager.Infrastructure.Security;
 
-/// <summary>
-/// Issues HMAC-SHA256-signed JWTs carrying the user's id (as the subject) and username.
-/// The owning user id is later read from these claims by the API — never from request bodies.
-/// </summary>
 public sealed class JwtTokenGenerator(JwtOptions options) : IJwtTokenGenerator
 {
     public string Generate(User user)

@@ -1,11 +1,13 @@
-using ContactManager.Application.Abstractions;
-using ContactManager.Application.Auth;
-using ContactManager.Application.Exceptions;
+using ContactManager.Domain.Repositories;
+using ContactManager.Infrastructure.Security;
+using ContactManager.Domain.Exceptions;
+using FluentValidation;
 using ContactManager.Domain.Entities;
+using ContactManager.Infrastructure.Services;
 using FluentAssertions;
 using Moq;
 
-namespace ContactManager.Application.Tests;
+namespace ContactManager.Infrastructure.Tests;
 
 public class AuthServiceTests
 {
@@ -50,7 +52,7 @@ public class AuthServiceTests
     [InlineData("", "Secret123!")]
     [InlineData("  ", "Secret123!")]
     [InlineData("demo", "")]
-    [InlineData("demo", "short")] // < 8 chars
+    [InlineData("demo", "short")]
     public async Task RegisterAsync_WithInvalidInput_ThrowsValidation(string username, string password)
     {
         var sut = CreateSut();
@@ -99,7 +101,6 @@ public class AuthServiceTests
         var sut = CreateSut();
         var act = () => sut.LoginAsync(new LoginRequest("ghost", "Secret123!"));
 
-        // Same exception as wrong password — do not leak whether the username exists.
         await act.Should().ThrowAsync<InvalidCredentialsException>();
     }
 }

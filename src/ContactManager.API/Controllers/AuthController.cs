@@ -1,4 +1,4 @@
-using ContactManager.Application.Auth;
+using ContactManager.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
