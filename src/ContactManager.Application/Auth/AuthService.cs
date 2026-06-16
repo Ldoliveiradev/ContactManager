@@ -4,12 +4,6 @@ using ContactManager.Domain.Entities;
 
 namespace ContactManager.Application.Auth;
 
-public interface IAuthService
-{
-    Task<RegisterResult> RegisterAsync(RegisterRequest request, CancellationToken ct = default);
-    Task<LoginResult> LoginAsync(LoginRequest request, CancellationToken ct = default);
-}
-
 public sealed class AuthService(
     IUserRepository users,
     IPasswordHasher hasher,

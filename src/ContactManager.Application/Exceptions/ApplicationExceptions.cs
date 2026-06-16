@@ -10,3 +10,7 @@ public class UsernameAlreadyExistsException(string username)
 /// <summary>Login failed. Deliberately generic so it does not reveal whether the
 /// username exists. Maps to HTTP 401.</summary>
 public class InvalidCredentialsException() : Exception("Invalid username or password.");
+
+/// <summary>Requested resource does not exist (or is not visible to the caller).
+/// Used for not-owned contacts too, so ownership is not leaked. Maps to HTTP 404.</summary>
+public class NotFoundException(string message = "Resource not found.") : Exception(message);
