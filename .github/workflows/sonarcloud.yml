@@ -99,6 +99,10 @@ jobs:
           /p:CollectCoverage=true
           /p:CoverletOutputFormat=opencover
           /p:CoverletOutput=./coverage.opencover.xml
+          /p:Exclude="[*.Tests]*"
+
+      - name: List coverage reports
+        run: find . -name 'coverage.opencover.xml' -not -path '*/node_modules/*'
 
       - name: End SonarCloud analysis
         env:
