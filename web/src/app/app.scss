@@ -11,10 +11,43 @@
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
 
+  .header-left {
+    @include m.flex(row, center, flex-start, t.space(6));
+  }
+
   .brand {
     font-weight: t.$font-weight-bold;
     font-size: t.font-size('lg');
     color: var(--text);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--primary);
+    }
+  }
+
+  .header-nav {
+    @include m.flex(row, center, flex-start, t.space(1));
+  }
+
+  .nav-link {
+    padding: t.space(2) t.space(3);
+    border-radius: t.$radius-sm;
+    font-size: t.font-size('sm');
+    font-weight: t.$font-weight-medium;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color t.$transition-fast, background-color t.$transition-fast;
+
+    &:hover {
+      color: var(--text);
+      background: var(--surface-hover);
+    }
+
+    &--active {
+      color: var(--primary);
+      background: var(--surface-alt);
+    }
   }
 
   .header-actions {

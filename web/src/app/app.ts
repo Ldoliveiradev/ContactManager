@@ -1,13 +1,13 @@
 import { Component, computed, inject } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { faMoon, faRightFromBracket, faSun, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faMoon, faRightFromBracket, faSun } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from './features/auth/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, FaIconComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, FaIconComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -20,7 +20,6 @@ export class App {
   protected readonly theme = this.themeService.theme;
 
   protected readonly faLogout = faRightFromBracket;
-  protected readonly faUser = faUser;
   protected readonly themeIcon = computed(() => (this.theme() === 'dark' ? faSun : faMoon));
 
   protected toggleTheme(): void {

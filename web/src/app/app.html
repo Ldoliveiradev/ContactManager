@@ -1,10 +1,13 @@
 @if (isAuthenticated()) {
   <header class="app-header">
-    <span class="brand">Contact Manager</span>
+    <div class="header-left">
+      <a routerLink="/contacts" class="brand">Contact Manager</a>
+      <nav class="header-nav">
+        <a routerLink="/contacts" routerLinkActive="nav-link--active" class="nav-link">Contacts</a>
+        <a routerLink="/profile" routerLinkActive="nav-link--active" class="nav-link">Profile</a>
+      </nav>
+    </div>
     <div class="header-actions">
-      <a routerLink="/profile" class="icon-btn" aria-label="Profile">
-        <fa-icon [icon]="faUser" />
-      </a>
       <button type="button" class="icon-btn" (click)="toggleTheme()" aria-label="Toggle theme">
         <fa-icon [icon]="themeIcon()" />
       </button>
