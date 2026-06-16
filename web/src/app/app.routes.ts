@@ -28,15 +28,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () =>
       import('./features/accounts/components/accounts.component').then((m) => m.AccountsComponent),
-    children: [
-      {
-        path: 'profile',
-        loadComponent: () =>
-          import('./features/accounts/components/profile/profile.component').then((m) => m.Profile),
-      },
-      { path: '', redirectTo: 'profile', pathMatch: 'full' },
-    ],
   },
-  { path: 'profile', redirectTo: 'accounts/profile', pathMatch: 'full' },
+  { path: 'profile', redirectTo: 'accounts', pathMatch: 'full' },
   { path: '**', redirectTo: 'contacts' },
 ];

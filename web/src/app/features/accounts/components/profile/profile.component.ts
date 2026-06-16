@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AlertComponent } from '../../../../shared/ui/alert/alert.component';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
@@ -17,14 +17,15 @@ export class Profile implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly accounts = inject(AccountService);
 
-  protected readonly loading = signal(true);
+  readonly account = input<AccountDto | null>(null);
+  readonly profileUpdated = output<AccountDto | null>();
+
   protected readonly savingProfile = signal(false);
   protected readonly savingPassword = signal(false);
   protected readonly profileError = signal<string | null>(null);
   protected readonly profileSuccess = signal<string | null>(null);
   protected readonly passwordError = signal<string | null>(null);
   protected readonly passwordSuccess = signal<string | null>(null);
-  protected readonly account = signal<AccountDto | null>(null);
 
   protected readonly profileForm = this.fb.nonNullable.group({
     firstName: ['', [Validators.required]],
@@ -38,23 +39,14 @@ export class Profile implements OnInit {
   });
 
   ngOnInit(): void {
-    this.accounts.getProfile().subscribe({
-      next: (data) => {
-        this.account.set(data);
-        if (data) {
-          this.profileForm.patchValue({
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-          });
-        }
-        this.loading.set(false);
-      },
-      error: () => {
-        this.profileError.set('Failed to load profile.');
-        this.loading.set(false);
-      },
-    });
+    const data = this.account();
+    if (data) {
+      this.profileForm.patchValue({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+      });
+    }
   }
 
   protected saveProfile(): void {
@@ -68,9 +60,9 @@ export class Profile implements OnInit {
 
     this.accounts.updateProfile(this.profileForm.getRawValue()).subscribe({
       next: (data) => {
-        this.account.set(data);
         this.savingProfile.set(false);
         this.profileSuccess.set('Profile updated.');
+        this.profileUpdated.emit(data);
       },
       error: (err) => {
         this.savingProfile.set(false);

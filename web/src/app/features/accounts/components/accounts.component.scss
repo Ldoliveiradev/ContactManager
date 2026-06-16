@@ -1,1 +1,15 @@
-// Accounts shell — layout handled by child components
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.sk-profile {
+  display: flex;
+  flex-direction: column;
+  gap: t.space(6);
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.sk-card {
+  @include m.card(t.space(4));
+  @include m.flex(column, stretch, flex-start, t.space(4));
+}

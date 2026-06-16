@@ -1,1 +1,23 @@
-<router-outlet />
+@if (error()) {
+  <ui-alert>{{ error() }}</ui-alert>
+} @else if (loading()) {
+  <div class="sk-profile">
+    <div class="sk-card">
+      <ui-skeleton variant="line" width="30%" />
+      <ui-skeleton variant="line" width="20%" />
+      <ui-skeleton variant="line" width="100%" />
+      <ui-skeleton variant="line" width="100%" />
+      <ui-skeleton variant="line" width="100%" />
+    </div>
+    <div class="sk-card">
+      <ui-skeleton variant="line" width="40%" />
+      <ui-skeleton variant="line" width="100%" />
+      <ui-skeleton variant="line" width="100%" />
+    </div>
+  </div>
+} @else {
+  <app-profile
+    [account]="account()"
+    (profileUpdated)="onProfileUpdated($event)"
+  />
+}
