@@ -1,9 +1,9 @@
 using ContactManager.Domain.Models;
 using FluentAssertions;
 
-namespace ContactManager.Infrastructure.Tests;
+namespace ContactManager.Domain.Tests;
 
-public class AccountDomainTests
+public class AccountTests
 {
     [Fact]
     public void Create_WithValidData_SetsProperties()
@@ -60,6 +60,14 @@ public class AccountDomainTests
     }
 
     [Fact]
+    public void Create_WithInvalidEmail_Throws()
+    {
+        var act = () => AccountDomain.Create(Guid.NewGuid(), "demo", "John", "Doe", "not-an-email", "hash");
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void UpdateProfile_ChangesNameAndEmail()
     {
         var account = AccountDomain.Create(Guid.NewGuid(), "demo", "John", "Doe", "john@example.com", "hash");
@@ -69,5 +77,38 @@ public class AccountDomainTests
         account.FullName.FirstName.Should().Be("Jane");
         account.FullName.LastName.Should().Be("Smith");
         account.Email.Value.Should().Be("jane@example.com");
+    }
+
+    [Fact]
+    public void UpdateProfile_WithInvalidEmail_Throws()
+    {
+        var account = AccountDomain.Create(Guid.NewGuid(), "demo", "John", "Doe", "john@example.com", "hash");
+
+        var act = () => account.UpdateProfile("Jane", "Smith", "not-an-email");
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void UpdatePasswordHash_ReplacesTheHash()
+    {
+        var account = AccountDomain.Create(Guid.NewGuid(), "demo", "John", "Doe", "john@example.com", "old-hash");
+
+        account.UpdatePasswordHash("new-hash");
+
+        account.PasswordHash.Should().Be("new-hash");
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(null)]
+    public void UpdatePasswordHash_WithBlank_Throws(string? hash)
+    {
+        var account = AccountDomain.Create(Guid.NewGuid(), "demo", "John", "Doe", "john@example.com", "hash");
+
+        var act = () => account.UpdatePasswordHash(hash!);
+
+        act.Should().Throw<ArgumentException>().WithParameterName("passwordHash");
     }
 }

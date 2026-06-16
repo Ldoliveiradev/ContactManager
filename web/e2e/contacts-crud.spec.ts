@@ -10,15 +10,15 @@ test.describe('Contact CRUD', () => {
 
   test('create a contact', async ({ page }) => {
     await register(page, uniqueUsername());
-    await page.getByRole('link', { name: /New contact/i }).click();
-    await expect(page).toHaveURL(/\/contacts\/new/);
+    await page.getByRole('button', { name: /New contact/i }).click();
+    await expect(page.getByRole('heading', { name: 'New contact' })).toBeVisible();
 
     await page.getByLabel('Name').fill('Grace Hopper');
     await page.getByLabel('Email').fill('grace@example.com');
     await page.getByLabel('Phone').fill('2025550100');
     await page.getByRole('button', { name: 'Save' }).click();
 
-    await expect(page).toHaveURL(/\/contacts$/);
+    await expect(page.getByRole('heading', { name: 'Your contacts' })).toBeVisible();
     await expect(page.getByText('Grace Hopper')).toBeVisible();
     // Phone is formatted by the PhonePipe.
     await expect(page.getByText('(202) 555-0100')).toBeVisible();
@@ -26,13 +26,13 @@ test.describe('Contact CRUD', () => {
 
   test('validation: blank name and bad email block submit', async ({ page }) => {
     await register(page, uniqueUsername());
-    await page.getByRole('link', { name: /New contact/i }).click();
+    await page.getByRole('button', { name: /New contact/i }).click();
 
     await page.getByLabel('Email').fill('not-an-email');
     await page.getByRole('button', { name: 'Save' }).click();
 
     // Stays on the form and shows field errors.
-    await expect(page).toHaveURL(/\/contacts\/new/);
+    await expect(page.getByRole('heading', { name: 'New contact' })).toBeVisible();
     await expect(page.getByText('Name is required.')).toBeVisible();
     await expect(page.getByText('Enter a valid email address.')).toBeVisible();
   });
@@ -40,14 +40,14 @@ test.describe('Contact CRUD', () => {
   test('edit a contact', async ({ page }) => {
     await register(page, uniqueUsername());
     // Create one first.
-    await page.getByRole('link', { name: /New contact/i }).click();
+    await page.getByRole('button', { name: /New contact/i }).click();
     await page.getByLabel('Name').fill('Ada Lovelace');
     await page.getByLabel('Email').fill('ada@example.com');
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByText('Ada Lovelace')).toBeVisible();
 
     await page.getByRole('button', { name: 'Edit Ada Lovelace' }).click();
-    await expect(page).toHaveURL(/\/contacts\/.+\/edit/);
+    await expect(page.getByRole('heading', { name: 'Edit contact' })).toBeVisible();
     const name = page.getByLabel('Name');
     await name.fill('Ada L.');
     await page.getByRole('button', { name: 'Save' }).click();
@@ -57,7 +57,7 @@ test.describe('Contact CRUD', () => {
 
   test('delete a contact', async ({ page }) => {
     await register(page, uniqueUsername());
-    await page.getByRole('link', { name: /New contact/i }).click();
+    await page.getByRole('button', { name: /New contact/i }).click();
     await page.getByLabel('Name').fill('Temp Person');
     await page.getByLabel('Email').fill('temp@example.com');
     await page.getByRole('button', { name: 'Save' }).click();

@@ -25,16 +25,15 @@ public class ContactsEndpointsTests
         });
         var login = await client.PostAsJsonAsync("/api/auth/login",
             new { username, password = "Secret123!" });
-        var token = (await login.Content.ReadFromJsonAsync<TokenResponse>())!.Token;
+        var token = (await login.Content.ReadFromJsonAsync<TokenResponse>())!.Data!.Token;
 
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         return client;
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetContacts_WithoutToken_Returns401()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
@@ -43,10 +42,9 @@ public class ContactsEndpointsTests
         resp.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task CreateThenGet_ReturnsContact()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
         var client = await AuthenticatedClientAsync("crud-user");
 
@@ -62,10 +60,9 @@ public class ContactsEndpointsTests
         fetched.Data.Email.Should().Be("ada@example.com");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_WithInvalidEmail_Returns400()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
         var client = await AuthenticatedClientAsync("val-user");
 
@@ -75,10 +72,9 @@ public class ContactsEndpointsTests
         resp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetList_ReturnsOnlyOwnContacts()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
 
         var alice = await AuthenticatedClientAsync("alice");
@@ -93,10 +89,9 @@ public class ContactsEndpointsTests
         aliceList.Data.Data[0].Name.Should().Be("Ada");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetOthersContact_Returns404_NotLeakingOwnership()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
 
         var alice = await AuthenticatedClientAsync("alice2");
@@ -111,10 +106,9 @@ public class ContactsEndpointsTests
         resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task UpdateThenDelete_Works()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
         var client = await AuthenticatedClientAsync("ud-user");
 
@@ -134,10 +128,9 @@ public class ContactsEndpointsTests
         getAfter.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task UpdateOthersContact_Returns404_AndDoesNotModify()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
 
         var alice = await AuthenticatedClientAsync("up-alice");
@@ -155,10 +148,9 @@ public class ContactsEndpointsTests
         unchanged!.Data!.Name.Should().Be("Ada");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task DeleteOthersContact_Returns404_AndContactSurvives()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
 
         var alice = await AuthenticatedClientAsync("del-alice");
@@ -175,10 +167,9 @@ public class ContactsEndpointsTests
         stillThere.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_IgnoresSpoofedOwnerInBody_AssignsCallerAsOwner()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
 
         var alice = await AuthenticatedClientAsync("spoof-alice");
@@ -199,7 +190,7 @@ public class ContactsEndpointsTests
         aliceList!.Data!.Data.Should().BeEmpty();
     }
 
-    [SkippableTheory]
+    [Theory]
     [InlineData("GET", "/api/contacts")]
     [InlineData("POST", "/api/contacts")]
     [InlineData("GET", "/api/contacts/11111111-1111-1111-1111-111111111111")]
@@ -207,7 +198,6 @@ public class ContactsEndpointsTests
     [InlineData("DELETE", "/api/contacts/11111111-1111-1111-1111-111111111111")]
     public async Task ContactEndpoints_WithoutToken_Return401(string method, string url)
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         var client = _factory.CreateClient();
 
         var request = new HttpRequestMessage(new HttpMethod(method), url);
@@ -221,7 +211,8 @@ public class ContactsEndpointsTests
         resp.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    private sealed record TokenResponse(string Token);
+    private sealed record TokenDataDto(string Token);
+    private sealed record TokenResponse(TokenDataDto? Data, bool IsSuccess, string? Error);
     private sealed record ContactDataDto(Guid Id, string Name, string Email, string? Phone);
     private sealed record ContactDto(ContactDataDto? Data, bool IsSuccess, string? Error);
     private sealed record ContactListInnerDto(List<ContactDataDto> Data, bool IsSuccess, string? Error);

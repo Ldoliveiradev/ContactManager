@@ -19,7 +19,7 @@ test.describe('Data view: search, sort, pagination', () => {
   });
 
   test('changing page size to 24 shows all 15 on one page', async ({ page }) => {
-    await page.getByLabel('Items per page').selectOption('24');
+    await page.getByLabel(/per page/i).selectOption('24');
     await expect(page.locator('.grid-card')).toHaveCount(15);
   });
 
@@ -35,16 +35,20 @@ test.describe('Data view: search, sort, pagination', () => {
   });
 
   test('sort by name toggles ascending/descending', async ({ page }) => {
-    await page.getByLabel('Items per page').selectOption('24');
+    await page.getByLabel(/per page/i).selectOption('24');
     const sortName = page.getByRole('button', { name: /^Name/ });
+    const firstName = page.locator('.cell-name__text').first();
 
-    await sortName.click(); // ascending
-    const firstAsc = await page.locator('.cell-name__text').first().textContent();
-    expect(firstAsc?.trim()).toBe('Ada Lovelace');
+    // The list defaults to name ascending, so "Ada Lovelace" is first.
+    await expect(firstName).toHaveText('Ada Lovelace');
 
-    await sortName.click(); // descending
-    const firstDesc = await page.locator('.cell-name__text').first().textContent();
-    expect(firstDesc?.trim()).not.toBe('Ada Lovelace');
+    // Clicking Name toggles to descending — Ada is no longer first.
+    await sortName.click();
+    await expect(firstName).not.toHaveText('Ada Lovelace');
+
+    // Clicking again returns to ascending.
+    await sortName.click();
+    await expect(firstName).toHaveText('Ada Lovelace');
   });
 });
 
@@ -54,7 +58,7 @@ test.describe('Theme', () => {
     const html = page.locator('html');
     const before = await html.getAttribute('data-theme');
 
-    await page.getByRole('button', { name: 'Toggle theme' }).click();
+    await page.getByRole('button', { name: /mode/i }).click();
     const after = await html.getAttribute('data-theme');
 
     expect(after).not.toBe(before);

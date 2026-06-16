@@ -79,6 +79,14 @@ public class ContactTests
     }
 
     [Fact]
+    public void Create_WithEmptyContactId_Throws()
+    {
+        var act = () => ContactDomain.Create(Guid.Empty, OwnerId, "Ada", "ada@example.com", null);
+
+        act.Should().Throw<ArgumentException>().WithParameterName("id");
+    }
+
+    [Fact]
     public void Update_ChangesMutableFields()
     {
         var contact = ContactDomain.Create(Guid.NewGuid(), OwnerId, "Ada", "ada@example.com", null);

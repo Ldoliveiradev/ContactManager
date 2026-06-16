@@ -11,10 +11,9 @@ public class AuthEndpointsTests
 
     public AuthEndpointsTests(ApiTestFactory factory) => _factory = factory;
 
-    [SkippableFact]
+    [Fact]
     public async Task Register_WithValidData_Returns201()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
@@ -30,10 +29,9 @@ public class AuthEndpointsTests
         resp.StatusCode.Should().Be(HttpStatusCode.Created);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Register_DuplicateUsername_Returns409()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
@@ -44,10 +42,9 @@ public class AuthEndpointsTests
         resp.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Register_ShortPassword_Returns400()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
@@ -63,10 +60,47 @@ public class AuthEndpointsTests
         resp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [SkippableFact]
+    [Fact]
+    public async Task Register_InvalidEmail_Returns400()
+    {
+        await ApiTestFactory.ResetDatabaseAsync();
+        var client = _factory.CreateClient();
+
+        var resp = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            username = "bademail",
+            firstName = "Bad",
+            lastName = "Email",
+            email = "not-an-email",
+            password = "Secret123!"
+        });
+
+        resp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task Register_BlankFirstName_Returns400(string firstName)
+    {
+        await ApiTestFactory.ResetDatabaseAsync();
+        var client = _factory.CreateClient();
+
+        var resp = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            username = "blankfirst",
+            firstName,
+            lastName = "User",
+            email = "blankfirst@example.com",
+            password = "Secret123!"
+        });
+
+        resp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
     public async Task Login_WithValidCredentials_ReturnsToken()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
@@ -84,13 +118,12 @@ public class AuthEndpointsTests
 
         resp.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await resp.Content.ReadFromJsonAsync<LoginResponse>();
-        payload!.Token.Should().NotBeNullOrWhiteSpace();
+        payload!.Data!.Token.Should().NotBeNullOrWhiteSpace();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Login_WithWrongPassword_Returns401()
     {
-        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
         await ApiTestFactory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
@@ -109,5 +142,6 @@ public class AuthEndpointsTests
         resp.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    private sealed record LoginResponse(string Token);
+    private sealed record LoginDataDto(string Token);
+    private sealed record LoginResponse(LoginDataDto? Data, bool IsSuccess, string? Error);
 }

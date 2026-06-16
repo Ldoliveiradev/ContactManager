@@ -26,10 +26,9 @@ public class ContactRepositoryTests
         return account.Id;
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task AddAsync_ThenGetById_ReturnsPersistedContact()
     {
-        Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await PostgresTestFixture.ResetAsync();
         var accountId = await SeedAccountAsync();
 
@@ -46,10 +45,9 @@ public class ContactRepositoryTests
         loaded.Phone!.Value.Should().Be("+1-202-555-0100");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByAccountAsync_ReturnsOnlyThatAccountsContacts()
     {
-        Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await PostgresTestFixture.ResetAsync();
         var owner = await SeedAccountAsync("owner");
         var other = await SeedAccountAsync("other");
@@ -65,10 +63,9 @@ public class ContactRepositoryTests
         items.Select(c => c.AccountId).Should().AllBeEquivalentTo(owner);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task UpdateAsync_PersistsChanges()
     {
-        Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await PostgresTestFixture.ResetAsync();
         var accountId = await SeedAccountAsync();
         var contact = ContactDomain.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", null);
@@ -83,10 +80,9 @@ public class ContactRepositoryTests
         loaded.Phone!.Value.Should().Be("+1-202-555-0199");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task DeleteAsync_RemovesContact()
     {
-        Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await PostgresTestFixture.ResetAsync();
         var accountId = await SeedAccountAsync();
         var contact = ContactDomain.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", null);
@@ -97,12 +93,101 @@ public class ContactRepositoryTests
         (await _sut.GetByIdAsync(contact.Id)).Should().BeNull();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByIdAsync_WhenMissing_ReturnsNull()
     {
-        Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await PostgresTestFixture.ResetAsync();
 
         (await _sut.GetByIdAsync(Guid.NewGuid())).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetByAccountAsync_SearchFiltersByNameEmailOrPhone()
+    {
+        await PostgresTestFixture.ResetAsync();
+        var owner = await SeedAccountAsync("search-owner");
+        await _sut.AddAsync(ContactDomain.Create(Guid.NewGuid(), owner, "Ada Lovelace", "ada@example.com", "+1-202-555-0100"));
+        await _sut.AddAsync(ContactDomain.Create(Guid.NewGuid(), owner, "Alan Turing", "alan@bletchley.uk", null));
+
+        // Match by name.
+        var (byName, nameTotal) = await _sut.GetByAccountAsync(owner, "lovelace", null, false, 1, 10);
+        byName.Should().ContainSingle().Which.Name.Value.Should().Be("Ada Lovelace");
+        nameTotal.Should().Be(1);
+
+        // Match by email domain.
+        var (byEmail, _) = await _sut.GetByAccountAsync(owner, "bletchley", null, false, 1, 10);
+        byEmail.Should().ContainSingle().Which.Name.Value.Should().Be("Alan Turing");
+
+        // Match by phone fragment.
+        var (byPhone, _) = await _sut.GetByAccountAsync(owner, "555-0100", null, false, 1, 10);
+        byPhone.Should().ContainSingle().Which.Name.Value.Should().Be("Ada Lovelace");
+
+        // No match.
+        var (none, noneTotal) = await _sut.GetByAccountAsync(owner, "zzzznomatch", null, false, 1, 10);
+        none.Should().BeEmpty();
+        noneTotal.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task GetByAccountAsync_SortsByNameAscendingAndDescending()
+    {
+        await PostgresTestFixture.ResetAsync();
+        var owner = await SeedAccountAsync("sort-owner");
+        await _sut.AddAsync(ContactDomain.Create(Guid.NewGuid(), owner, "Charlie", "c@example.com", null));
+        await _sut.AddAsync(ContactDomain.Create(Guid.NewGuid(), owner, "Ada", "a@example.com", null));
+        await _sut.AddAsync(ContactDomain.Create(Guid.NewGuid(), owner, "Barbara", "b@example.com", null));
+
+        var (asc, _) = await _sut.GetByAccountAsync(owner, null, "name", false, 1, 10);
+        asc.Select(c => c.Name.Value).Should().ContainInOrder("Ada", "Barbara", "Charlie");
+
+        var (desc, _) = await _sut.GetByAccountAsync(owner, null, "name", true, 1, 10);
+        desc.Select(c => c.Name.Value).Should().ContainInOrder("Charlie", "Barbara", "Ada");
+    }
+
+    [Theory]
+    [InlineData("name; DROP TABLE contacts; --")]
+    [InlineData("(SELECT 1)")]
+    [InlineData("unknown_column")]
+    public async Task GetByAccountAsync_InvalidSortColumn_FallsBackToNameSafely(string maliciousSort)
+    {
+        await PostgresTestFixture.ResetAsync();
+        var owner = await SeedAccountAsync("inject-owner");
+        await _sut.AddAsync(ContactDomain.Create(Guid.NewGuid(), owner, "Charlie", "c@example.com", null));
+        await _sut.AddAsync(ContactDomain.Create(Guid.NewGuid(), owner, "Ada", "a@example.com", null));
+
+        // The allow-list must reject the injection and fall back to "name ASC"
+        // without throwing or executing arbitrary SQL.
+        var (items, total) = await _sut.GetByAccountAsync(owner, null, maliciousSort, false, 1, 10);
+
+        total.Should().Be(2);
+        items.Select(c => c.Name.Value).Should().ContainInOrder("Ada", "Charlie");
+
+        // The table still exists and is intact.
+        (await _sut.GetByAccountAsync(owner, null, null, false, 1, 10)).TotalCount.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task GetByAccountAsync_PaginatesAcrossPages()
+    {
+        await PostgresTestFixture.ResetAsync();
+        var owner = await SeedAccountAsync("page-owner");
+        for (var i = 0; i < 15; i++)
+            await _sut.AddAsync(ContactDomain.Create(
+                Guid.NewGuid(), owner, $"Contact {i:D2}", $"c{i:D2}@example.com", null));
+
+        var (page1, total1) = await _sut.GetByAccountAsync(owner, null, "name", false, 1, 6);
+        page1.Should().HaveCount(6);
+        total1.Should().Be(15);
+        page1.First().Name.Value.Should().Be("Contact 00");
+
+        var (page2, total2) = await _sut.GetByAccountAsync(owner, null, "name", false, 2, 6);
+        page2.Should().HaveCount(6);
+        total2.Should().Be(15);
+        page2.First().Name.Value.Should().Be("Contact 06");
+
+        var (page3, total3) = await _sut.GetByAccountAsync(owner, null, "name", false, 3, 6);
+        page3.Should().HaveCount(3);
+        total3.Should().Be(15);
+        page3.First().Name.Value.Should().Be("Contact 12");
     }
 }

@@ -1,4 +1,3 @@
-using System.Net.Sockets;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -20,8 +19,6 @@ public sealed class ApiTestFactory : WebApplicationFactory<Program>, IAsyncLifet
     public const string TestConnectionString =
         "Host=localhost;Port=5433;Database=contactmanager_test_api;Username=contactmanager;Password=contactmanager_dev_pwd";
 
-    public bool DbAvailable { get; private set; }
-
     protected override IHost CreateHost(IHostBuilder builder)
     {
         builder.ConfigureHostConfiguration(config =>
@@ -41,29 +38,24 @@ public sealed class ApiTestFactory : WebApplicationFactory<Program>, IAsyncLifet
 
     public async Task InitializeAsync()
     {
-        try
+        // No try/catch: if the PostgreSQL test database is unreachable, this throws
+        // and every integration test fails loudly rather than silently skipping.
+        await using (var admin = new NpgsqlConnection(AdminConnectionString))
         {
-            await using (var admin = new NpgsqlConnection(AdminConnectionString))
+            await admin.OpenAsync();
+            await using var check = new NpgsqlCommand(
+                "SELECT 1 FROM pg_database WHERE datname = 'contactmanager_test_api'", admin);
+            if (await check.ExecuteScalarAsync() is null)
             {
-                await admin.OpenAsync();
-                await using var check = new NpgsqlCommand(
-                    "SELECT 1 FROM pg_database WHERE datname = 'contactmanager_test_api'", admin);
-                if (await check.ExecuteScalarAsync() is null)
-                {
-                    await using var create = new NpgsqlCommand("CREATE DATABASE contactmanager_test_api", admin);
-                    await create.ExecuteNonQueryAsync();
-                }
+                await using var create = new NpgsqlCommand("CREATE DATABASE contactmanager_test_api", admin);
+                await create.ExecuteNonQueryAsync();
             }
-
-            await using var conn = new NpgsqlConnection(TestConnectionString);
-            await conn.OpenAsync();
-            await using var schema = new NpgsqlCommand(Schema, conn);
-            await schema.ExecuteNonQueryAsync();
-
-            DbAvailable = true;
         }
-        catch (NpgsqlException) { DbAvailable = false; }
-        catch (SocketException) { DbAvailable = false; }
+
+        await using var conn = new NpgsqlConnection(TestConnectionString);
+        await conn.OpenAsync();
+        await using var schema = new NpgsqlCommand(Schema, conn);
+        await schema.ExecuteNonQueryAsync();
     }
 
     public static async Task ResetDatabaseAsync()

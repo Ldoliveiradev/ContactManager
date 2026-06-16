@@ -101,6 +101,44 @@ public class ContactServiceTests
         result.TotalCount.Should().Be(1);
     }
 
+    [Fact]
+    public async Task GetAllAsync_PassesSearchSortAndPagingToRepository()
+    {
+        _repo.Setup(r => r.GetByAccountAsync(
+                Owner, "ada", "email", true, 2, 25, It.IsAny<CancellationToken>()))
+             .ReturnsAsync((new List<ContactDomain>(), 0));
+
+        var filter = new FilterRequest<GetContactRequest>(
+            new GetContactRequest(Guid.Empty), Search: "ada", SortBy: "email", SortDesc: true, Page: 2, PageSize: 25);
+
+        await _sut.GetAllAsync(Owner, filter);
+
+        _repo.Verify(r => r.GetByAccountAsync(
+            Owner, "ada", "email", true, 2, 25, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAllAsync_ComputesPaginationMetadata()
+    {
+        // 15 total, page 1, size 6 => 3 pages, has next, no previous.
+        _repo.Setup(r => r.GetByAccountAsync(
+                Owner, It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool>(),
+                1, 6, It.IsAny<CancellationToken>()))
+             .ReturnsAsync((new List<ContactDomain>(), 15));
+
+        var filter = new FilterRequest<GetContactRequest>(
+            new GetContactRequest(Guid.Empty), Page: 1, PageSize: 6);
+
+        var result = await _sut.GetAllAsync(Owner, filter);
+
+        result.TotalCount.Should().Be(15);
+        result.Page.Should().Be(1);
+        result.PageSize.Should().Be(6);
+        result.TotalPages.Should().Be(3);
+        result.HasNextPage.Should().BeTrue();
+        result.HasPreviousPage.Should().BeFalse();
+    }
+
     // ---- Update ----
 
     [Fact]

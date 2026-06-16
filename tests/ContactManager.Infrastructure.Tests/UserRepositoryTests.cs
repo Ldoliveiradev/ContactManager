@@ -17,10 +17,9 @@ public class AccountRepositoryTests
         _sut = new AccountRepository(PostgresTestFixture.TestConnectionString);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task AddAsync_ThenGetByUsername_ReturnsPersistedAccountDomain()
     {
-        Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await PostgresTestFixture.ResetAsync();
 
         var account = AccountDomain.Create(Guid.NewGuid(), "alice", "Alice", "Smith", "alice@example.com", "hashed-pw");
@@ -37,10 +36,9 @@ public class AccountRepositoryTests
         loaded.PasswordHash.Should().Be("hashed-pw");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByUsernameAsync_WhenMissing_ReturnsNull()
     {
-        Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await PostgresTestFixture.ResetAsync();
 
         var loaded = await _sut.GetByUsernameAsync("nobody");
@@ -48,10 +46,9 @@ public class AccountRepositoryTests
         loaded.Should().BeNull();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByIdAsync_ReturnsPersistedAccountDomain()
     {
-        Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await PostgresTestFixture.ResetAsync();
 
         var account = AccountDomain.Create(Guid.NewGuid(), "bob", "Bob", "Jones", "bob@example.com", "hashed-pw");
@@ -64,10 +61,9 @@ public class AccountRepositoryTests
         loaded.Username.Value.Should().Be("bob");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task AddAsync_WithDuplicateUsername_Throws()
     {
-        Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await PostgresTestFixture.ResetAsync();
 
         await _sut.AddAsync(AccountDomain.Create(Guid.NewGuid(), "carol", "Carol", "White", "carol@example.com", "h1"));
@@ -75,5 +71,45 @@ public class AccountRepositoryTests
         var act = () => _sut.AddAsync(AccountDomain.Create(Guid.NewGuid(), "carol", "Carol", "White", "carol2@example.com", "h2"));
 
         await act.Should().ThrowAsync<Exception>();
+    }
+
+    [Fact]
+    public async Task UpdateAsync_PersistsProfileChanges()
+    {
+        await PostgresTestFixture.ResetAsync();
+        var account = AccountDomain.Create(Guid.NewGuid(), "dave", "Dave", "Brown", "dave@example.com", "hash");
+        await _sut.AddAsync(account);
+
+        account.UpdateProfile("David", "Green", "david@example.com");
+        await _sut.UpdateAsync(account);
+
+        var loaded = await _sut.GetByIdAsync(account.Id);
+        loaded!.FullName.FirstName.Should().Be("David");
+        loaded.FullName.LastName.Should().Be("Green");
+        loaded.Email.Value.Should().Be("david@example.com");
+        // Username is immutable and unchanged.
+        loaded.Username.Value.Should().Be("dave");
+    }
+
+    [Fact]
+    public async Task UpdateAsync_PersistsNewPasswordHash()
+    {
+        await PostgresTestFixture.ResetAsync();
+        var account = AccountDomain.Create(Guid.NewGuid(), "erin", "Erin", "Black", "erin@example.com", "old-hash");
+        await _sut.AddAsync(account);
+
+        account.UpdatePasswordHash("new-hash");
+        await _sut.UpdateAsync(account);
+
+        var loaded = await _sut.GetByIdAsync(account.Id);
+        loaded!.PasswordHash.Should().Be("new-hash");
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenMissing_ReturnsNull()
+    {
+        await PostgresTestFixture.ResetAsync();
+
+        (await _sut.GetByIdAsync(Guid.NewGuid())).Should().BeNull();
     }
 }
