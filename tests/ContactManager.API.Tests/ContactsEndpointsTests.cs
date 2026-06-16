@@ -130,6 +130,100 @@ public class ContactsEndpointsTests
         getAfter.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
+    [SkippableFact]
+    public async Task UpdateOthersContact_Returns404_AndDoesNotModify()
+    {
+        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
+        await _factory.ResetDatabaseAsync();
+
+        var alice = await AuthenticatedClientAsync("up-alice");
+        var bob = await AuthenticatedClientAsync("up-bob");
+
+        var created = await (await alice.PostAsJsonAsync("/api/contacts",
+            new { name = "Ada", email = "ada@example.com", phone = (string?)null }))
+            .Content.ReadFromJsonAsync<ContactDto>();
+
+        // Bob attempts to edit Alice's contact → 404 (ownership not leaked).
+        var resp = await bob.PutAsJsonAsync($"/api/contacts/{created!.Id}",
+            new { name = "Hacked", email = "hacked@example.com", phone = (string?)null });
+        resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        // And Alice's contact is unchanged.
+        var unchanged = await alice.GetFromJsonAsync<ContactDto>($"/api/contacts/{created.Id}");
+        unchanged!.Name.Should().Be("Ada");
+    }
+
+    [SkippableFact]
+    public async Task DeleteOthersContact_Returns404_AndContactSurvives()
+    {
+        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
+        await _factory.ResetDatabaseAsync();
+
+        var alice = await AuthenticatedClientAsync("del-alice");
+        var bob = await AuthenticatedClientAsync("del-bob");
+
+        var created = await (await alice.PostAsJsonAsync("/api/contacts",
+            new { name = "Ada", email = "ada@example.com", phone = (string?)null }))
+            .Content.ReadFromJsonAsync<ContactDto>();
+
+        var resp = await bob.DeleteAsync($"/api/contacts/{created!.Id}");
+        resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        // The contact still exists for its real owner.
+        var stillThere = await alice.GetAsync($"/api/contacts/{created.Id}");
+        stillThere.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [SkippableFact]
+    public async Task Create_IgnoresSpoofedOwnerInBody_AssignsCallerAsOwner()
+    {
+        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
+        await _factory.ResetDatabaseAsync();
+
+        var alice = await AuthenticatedClientAsync("spoof-alice");
+        var bob = await AuthenticatedClientAsync("spoof-bob");
+
+        // Bob tries to create a contact "owned" by Alice by smuggling userId/ownerId fields.
+        // The API binds only name/email/phone and takes the owner from the JWT, so these
+        // extra fields are ignored — the contact belongs to Bob, and Alice never sees it.
+        var created = await (await bob.PostAsJsonAsync("/api/contacts", new
+        {
+            name = "Sneaky",
+            email = "sneaky@example.com",
+            phone = (string?)null,
+            userId = Guid.NewGuid(),
+            ownerId = Guid.NewGuid(),
+        })).Content.ReadFromJsonAsync<ContactDto>();
+
+        // Bob can see it; Alice cannot.
+        (await bob.GetAsync($"/api/contacts/{created!.Id}")).StatusCode
+            .Should().Be(HttpStatusCode.OK);
+        var aliceList = await alice.GetFromJsonAsync<List<ContactDto>>("/api/contacts");
+        aliceList!.Should().BeEmpty();
+    }
+
+    [SkippableTheory]
+    [InlineData("GET", "/api/contacts")]
+    [InlineData("POST", "/api/contacts")]
+    [InlineData("GET", "/api/contacts/11111111-1111-1111-1111-111111111111")]
+    [InlineData("PUT", "/api/contacts/11111111-1111-1111-1111-111111111111")]
+    [InlineData("DELETE", "/api/contacts/11111111-1111-1111-1111-111111111111")]
+    public async Task ContactEndpoints_WithoutToken_Return401(string method, string url)
+    {
+        Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
+        var client = _factory.CreateClient(); // no Authorization header
+
+        var request = new HttpRequestMessage(new HttpMethod(method), url);
+        if (method is "POST" or "PUT")
+        {
+            request.Content = JsonContent.Create(
+                new { name = "X", email = "x@example.com", phone = (string?)null });
+        }
+
+        var resp = await client.SendAsync(request);
+        resp.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
     private sealed record TokenResponse(string Token);
     private sealed record ContactDto(Guid Id, string Name, string Email, string? Phone);
 }
