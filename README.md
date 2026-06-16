@@ -124,15 +124,18 @@ npm start                 # http://localhost:4200
 
 ## Demo credentials
 
-The database is **seeded on first run** with a demo user and 15 contacts.
+The database is **seeded on first run** with two demo users and their own contacts.
 
-**App login** (sign in at the frontend):
+**App logins** (sign in at the frontend — the value is a **username, not an email**):
 
-| Username | Password   | Notes                                                  |
-| -------- | ---------- | ------------------------------------------------------ |
-| `demo`   | `Demo123!` | A **username, not an email**. Owns 15 seeded contacts. |
+| Username | Password   | Notes                                                       |
+| -------- | ---------- | ----------------------------------------------------------- |
+| `demo`   | `Demo123!` | Owns **15** contacts — good for search / sort / pagination. |
+| `sales2` | `Demo123!` | Owns **3** different contacts.                              |
 
-You can also click **Register** on the login screen to create a fresh account.
+Two users are seeded so you can demonstrate **data isolation**: log in as `demo`, then as
+`sales2`, and each sees only their own contacts (a contact owned by the other user is not
+visible and returns `404` by id). You can also click **Register** to create a fresh account.
 
 **pgAdmin login** (<http://localhost:5051>):
 
@@ -190,11 +193,23 @@ Base URL: `http://localhost:8085` (Docker) — all routes are under `/api`.
 
 **Security notes:**
 
+- **All contact endpoints require authentication** (`[Authorize]`); without a token they
+  return `401`.
 - The owning user id is read from the **JWT claims**, never from the request body or route.
-- A contact owned by another user returns **`404` (not `403`)** so ownership isn't leaked
-  (IDOR protection).
+  Create/update DTOs don't even have a user-id field, so ownership **cannot be spoofed** —
+  extra fields in the body are ignored and the caller is always the owner.
+- A contact owned by another user is invisible: **read, update, and delete all return
+  `404` (not `403`)** so ownership isn't leaked (IDOR protection), and the other user's
+  data is never modified.
 - Login returns the same `401` for unknown-user and wrong-password (no user enumeration).
-- Errors are returned as RFC 7807 `ProblemDetails`.
+- These rules are enforced **server-side** in the Application/Domain layers (the UI also
+  validates for UX, but the API is authoritative). Errors use RFC 7807 `ProblemDetails`.
+
+> **On roles/claims:** the brief asks for *authorized vs non-authorized* endpoints
+> (authentication), which is implemented. Role-based authorization was intentionally left
+> out as it isn't required; the JWT already carries `sub` (user id) and `unique_name`
+> claims, and the design extends trivially to roles (add a `role` column → claim →
+> `[Authorize(Roles = …)]`) if ever needed.
 
 ---
 

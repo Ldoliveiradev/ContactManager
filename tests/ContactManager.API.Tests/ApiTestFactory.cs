@@ -8,7 +8,7 @@ namespace ContactManager.API.Tests;
 
 /// <summary>
 /// Boots the real API in-memory via WebApplicationFactory, pointed at a dedicated
-/// contactmanager_test database so endpoint tests exercise the full stack
+/// contactmanager_test_api database so endpoint tests exercise the full stack
 /// (controller → service → Npgsql repository → Postgres). Skips gracefully when
 /// the database is not reachable.
 /// </summary>
@@ -18,7 +18,7 @@ public sealed class ApiTestFactory : WebApplicationFactory<Program>, IAsyncLifet
         "Host=localhost;Port=5433;Database=contactmanager;Username=contactmanager;Password=contactmanager_dev_pwd";
 
     public const string TestConnectionString =
-        "Host=localhost;Port=5433;Database=contactmanager_test;Username=contactmanager;Password=contactmanager_dev_pwd";
+        "Host=localhost;Port=5433;Database=contactmanager_test_api;Username=contactmanager;Password=contactmanager_dev_pwd";
 
     public bool DbAvailable { get; private set; }
 
@@ -47,10 +47,10 @@ public sealed class ApiTestFactory : WebApplicationFactory<Program>, IAsyncLifet
             {
                 await admin.OpenAsync();
                 await using var check = new NpgsqlCommand(
-                    "SELECT 1 FROM pg_database WHERE datname = 'contactmanager_test'", admin);
+                    "SELECT 1 FROM pg_database WHERE datname = 'contactmanager_test_api'", admin);
                 if (await check.ExecuteScalarAsync() is null)
                 {
-                    await using var create = new NpgsqlCommand("CREATE DATABASE contactmanager_test", admin);
+                    await using var create = new NpgsqlCommand("CREATE DATABASE contactmanager_test_api", admin);
                     await create.ExecuteNonQueryAsync();
                 }
             }
