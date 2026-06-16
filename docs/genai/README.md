@@ -20,8 +20,6 @@ It documents, honestly and concretely:
 - [`02-clean-arch-layer-boundary.md`](02-clean-arch-layer-boundary.md) — real decision from
   this project: where `AuthService` belongs and how to resolve the `ITokenGenerator`
   dependency inversion problem without letting Application reference Infrastructure.
-- Subsequent files (`03-...`) log further real prompts used to build *this* Contact Manager,
-  each paired with the corrections made.
 
 ## Guiding principle
 
