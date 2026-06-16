@@ -1,0 +1,34 @@
+<div class="auth-page">
+  <form class="auth-card" [formGroup]="form" (ngSubmit)="submit()">
+    <h1>Contact Manager</h1>
+    <p class="subtitle">{{ mode() === 'login' ? 'Sign in to your account' : 'Create an account' }}</p>
+
+    @if (error()) {
+      <div class="alert" role="alert">{{ error() }}</div>
+    }
+
+    <label>
+      <span>Username</span>
+      <input type="text" formControlName="username" autocomplete="username" />
+      @if (form.controls.username.touched && form.controls.username.invalid) {
+        <small class="field-error">Username is required.</small>
+      }
+    </label>
+
+    <label>
+      <span>Password</span>
+      <input type="password" formControlName="password" autocomplete="current-password" />
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <small class="field-error">Password must be at least 8 characters.</small>
+      }
+    </label>
+
+    <button type="submit" [disabled]="loading()">
+      {{ loading() ? 'Please wait…' : (mode() === 'login' ? 'Sign in' : 'Register') }}
+    </button>
+
+    <button type="button" class="link" (click)="toggleMode()">
+      {{ mode() === 'login' ? "Don't have an account? Register" : 'Already have an account? Sign in' }}
+    </button>
+  </form>
+</div>

@@ -1,0 +1,42 @@
+<div class="list-header">
+  <h2>Your contacts</h2>
+  <a class="btn-primary" routerLink="/contacts/new">+ New contact</a>
+</div>
+
+@if (error()) {
+  <div class="alert" role="alert">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <p class="muted">Loading…</p>
+} @else if (items().length === 0) {
+  <div class="empty">
+    <p>No contacts yet.</p>
+    <a class="btn-primary" routerLink="/contacts/new">Add your first contact</a>
+  </div>
+} @else {
+  <!-- Card grid on small screens, table on larger ones -->
+  <table class="contacts-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th class="actions-col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (contact of items(); track contact.id) {
+        <tr>
+          <td data-label="Name">{{ contact.name }}</td>
+          <td data-label="Email">{{ contact.email }}</td>
+          <td data-label="Phone">{{ contact.phone || '—' }}</td>
+          <td data-label="Actions" class="actions">
+            <a class="btn-link" [routerLink]="['/contacts', contact.id, 'edit']">Edit</a>
+            <button type="button" class="btn-danger" (click)="remove(contact)">Delete</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

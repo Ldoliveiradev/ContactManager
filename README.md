@@ -60,8 +60,16 @@ dotnet run --project src/ContactManager.API
 ### Frontend (either option)
 
 ```bash
-cd web && npm start    # Angular dev server on http://localhost:4200
+cd web && npm install   # first time only
+npm start               # Angular dev server on http://localhost:4200
 ```
+
+The SPA (Angular 20, standalone components + signals) provides login/registration and
+full contact CRUD. It calls the API at the URL in
+[`web/src/environments/environment.ts`](web/src/environments/environment.ts) — set to the
+containerized API (`http://localhost:8085/api`) by default; change it if running the API
+via `dotnet run`. The JWT is attached by an HTTP interceptor and routes are protected by an
+auth guard.
 
 ### Demo credentials
 

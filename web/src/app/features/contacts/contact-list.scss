@@ -1,0 +1,131 @@
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.btn-primary {
+  background: #3b5bdb;
+  color: #fff;
+  padding: 0.55rem 0.9rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.contacts-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  th {
+    background: #f5f6f8;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #555;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+}
+
+.btn-link {
+  color: #3b5bdb;
+  text-decoration: none;
+}
+
+.btn-danger {
+  background: none;
+  border: none;
+  color: #c62828;
+  cursor: pointer;
+  padding: 0;
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+
+  .btn-primary {
+    margin-top: 1rem;
+  }
+}
+
+.alert {
+  background: #fdecea;
+  color: #b71c1c;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.muted {
+  color: #888;
+}
+
+/* Responsive: collapse the table into stacked cards on narrow screens. */
+@media (max-width: 600px) {
+  .contacts-table thead {
+    display: none;
+  }
+
+  .contacts-table,
+  .contacts-table tbody,
+  .contacts-table tr,
+  .contacts-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .contacts-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 0.5rem;
+  }
+
+  .contacts-table td {
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0.5rem;
+
+    &::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: #555;
+    }
+  }
+
+  .contacts-table td.actions {
+    justify-content: flex-end;
+  }
+
+  .contacts-table td.actions::before {
+    content: '';
+  }
+}
