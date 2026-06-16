@@ -1,0 +1,84 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.list-header {
+  @include m.flex(row, center, space-between, t.space(3));
+  flex-wrap: wrap;
+  margin-bottom: t.space(5);
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.new-link {
+  text-decoration: none;
+}
+
+/* Custom grid cell: name + avatar */
+.cell-name {
+  @include m.flex(row, center, flex-start, t.space(3));
+  min-width: 0;
+
+  &__avatar {
+    @include m.flex-center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: t.$radius-pill;
+    background: var(--primary);
+    color: var(--primary-contrast);
+    font-weight: t.$font-weight-bold;
+    text-transform: uppercase;
+  }
+
+  &__text {
+    font-weight: t.$font-weight-semibold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.cell-muted {
+  color: var(--text-muted);
+  font-size: t.font-size('sm');
+}
+
+.icon-action {
+  @include m.flex(row, center, center, t.space(1));
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font: inherit;
+  font-size: t.font-size('sm');
+  font-weight: t.$font-weight-medium;
+  color: var(--text);
+  padding: t.space(2) t.space(3);
+  border-radius: t.$radius-sm;
+  transition: background-color t.$transition-fast, color t.$transition-fast,
+    border-color t.$transition-fast;
+  @include m.focus-ring;
+
+  &:hover {
+    background: var(--surface-hover);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  &--danger:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+}
+
+.empty {
+  @include m.flex(column, center, center, t.space(4));
+  text-align: center;
+  padding: t.space(10) t.space(4);
+  color: var(--text-muted);
+}
+
+.muted {
+  color: var(--text-muted);
+}

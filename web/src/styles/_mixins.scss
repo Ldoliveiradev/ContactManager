@@ -1,0 +1,137 @@
+// =============================================================================
+// Reusable SCSS mixins built on the tokens + breakpoints.
+// =============================================================================
+
+@use 'breakpoints' as bp;
+@use 'tokens' as t;
+
+// ---- Responsive: min-width media query by breakpoint name -------------------
+// Usage: @include respond('md') { ... }
+@mixin respond($name) {
+  @if $name == 'sm' {
+    @media (min-width: bp.$breakpoint-sm) { @content; }
+  } @else if $name == 'md' {
+    @media (min-width: bp.$breakpoint-md) { @content; }
+  } @else if $name == 'lg' {
+    @media (min-width: bp.$breakpoint-lg) { @content; }
+  } @else if $name == 'xl' {
+    @media (min-width: bp.$breakpoint-xl) { @content; }
+  } @else {
+    @error "Unknown breakpoint: #{$name}";
+  }
+}
+
+// ---- Flex helpers -----------------------------------------------------------
+@mixin flex($direction: row, $align: stretch, $justify: flex-start, $gap: 0) {
+  display: flex;
+  flex-direction: $direction;
+  align-items: $align;
+  justify-content: $justify;
+  @if $gap != 0 {
+    gap: $gap;
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ---- Surface card -----------------------------------------------------------
+@mixin card($padding: t.space(5)) {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: t.$radius-lg;
+  box-shadow: var(--shadow-md);
+  padding: $padding;
+}
+
+// ---- Accessible focus ring --------------------------------------------------
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+// ---- Buttons ----------------------------------------------------------------
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: t.space(2);
+  font: inherit;
+  font-weight: t.$font-weight-semibold;
+  line-height: 1;
+  padding: t.space(3) t.space(4);
+  border: 1px solid transparent;
+  border-radius: t.$radius-md;
+  cursor: pointer;
+  transition: background-color t.$transition-fast, transform t.$transition-fast,
+    box-shadow t.$transition-fast;
+  @include focus-ring;
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background: var(--primary);
+  color: var(--primary-contrast);
+
+  &:hover:not(:disabled) {
+    background: var(--primary-hover);
+  }
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background: var(--surface-alt);
+  color: var(--text);
+  border-color: var(--border);
+
+  &:hover:not(:disabled) {
+    background: var(--surface-hover);
+  }
+}
+
+@mixin button-ghost {
+  @include button-base;
+  background: transparent;
+  color: var(--primary);
+  padding: t.space(2) t.space(3);
+
+  &:hover:not(:disabled) {
+    background: var(--surface-alt);
+  }
+}
+
+// ---- Form field input -------------------------------------------------------
+@mixin input {
+  width: 100%;
+  padding: t.space(3) t.space(3);
+  font: inherit;
+  color: var(--text);
+  background: var(--surface-alt);
+  border: 1px solid var(--input-border);
+  border-radius: t.$radius-md;
+  transition: border-color t.$transition-fast, box-shadow t.$transition-fast;
+
+  &::placeholder {
+    color: var(--text-muted);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-ring);
+  }
+}

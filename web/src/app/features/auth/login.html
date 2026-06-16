@@ -1,0 +1,51 @@
+<div class="auth-page">
+  <ui-card class="auth-card">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <header class="auth-card__head">
+        <h1>Contact Manager</h1>
+        <p class="auth-card__subtitle">
+          {{ mode() === 'login' ? 'Sign in to your account' : 'Create an account' }}
+        </p>
+      </header>
+
+      @if (error()) {
+        <ui-alert>{{ error() }}</ui-alert>
+      }
+
+      <ui-form-field
+        label="Username"
+        [error]="form.controls.username.touched && form.controls.username.invalid ? 'Username is required.' : null"
+      >
+        <input
+          type="text"
+          formControlName="username"
+          autocomplete="username"
+          aria-label="Username"
+          placeholder="your-username"
+          appAutofocus
+        />
+      </ui-form-field>
+
+      <ui-form-field
+        label="Password"
+        [error]="form.controls.password.touched && form.controls.password.invalid ? 'Password must be at least 8 characters.' : null"
+      >
+        <input
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          aria-label="Password"
+          placeholder="••••••••"
+        />
+      </ui-form-field>
+
+      <ui-button type="submit" [disabled]="loading()">
+        {{ loading() ? 'Please wait…' : (mode() === 'login' ? 'Sign in' : 'Register') }}
+      </ui-button>
+
+      <ui-button type="button" variant="ghost" (click)="toggleMode()">
+        {{ mode() === 'login' ? "Don't have an account? Register" : 'Already have an account? Sign in' }}
+      </ui-button>
+    </form>
+  </ui-card>
+</div>

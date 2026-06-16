@@ -1,7 +1,9 @@
+name: contact-manager
+
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: contactmanager-db
+    container_name: contact-manager-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: contactmanager
@@ -24,7 +26,7 @@ services:
     build:
       context: .
       dockerfile: src/ContactManager.API/Dockerfile
-    container_name: contactmanager-api
+    container_name: contact-manager-api
     restart: unless-stopped
     depends_on:
       postgres:
@@ -42,5 +44,33 @@ services:
       # Host 8085 → container 8080, to avoid colliding with other local services.
       - "8085:8080"
 
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: contact-manager-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      # Host 4300 → container 80 (nginx). The SPA serves the app and proxies /api to api.
+      - "4300:80"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: contact-manager-pgadmin
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@contactmanager.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5051:80"
+    volumes:
+      - contact-manager-pgadmin:/var/lib/pgadmin
+
 volumes:
   contactmanager-pgdata:
+  contact-manager-pgadmin:

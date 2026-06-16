@@ -1,0 +1,36 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+:host {
+  display: block;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: t.space(2);
+
+  &__label {
+    font-size: t.font-size('sm');
+    font-weight: t.$font-weight-medium;
+    color: var(--text);
+  }
+
+  &__optional {
+    color: var(--text-muted);
+    font-style: normal;
+    font-weight: t.$font-weight-normal;
+  }
+
+  &__error {
+    color: var(--danger);
+    font-size: t.font-size('xs');
+  }
+
+  // Style any projected input/select/textarea consistently.
+  ::ng-deep input,
+  ::ng-deep select,
+  ::ng-deep textarea {
+    @include m.input;
+  }
+}
