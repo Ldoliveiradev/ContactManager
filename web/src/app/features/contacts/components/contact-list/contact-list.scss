@@ -15,7 +15,6 @@
   text-decoration: none;
 }
 
-/* Custom grid cell: name + avatar */
 .cell-name {
   @include m.flex(row, center, flex-start, t.space(3));
   min-width: 0;

@@ -25,7 +25,6 @@
     searchPlaceholder="Search contacts…"
     emptyMessage="No contacts match your search."
   >
-    <!-- Custom cell: name with avatar -->
     <ng-template uiDataViewCell="name" let-row>
       <div class="cell-name">
         <span class="cell-name__avatar" aria-hidden="true">{{ row.name.charAt(0) }}</span>
@@ -33,17 +32,14 @@
       </div>
     </ng-template>
 
-    <!-- Custom cell: email -->
     <ng-template uiDataViewCell="email" let-row>
       <span class="cell-muted" [title]="row.email"><fa-icon [icon]="faEnvelope" /> {{ row.email }}</span>
     </ng-template>
 
-    <!-- Custom cell: phone (formatted) -->
     <ng-template uiDataViewCell="phone" let-row>
       <span class="cell-muted"><fa-icon [icon]="faPhone" /> {{ row.phone | phone }}</span>
     </ng-template>
 
-    <!-- Row actions -->
     <ng-template uiDataViewActions let-row>
       <button
         type="button"

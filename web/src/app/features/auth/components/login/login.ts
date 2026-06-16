@@ -1,12 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
-import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
-import { Alert } from '../../shared/ui/alert/alert';
-import { Button } from '../../shared/ui/button/button';
-import { Card } from '../../shared/ui/card/card';
-import { FormField } from '../../shared/ui/form-field/form-field';
+import { AutofocusDirective } from '../../../../shared/directives/autofocus.directive';
+import { Alert } from '../../../../shared/ui/alert/alert';
+import { Button } from '../../../../shared/ui/button/button';
+import { Card } from '../../../../shared/ui/card/card';
+import { FormField } from '../../../../shared/ui/form-field/form-field';
+import { RegisterRequest } from '../../models/register-request.interface';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -25,12 +26,20 @@ export class Login {
 
   protected readonly form = this.fb.nonNullable.group({
     username: ['', [Validators.required]],
+    firstName: [''],
+    lastName: [''],
+    email: [''],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
   protected toggleMode(): void {
     this.mode.set(this.mode() === 'login' ? 'register' : 'login');
     this.error.set(null);
+    this.form.reset();
+  }
+
+  protected isRegister(): boolean {
+    return this.mode() === 'register';
   }
 
   protected submit(): void {
@@ -41,20 +50,27 @@ export class Login {
 
     this.loading.set(true);
     this.error.set(null);
-    const credentials = this.form.getRawValue();
+    const raw = this.form.getRawValue();
 
     if (this.mode() === 'login') {
-      this.auth.login(credentials).subscribe({
+      this.auth.login({ username: raw.username, password: raw.password }).subscribe({
         next: () => this.router.navigate(['/contacts']),
         error: (err: { status?: number }) => this.handleError(err),
       });
       return;
     }
 
-    // Register, then log in to obtain a token.
-    this.auth.register(credentials).subscribe({
+    const registerRequest: RegisterRequest = {
+      username: raw.username,
+      firstName: raw.firstName,
+      lastName: raw.lastName,
+      email: raw.email,
+      password: raw.password,
+    };
+
+    this.auth.register(registerRequest).subscribe({
       next: () =>
-        this.auth.login(credentials).subscribe({
+        this.auth.login({ username: raw.username, password: raw.password }).subscribe({
           next: () => this.router.navigate(['/contacts']),
           error: (err: { status?: number }) => this.handleError(err),
         }),

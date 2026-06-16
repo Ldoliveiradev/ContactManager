@@ -2,6 +2,9 @@
   <header class="app-header">
     <span class="brand">Contact Manager</span>
     <div class="header-actions">
+      <a routerLink="/profile" class="icon-btn" aria-label="Profile">
+        <fa-icon [icon]="faUser" />
+      </a>
       <button type="button" class="icon-btn" (click)="toggleTheme()" aria-label="Toggle theme">
         <fa-icon [icon]="themeIcon()" />
       </button>
@@ -11,7 +14,6 @@
     </div>
   </header>
 } @else {
-  <!-- Floating theme toggle for the login screen -->
   <button type="button" class="floating-theme" (click)="toggleTheme()" aria-label="Toggle theme">
     <fa-icon [icon]="themeIcon()" />
   </button>

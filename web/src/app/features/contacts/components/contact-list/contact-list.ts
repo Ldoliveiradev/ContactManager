@@ -8,15 +8,15 @@ import {
   faPlus,
   faTrashCan,
 } from '@fortawesome/free-solid-svg-icons';
-import { Contact } from '../../core/models/contact.model';
-import { ContactService } from '../../core/services/contact.service';
-import { PhonePipe } from '../../shared/pipes/phone.pipe';
-import { Alert } from '../../shared/ui/alert/alert';
-import { Button } from '../../shared/ui/button/button';
-import { DataView } from '../../shared/ui/data-view/data-view';
-import { DataViewActionsDirective } from '../../shared/ui/data-view/data-view-actions.directive';
-import { DataViewCellDirective } from '../../shared/ui/data-view/data-view-cell.directive';
-import { DataViewColumn } from '../../shared/ui/data-view/data-view.types';
+import { PhonePipe } from '../../../../shared/pipes/phone.pipe';
+import { Alert } from '../../../../shared/ui/alert/alert';
+import { Button } from '../../../../shared/ui/button/button';
+import { DataView } from '../../../../shared/ui/data-view/data-view';
+import { DataViewActionsDirective } from '../../../../shared/ui/data-view/data-view-actions.directive';
+import { DataViewCellDirective } from '../../../../shared/ui/data-view/data-view-cell.directive';
+import { DataViewColumn } from '../../../../shared/ui/data-view/data-view.types';
+import { ContactDto } from '../../models/contact-dto.interface';
+import { ContactService } from '../../services/contact.service';
 
 @Component({
   selector: 'app-contact-list',
@@ -37,19 +37,17 @@ export class ContactList implements OnInit {
   private readonly contacts = inject(ContactService);
   private readonly router = inject(Router);
 
-  // FontAwesome icons used in the template.
   protected readonly faPlus = faPlus;
   protected readonly faEnvelope = faEnvelope;
   protected readonly faPhone = faPhone;
   protected readonly faPenToSquare = faPenToSquare;
   protected readonly faTrashCan = faTrashCan;
 
-  protected readonly items = signal<Contact[]>([]);
+  protected readonly items = signal<ContactDto[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
 
-  // Column definitions for the generic data view.
-  protected readonly columns: DataViewColumn<Contact>[] = [
+  protected readonly columns: DataViewColumn<ContactDto>[] = [
     { key: 'name', header: 'Name', sortable: true, searchable: true, cell: 'name' },
     { key: 'email', header: 'Email', sortable: true, searchable: true, cell: 'email' },
     { key: 'phone', header: 'Phone', searchable: true, cell: 'phone' },
@@ -74,11 +72,11 @@ export class ContactList implements OnInit {
     });
   }
 
-  protected editContact(contact: Contact): void {
+  protected editContact(contact: ContactDto): void {
     this.router.navigate(['/contacts', contact.id, 'edit']);
   }
 
-  protected remove(contact: Contact): void {
+  protected remove(contact: ContactDto): void {
     if (!confirm(`Delete ${contact.name}?`)) {
       return;
     }
