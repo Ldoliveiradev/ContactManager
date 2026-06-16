@@ -1,13 +1,10 @@
 using ContactManager.Application.Accounts.Models.Dto;
+using ContactManager.Application.Common;
 
 namespace ContactManager.Application.Accounts.Models.Responses;
 
-public sealed class AccountResponse
+public sealed class AccountResponse : BaseResponse<AccountDto>
 {
-    public AccountDto? Data { get; init; }
-    public bool IsSuccess { get; init; }
-    public string? Error { get; init; }
-
     public static AccountResponse Success(AccountDto data) =>
         new() { Data = data, IsSuccess = true };
 

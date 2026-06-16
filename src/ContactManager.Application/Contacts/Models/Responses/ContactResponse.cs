@@ -1,14 +1,10 @@
+using ContactManager.Application.Common;
 using ContactManager.Application.Contacts.Models.Dto;
 
 namespace ContactManager.Application.Contacts.Models.Responses;
 
-public sealed class ContactResponse
+public sealed class ContactResponse : BaseResponse<ContactDto>
 {
-    public ContactDto? Data { get; init; }
-
-    public bool IsSuccess { get; init; }
-    public string? Error { get; init; }
-
     public static ContactResponse Success(ContactDto data) =>
         new() { Data = data, IsSuccess = true };
 
