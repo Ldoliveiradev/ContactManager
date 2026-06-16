@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using ContactManager.Domain.Interfaces;
 
 namespace ContactManager.Infrastructure.Identity.Security;
 

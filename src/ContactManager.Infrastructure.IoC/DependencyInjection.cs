@@ -1,4 +1,6 @@
 using System.Text;
+using ContactManager.Application.Accounts.Interfaces;
+using ContactManager.Application.Accounts.Services;
 using ContactManager.Application.Contacts.Interfaces;
 using ContactManager.Application.Contacts.Services;
 using ContactManager.Domain.Interfaces;
@@ -36,6 +38,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
 
         // Application
+        services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IContactService, ContactService>();
 
         // JWT Authentication

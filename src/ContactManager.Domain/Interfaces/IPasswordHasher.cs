@@ -1,4 +1,4 @@
-namespace ContactManager.Infrastructure.Identity.Security;
+namespace ContactManager.Domain.Interfaces;
 
 public interface IPasswordHasher
 {

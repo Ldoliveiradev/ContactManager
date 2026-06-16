@@ -12,6 +12,16 @@ public static class ErrorMessages
         public const string InvalidCredentials = "Invalid username or password.";
     }
 
+    public static class Account
+    {
+        public const string NotFound = "Account not found.";
+        public const string FirstNameRequired = "First name is required.";
+        public const string LastNameRequired = "Last name is required.";
+        public const string EmailRequired = "Email is required.";
+        public const string EmailInvalid = "A valid email is required.";
+        public const string InvalidCurrentPassword = "Current password is incorrect.";
+    }
+
     public static class Contact
     {
         public const string NotFound = "Contact not found.";
