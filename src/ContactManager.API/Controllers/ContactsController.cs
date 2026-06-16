@@ -13,10 +13,6 @@ namespace ContactManager.API.Controllers;
 [Authorize]
 public sealed class ContactsController(IContactService contacts) : ControllerBase
 {
-    /// <summary>Returns a paginated list of the caller's contacts.</summary>
-    /// <param name="filter">Pagination and search parameters.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Paginated contact list.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(PaginationResponse<ContactListResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -28,10 +24,6 @@ public sealed class ContactsController(IContactService contacts) : ControllerBas
         return Ok(result);
     }
 
-    /// <summary>Returns a single contact by ID.</summary>
-    /// <param name="id">Contact ID.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The contact details.</returns>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(ContactResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -42,10 +34,6 @@ public sealed class ContactsController(IContactService contacts) : ControllerBas
         return result.IsSuccess ? Ok(result) : NotFound(result.Error);
     }
 
-    /// <summary>Creates a new contact for the caller.</summary>
-    /// <param name="request">Contact details.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The created contact.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(ContactResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -57,11 +45,6 @@ public sealed class ContactsController(IContactService contacts) : ControllerBas
         return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result);
     }
 
-    /// <summary>Updates an existing contact.</summary>
-    /// <param name="id">Contact ID.</param>
-    /// <param name="request">Updated contact details.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The updated contact.</returns>
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(ContactResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -75,9 +58,6 @@ public sealed class ContactsController(IContactService contacts) : ControllerBas
         return Ok(result);
     }
 
-    /// <summary>Deletes a contact.</summary>
-    /// <param name="id">Contact ID.</param>
-    /// <param name="ct">Cancellation token.</param>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

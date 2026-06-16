@@ -10,10 +10,6 @@ namespace ContactManager.API.Controllers;
 [AllowAnonymous]
 public sealed class AuthController(IAuthService auth) : ControllerBase
 {
-    /// <summary>Registers a new account.</summary>
-    /// <param name="request">Registration details.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The created account.</returns>
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -24,10 +20,6 @@ public sealed class AuthController(IAuthService auth) : ControllerBase
         return CreatedAtAction(nameof(Register), new { id = result.Id }, result);
     }
 
-    /// <summary>Authenticates an account and returns a JWT token.</summary>
-    /// <param name="request">Login credentials.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>JWT bearer token.</returns>
     [HttpPost("login")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
