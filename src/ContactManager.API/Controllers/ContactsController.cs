@@ -15,15 +15,10 @@ public sealed class ContactsController(IContactService contacts) : ControllerBas
 {
     [HttpGet]
     public async Task<ActionResult<PaginationResponse<ContactListResponse>>> GetAll(
-        [FromQuery] string? search,
-        [FromQuery] string? sortBy,
-        [FromQuery] bool sortDesc = false,
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10,
+        [FromQuery] FilterRequest<GetContactRequest> filter,
         CancellationToken ct = default)
     {
-        var request = new GetContactsRequest(new FilterRequest(search, sortBy, sortDesc, page, pageSize));
-        var result = await contacts.GetAllAsync(User.GetUserId(), request, ct);
+        var result = await contacts.GetAllAsync(User.GetUserId(), filter, ct);
         return Ok(result);
     }
 

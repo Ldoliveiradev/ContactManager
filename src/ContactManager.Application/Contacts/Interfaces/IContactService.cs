@@ -6,7 +6,7 @@ namespace ContactManager.Application.Contacts.Interfaces;
 
 public interface IContactService
 {
-    Task<PaginationResponse<ContactListResponse>> GetAllAsync(Guid accountId, GetContactsRequest request, CancellationToken ct = default);
+    Task<PaginationResponse<ContactListResponse>> GetAllAsync(Guid accountId, FilterRequest<GetContactRequest> filter, CancellationToken ct = default);
     Task<ContactResponse> GetByIdAsync(Guid accountId, GetContactRequest request, CancellationToken ct = default);
     Task<ContactResponse> CreateAsync(Guid accountId, CreateContactRequest request, CancellationToken ct = default);
     Task<ContactResponse> UpdateAsync(Guid accountId, Guid contactId, UpdateContactRequest request, CancellationToken ct = default);

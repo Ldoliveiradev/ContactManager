@@ -1,3 +1,4 @@
+using ContactManager.Application.Common;
 using ContactManager.Application.Contacts.Models.Requests;
 using ContactManager.Application.Contacts.Models.Responses;
 using ContactManager.Application.Contacts.Services;
@@ -93,7 +94,7 @@ public class ContactServiceTests
                 It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync((new List<ContactDomain> { contact }, 1));
 
-        var result = await _sut.GetAllAsync(Owner, new GetContactsRequest());
+        var result = await _sut.GetAllAsync(Owner, new FilterRequest<GetContactRequest>(new GetContactRequest(Guid.Empty)));
 
         result.IsSuccess.Should().BeTrue();
         result.Data!.Data.Should().HaveCount(1);
