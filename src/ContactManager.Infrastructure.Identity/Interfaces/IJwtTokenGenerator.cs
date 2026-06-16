@@ -1,6 +1,6 @@
 using ContactManager.Domain.Models;
 
-namespace ContactManager.Infrastructure.Identity.Security;
+namespace ContactManager.Infrastructure.Identity.Interfaces;
 
 public interface IJwtTokenGenerator
 {

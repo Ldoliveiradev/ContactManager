@@ -2,7 +2,7 @@ using ContactManager.Application.Auth.Models;
 using ContactManager.Application.Common;
 using FluentValidation;
 
-namespace ContactManager.Infrastructure.Identity.Validators;
+namespace ContactManager.Application.Auth.Validators;
 
 public sealed class RegisterRequestValidator : AbstractValidator<RegisterRequest>
 {

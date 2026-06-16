@@ -1,11 +1,13 @@
 using System.Text;
 using ContactManager.Application.Accounts.Interfaces;
 using ContactManager.Application.Accounts.Services;
+using ContactManager.Application.Auth.Interfaces;
+using ContactManager.Application.Auth.Services;
 using ContactManager.Application.Contacts.Interfaces;
 using ContactManager.Application.Contacts.Services;
 using ContactManager.Domain.Interfaces;
 using ContactManager.Infrastructure.Data.Repositories;
-using ContactManager.Application.Auth.Interfaces;
+using ContactManager.Infrastructure.Identity.Interfaces;
 using ContactManager.Infrastructure.Identity.Security;
 using ContactManager.Infrastructure.Identity.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,12 +34,15 @@ public static class DependencyInjection
         services.AddScoped<IContactRepository>(_ => new ContactRepository(connectionString));
         services.AddScoped<IAccountRepository>(_ => new AccountRepository(connectionString));
 
-        // Identity
+        // Identity (pure crypto/token — no DB)
         services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
-        services.AddSingleton<IJwtTokenGenerator>(_ => new JwtTokenGenerator(jwtOptions));
-        services.AddScoped<IAuthService, AuthService>();
+        services.AddSingleton<JwtTokenGenerator>(_ => new JwtTokenGenerator(jwtOptions));
+        services.AddSingleton<IJwtTokenGenerator>(sp => sp.GetRequiredService<JwtTokenGenerator>());
+        services.AddSingleton<ITokenGenerator>(sp => sp.GetRequiredService<JwtTokenGenerator>());
+        services.AddSingleton<IIdentityService, IdentityService>();
 
-        // Application
+        // Application services
+        services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IContactService, ContactService>();
 

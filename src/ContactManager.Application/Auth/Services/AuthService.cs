@@ -1,31 +1,29 @@
 using ContactManager.Application.Auth.Interfaces;
 using ContactManager.Application.Auth.Models;
+using ContactManager.Application.Auth.Validators;
+using ContactManager.Application.Common;
 using ContactManager.Domain.Interfaces;
 using ContactManager.Domain.Models;
-using ContactManager.Infrastructure.Identity.Exceptions;
-using ContactManager.Infrastructure.Identity.Security;
-using ContactManager.Infrastructure.Identity.Validators;
-using FluentValidation;
 
-namespace ContactManager.Infrastructure.Identity.Services;
+namespace ContactManager.Application.Auth.Services;
 
 public sealed class AuthService(
     IAccountRepository accounts,
     IPasswordHasher hasher,
-    IJwtTokenGenerator tokens) : IAuthService
+    ITokenGenerator tokens) : IAuthService
 {
     private static readonly RegisterRequestValidator RegisterValidator = new();
     private static readonly LoginRequestValidator LoginValidator = new();
 
-    public async Task<RegisterResult> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
+    public async Task<RegisterResponse> RegisterAsync(RegisterRequest request, CancellationToken ct = default)
     {
         var validation = RegisterValidator.Validate(request);
         if (!validation.IsValid)
-            throw new ValidationException(validation.Errors);
+            return RegisterResponse.Failure(validation.Errors[0].ErrorMessage);
 
         var username = request.Username.Trim();
         if (await accounts.GetByUsernameAsync(username, ct) is not null)
-            throw new UsernameAlreadyExistsException(username);
+            return RegisterResponse.Failure(string.Format(ErrorMessages.Auth.UsernameTaken, username));
 
         var account = AccountDomain.Create(
             Guid.NewGuid(),
@@ -37,20 +35,20 @@ public sealed class AuthService(
 
         await accounts.AddAsync(account, ct);
 
-        return new RegisterResult(account.Id, account.Username.Value, account.FullName.Value);
+        return RegisterResponse.Success(new RegisterResult(account.Id, account.Username.Value, account.FullName.Value));
     }
 
-    public async Task<LoginResult> LoginAsync(LoginRequest request, CancellationToken ct = default)
+    public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
         var validation = LoginValidator.Validate(request);
         if (!validation.IsValid)
-            throw new ValidationException(validation.Errors);
+            return LoginResponse.Failure(validation.Errors[0].ErrorMessage);
 
         var account = await accounts.GetByUsernameAsync(request.Username.Trim(), ct);
 
         if (account is null || !hasher.Verify(request.Password, account.PasswordHash))
-            throw new InvalidCredentialsException();
+            return LoginResponse.Failure(ErrorMessages.Auth.InvalidCredentials);
 
-        return new LoginResult(tokens.Generate(account));
+        return LoginResponse.Success(new LoginResult(tokens.Generate(account)));
     }
 }

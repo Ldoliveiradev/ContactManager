@@ -1,12 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using ContactManager.Domain.Interfaces;
 using ContactManager.Domain.Models;
+using ContactManager.Infrastructure.Identity.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ContactManager.Infrastructure.Identity.Security;
 
-public sealed class JwtTokenGenerator(JwtOptions options) : IJwtTokenGenerator
+public sealed class JwtTokenGenerator(JwtOptions options) : IJwtTokenGenerator, ITokenGenerator
 {
     public string Generate(AccountDomain account)
     {

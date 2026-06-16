@@ -4,6 +4,6 @@ namespace ContactManager.Application.Auth.Interfaces;
 
 public interface IAuthService
 {
-    Task<RegisterResult> RegisterAsync(RegisterRequest request, CancellationToken ct = default);
-    Task<LoginResult> LoginAsync(LoginRequest request, CancellationToken ct = default);
+    Task<RegisterResponse> RegisterAsync(RegisterRequest request, CancellationToken ct = default);
+    Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken ct = default);
 }

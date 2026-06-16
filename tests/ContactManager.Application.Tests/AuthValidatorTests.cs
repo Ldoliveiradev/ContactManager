@@ -1,8 +1,8 @@
 using ContactManager.Application.Auth.Models;
-using ContactManager.Infrastructure.Identity.Validators;
+using ContactManager.Application.Auth.Validators;
 using FluentAssertions;
 
-namespace ContactManager.Infrastructure.Tests;
+namespace ContactManager.Application.Tests;
 
 public class AuthValidatorTests
 {

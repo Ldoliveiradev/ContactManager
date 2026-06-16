@@ -1,5 +1,4 @@
 using ContactManager.Domain.Exceptions;
-using ContactManager.Infrastructure.Identity.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,9 +17,7 @@ public sealed class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Ex
             var (status, title) = ex switch
             {
                 ValidationException ve => (StatusCodes.Status400BadRequest, ve.Errors.First().ErrorMessage),
-                InvalidCredentialsException => (StatusCodes.Status401Unauthorized, ex.Message),
                 NotFoundException => (StatusCodes.Status404NotFound, ex.Message),
-                UsernameAlreadyExistsException => (StatusCodes.Status409Conflict, ex.Message),
                 _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred.")
             };
 

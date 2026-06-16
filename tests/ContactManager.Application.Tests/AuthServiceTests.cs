@@ -1,20 +1,17 @@
-using ContactManager.Domain.Models;
-using ContactManager.Infrastructure.Identity.Exceptions;
 using ContactManager.Application.Auth.Models;
-using ContactManager.Infrastructure.Identity.Security;
-using ContactManager.Infrastructure.Identity.Services;
+using ContactManager.Application.Auth.Services;
 using ContactManager.Domain.Interfaces;
+using ContactManager.Domain.Models;
 using FluentAssertions;
-using FluentValidation;
 using Moq;
 
-namespace ContactManager.Infrastructure.Tests;
+namespace ContactManager.Application.Tests;
 
 public class AuthServiceTests
 {
     private readonly Mock<IAccountRepository> _accounts = new();
     private readonly Mock<IPasswordHasher> _hasher = new();
-    private readonly Mock<IJwtTokenGenerator> _tokens = new();
+    private readonly Mock<ITokenGenerator> _tokens = new();
 
     private AuthService CreateSut() => new(_accounts.Object, _hasher.Object, _tokens.Object);
 
@@ -27,26 +24,26 @@ public class AuthServiceTests
               .ReturnsAsync((AccountDomain?)null);
         _hasher.Setup(h => h.Hash("Secret123!")).Returns("hashed");
 
-        var sut = CreateSut();
-        var result = await sut.RegisterAsync(new RegisterRequest("demo", "Test", "User", "demo@example.com", "Secret123!"));
+        var result = await CreateSut().RegisterAsync(new RegisterRequest("demo", "Test", "User", "demo@example.com", "Secret123!"));
 
-        result.Username.Should().Be("demo");
+        result.IsSuccess.Should().BeTrue();
+        result.Data!.Username.Should().Be("demo");
         _accounts.Verify(r => r.AddAsync(
             It.Is<AccountDomain>(u => u.Username.Value == "demo" && u.PasswordHash == "hashed"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task RegisterAsync_WithExistingUsername_ThrowsConflict()
+    public async Task RegisterAsync_WithExistingUsername_ReturnsFailure()
     {
         var existing = AccountDomain.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "h");
         _accounts.Setup(r => r.GetByUsernameAsync("demo", It.IsAny<CancellationToken>()))
               .ReturnsAsync(existing);
 
-        var sut = CreateSut();
-        var act = () => sut.RegisterAsync(new RegisterRequest("demo", "Test", "User", "demo@example.com", "Secret123!"));
+        var result = await CreateSut().RegisterAsync(new RegisterRequest("demo", "Test", "User", "demo@example.com", "Secret123!"));
 
-        await act.Should().ThrowAsync<UsernameAlreadyExistsException>();
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain("already taken");
         _accounts.Verify(r => r.AddAsync(It.IsAny<AccountDomain>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -55,12 +52,12 @@ public class AuthServiceTests
     [InlineData("  ", "Secret123!")]
     [InlineData("demo", "")]
     [InlineData("demo", "short")]
-    public async Task RegisterAsync_WithInvalidInput_ThrowsValidation(string username, string password)
+    public async Task RegisterAsync_WithInvalidInput_ReturnsFailure(string username, string password)
     {
-        var sut = CreateSut();
-        var act = () => sut.RegisterAsync(new RegisterRequest(username, "Test", "User", "demo@example.com", password));
+        var result = await CreateSut().RegisterAsync(new RegisterRequest(username, "Test", "User", "demo@example.com", password));
 
-        await act.Should().ThrowAsync<ValidationException>();
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNullOrWhiteSpace();
     }
 
     // ---- Login ----
@@ -74,35 +71,35 @@ public class AuthServiceTests
         _hasher.Setup(h => h.Verify("Secret123!", "stored-hash")).Returns(true);
         _tokens.Setup(t => t.Generate(account)).Returns("jwt-token");
 
-        var sut = CreateSut();
-        var result = await sut.LoginAsync(new LoginRequest("demo", "Secret123!"));
+        var result = await CreateSut().LoginAsync(new LoginRequest("demo", "Secret123!"));
 
-        result.Token.Should().Be("jwt-token");
+        result.IsSuccess.Should().BeTrue();
+        result.Data!.Token.Should().Be("jwt-token");
     }
 
     [Fact]
-    public async Task LoginAsync_WithWrongPassword_ThrowsInvalidCredentials()
+    public async Task LoginAsync_WithWrongPassword_ReturnsFailure()
     {
         var account = AccountDomain.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "stored-hash");
         _accounts.Setup(r => r.GetByUsernameAsync("demo", It.IsAny<CancellationToken>()))
               .ReturnsAsync(account);
         _hasher.Setup(h => h.Verify(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
-        var sut = CreateSut();
-        var act = () => sut.LoginAsync(new LoginRequest("demo", "wrong"));
+        var result = await CreateSut().LoginAsync(new LoginRequest("demo", "wrong"));
 
-        await act.Should().ThrowAsync<InvalidCredentialsException>();
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNullOrWhiteSpace();
     }
 
     [Fact]
-    public async Task LoginAsync_WithUnknownUser_ThrowsInvalidCredentials()
+    public async Task LoginAsync_WithUnknownUser_ReturnsFailure()
     {
         _accounts.Setup(r => r.GetByUsernameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
               .ReturnsAsync((AccountDomain?)null);
 
-        var sut = CreateSut();
-        var act = () => sut.LoginAsync(new LoginRequest("ghost", "Secret123!"));
+        var result = await CreateSut().LoginAsync(new LoginRequest("ghost", "Secret123!"));
 
-        await act.Should().ThrowAsync<InvalidCredentialsException>();
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNullOrWhiteSpace();
     }
 }
