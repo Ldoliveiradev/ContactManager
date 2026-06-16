@@ -1,5 +1,5 @@
-using ContactManager.Domain.Entities;
-using ContactManager.Infrastructure.Persistence;
+using ContactManager.Domain.Models;
+using ContactManager.Infrastructure.Data.Repositories;
 using ContactManager.Infrastructure.Tests.Database;
 using FluentAssertions;
 
@@ -10,20 +10,20 @@ public class ContactRepositoryTests
 {
     private readonly PostgresTestFixture _db;
     private readonly ContactRepository _sut;
-    private readonly UserRepository _users;
+    private readonly AccountRepository _accounts;
 
     public ContactRepositoryTests(PostgresTestFixture db)
     {
         _db = db;
         _sut = new ContactRepository(PostgresTestFixture.TestConnectionString);
-        _users = new UserRepository(PostgresTestFixture.TestConnectionString);
+        _accounts = new AccountRepository(PostgresTestFixture.TestConnectionString);
     }
 
-    private async Task<Guid> SeedUserAsync(string username = "owner")
+    private async Task<Guid> SeedAccountAsync(string username = "owner")
     {
-        var user = User.Create(Guid.NewGuid(), username, "hash");
-        await _users.AddAsync(user);
-        return user.Id;
+        var account = AccountDomain.Create(Guid.NewGuid(), username, "Test", "User", $"{username}@example.com", "hash");
+        await _accounts.AddAsync(account);
+        return account.Id;
     }
 
     [SkippableFact]
@@ -31,37 +31,38 @@ public class ContactRepositoryTests
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await _db.ResetAsync();
-        var owner = await SeedUserAsync();
+        var accountId = await SeedAccountAsync();
 
-        var contact = Contact.Create(Guid.NewGuid(), owner, "Ada", "ada@example.com", "+1-202-555-0100");
+        var contact = ContactDomain.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", "+1-202-555-0100");
         await _sut.AddAsync(contact);
 
         var loaded = await _sut.GetByIdAsync(contact.Id);
 
         loaded.Should().NotBeNull();
         loaded!.Id.Should().Be(contact.Id);
-        loaded.UserId.Should().Be(owner);
-        loaded.Name.Should().Be("Ada");
-        loaded.Email.Should().Be("ada@example.com");
-        loaded.Phone.Should().Be("+1-202-555-0100");
+        loaded.AccountId.Should().Be(accountId);
+        loaded.Name.Value.Should().Be("Ada");
+        loaded.Email.Value.Should().Be("ada@example.com");
+        loaded.Phone!.Value.Should().Be("+1-202-555-0100");
     }
 
     [SkippableFact]
-    public async Task GetByUserAsync_ReturnsOnlyThatUsersContacts()
+    public async Task GetByAccountAsync_ReturnsOnlyThatAccountsContacts()
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await _db.ResetAsync();
-        var owner = await SeedUserAsync("owner");
-        var other = await SeedUserAsync("other");
+        var owner = await SeedAccountAsync("owner");
+        var other = await SeedAccountAsync("other");
 
-        await _sut.AddAsync(Contact.Create(Guid.NewGuid(), owner, "Ada", "ada@example.com", null));
-        await _sut.AddAsync(Contact.Create(Guid.NewGuid(), owner, "Alan", "alan@example.com", null));
-        await _sut.AddAsync(Contact.Create(Guid.NewGuid(), other, "Grace", "grace@example.com", null));
+        await _sut.AddAsync(ContactDomain.Create(Guid.NewGuid(), owner, "Ada", "ada@example.com", null));
+        await _sut.AddAsync(ContactDomain.Create(Guid.NewGuid(), owner, "Alan", "alan@example.com", null));
+        await _sut.AddAsync(ContactDomain.Create(Guid.NewGuid(), other, "Grace", "grace@example.com", null));
 
-        var ownerContacts = await _sut.GetByUserAsync(owner);
+        var (items, totalCount) = await _sut.GetByAccountAsync(owner, null, null, false, 1, 10);
 
-        ownerContacts.Should().HaveCount(2);
-        ownerContacts.Select(c => c.UserId).Should().AllBeEquivalentTo(owner);
+        items.Should().HaveCount(2);
+        totalCount.Should().Be(2);
+        items.Select(c => c.AccountId).Should().AllBeEquivalentTo(owner);
     }
 
     [SkippableFact]
@@ -69,17 +70,17 @@ public class ContactRepositoryTests
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await _db.ResetAsync();
-        var owner = await SeedUserAsync();
-        var contact = Contact.Create(Guid.NewGuid(), owner, "Ada", "ada@example.com", null);
+        var accountId = await SeedAccountAsync();
+        var contact = ContactDomain.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", null);
         await _sut.AddAsync(contact);
 
         contact.Update("Ada L.", "ada.l@example.com", "+1-202-555-0199");
         await _sut.UpdateAsync(contact);
 
         var loaded = await _sut.GetByIdAsync(contact.Id);
-        loaded!.Name.Should().Be("Ada L.");
-        loaded.Email.Should().Be("ada.l@example.com");
-        loaded.Phone.Should().Be("+1-202-555-0199");
+        loaded!.Name.Value.Should().Be("Ada L.");
+        loaded.Email.Value.Should().Be("ada.l@example.com");
+        loaded.Phone!.Value.Should().Be("+1-202-555-0199");
     }
 
     [SkippableFact]
@@ -87,8 +88,8 @@ public class ContactRepositoryTests
     {
         Skip.IfNot(_db.Available, "PostgreSQL test database not available.");
         await _db.ResetAsync();
-        var owner = await SeedUserAsync();
-        var contact = Contact.Create(Guid.NewGuid(), owner, "Ada", "ada@example.com", null);
+        var accountId = await SeedAccountAsync();
+        var contact = ContactDomain.Create(Guid.NewGuid(), accountId, "Ada", "ada@example.com", null);
         await _sut.AddAsync(contact);
 
         await _sut.DeleteAsync(contact.Id);

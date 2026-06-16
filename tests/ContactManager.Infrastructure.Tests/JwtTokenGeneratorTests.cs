@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using ContactManager.Domain.Entities;
-using ContactManager.Infrastructure.Security;
+using ContactManager.Domain.Models;
+using ContactManager.Infrastructure.Identity.Security;
 using FluentAssertions;
 using Microsoft.IdentityModel.Tokens;
 
@@ -20,23 +19,25 @@ public class JwtTokenGeneratorTests
     private readonly JwtTokenGenerator _sut = new(Options);
 
     [Fact]
-    public void Generate_ProducesTokenWithUserIdAndUsernameClaims()
+    public void Generate_ProducesTokenWithAccountDomainIdAndUsernameClaims()
     {
-        var user = User.Create(Guid.NewGuid(), "demo", "hash");
+        var account = AccountDomain.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "hash");
 
-        var token = _sut.Generate(user);
+        var token = _sut.Generate(account);
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
 
-        jwt.Subject.Should().Be(user.Id.ToString());
+        jwt.Subject.Should().Be(account.Id.ToString());
         jwt.Claims.Should().Contain(c =>
             c.Type == JwtRegisteredClaimNames.UniqueName && c.Value == "demo");
+        jwt.Claims.Should().Contain(c =>
+            c.Type == JwtRegisteredClaimNames.Email && c.Value == "demo@example.com");
     }
 
     [Fact]
     public void Generate_TokenIsSignedAndValidatesAgainstConfiguredKey()
     {
-        var user = User.Create(Guid.NewGuid(), "demo", "hash");
-        var token = _sut.Generate(user);
+        var account = AccountDomain.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "hash");
+        var token = _sut.Generate(account);
 
         var parameters = new TokenValidationParameters
         {
@@ -50,20 +51,18 @@ public class JwtTokenGeneratorTests
             ValidateLifetime = true
         };
 
-        var act = () => new JwtSecurityTokenHandler()
-            .ValidateToken(token, parameters, out _);
+        var act = () => new JwtSecurityTokenHandler().ValidateToken(token, parameters, out _);
 
         act.Should().NotThrow();
-        new JwtSecurityTokenHandler()
-            .ValidateToken(token, parameters, out var validated);
+        new JwtSecurityTokenHandler().ValidateToken(token, parameters, out var validated);
         validated.Should().NotBeNull();
     }
 
     [Fact]
     public void Generate_TokenFailsValidationWithWrongKey()
     {
-        var user = User.Create(Guid.NewGuid(), "demo", "hash");
-        var token = _sut.Generate(user);
+        var account = AccountDomain.Create(Guid.NewGuid(), "demo", "Test", "User", "demo@example.com", "hash");
+        var token = _sut.Generate(account);
 
         var parameters = new TokenValidationParameters
         {
@@ -75,8 +74,7 @@ public class JwtTokenGeneratorTests
             ValidateLifetime = false
         };
 
-        var act = () => new JwtSecurityTokenHandler()
-            .ValidateToken(token, parameters, out _);
+        var act = () => new JwtSecurityTokenHandler().ValidateToken(token, parameters, out _);
 
         act.Should().Throw<SecurityTokenInvalidSignatureException>();
     }

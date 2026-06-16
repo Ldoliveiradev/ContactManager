@@ -1,7 +1,9 @@
-using ContactManager.Application.Abstractions;
-using ContactManager.Application.Contacts;
-using ContactManager.Application.Exceptions;
-using ContactManager.Domain.Entities;
+using ContactManager.Application.Common;
+using ContactManager.Application.Contacts.Models.Requests;
+using ContactManager.Application.Contacts.Models.Responses;
+using ContactManager.Application.Contacts.Services;
+using ContactManager.Domain.Interfaces;
+using ContactManager.Domain.Models;
 using FluentAssertions;
 using Moq;
 
@@ -26,73 +28,77 @@ public class ContactServiceTests
 
         var result = await _sut.CreateAsync(Owner, req);
 
-        result.Name.Should().Be("Ada");
+        result.IsSuccess.Should().BeTrue();
+        result.Data!.Name.Should().Be("Ada");
         _repo.Verify(r => r.AddAsync(
-            It.Is<Contact>(c => c.UserId == Owner && c.Name == "Ada"),
+            It.Is<ContactDomain>(c => c.AccountId == Owner && c.Name.Value == "Ada"),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task CreateAsync_WithInvalidEmail_ThrowsValidation()
+    public async Task CreateAsync_WithInvalidEmail_ReturnsFailure()
     {
         var req = new CreateContactRequest("Ada", "bad", null);
 
-        var act = () => _sut.CreateAsync(Owner, req);
+        var result = await _sut.CreateAsync(Owner, req);
 
-        await act.Should().ThrowAsync<ValidationException>();
-        _repo.Verify(r => r.AddAsync(It.IsAny<Contact>(), It.IsAny<CancellationToken>()), Times.Never);
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNullOrWhiteSpace();
+        _repo.Verify(r => r.AddAsync(It.IsAny<ContactDomain>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     // ---- Read ----
 
     [Fact]
-    public async Task GetByIdAsync_WhenOwnedByCaller_ReturnsContact()
+    public async Task GetByIdAsync_WhenOwnedByCaller_ReturnsSuccess()
     {
-        var contact = Contact.Create(Guid.NewGuid(), Owner, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), Owner, "Ada", "ada@example.com", null);
         _repo.Setup(r => r.GetByIdAsync(contact.Id, It.IsAny<CancellationToken>())).ReturnsAsync(contact);
 
-        var result = await _sut.GetByIdAsync(Owner, contact.Id);
+        var result = await _sut.GetByIdAsync(Owner, new GetContactRequest(contact.Id));
 
-        result.Id.Should().Be(contact.Id);
+        result.IsSuccess.Should().BeTrue();
+        result.Data!.Id.Should().Be(contact.Id);
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenOwnedByAnotherUser_ThrowsNotFound()
+    public async Task GetByIdAsync_WhenOwnedByAnotherUser_ReturnsFailure()
     {
-        // IDOR protection: a contact owned by someone else must look like it does not exist.
-        var contact = Contact.Create(Guid.NewGuid(), Other, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), Other, "Ada", "ada@example.com", null);
         _repo.Setup(r => r.GetByIdAsync(contact.Id, It.IsAny<CancellationToken>())).ReturnsAsync(contact);
 
-        var act = () => _sut.GetByIdAsync(Owner, contact.Id);
+        var result = await _sut.GetByIdAsync(Owner, new GetContactRequest(contact.Id));
 
-        await act.Should().ThrowAsync<NotFoundException>();
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNullOrWhiteSpace();
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenMissing_ThrowsNotFound()
+    public async Task GetByIdAsync_WhenMissing_ReturnsFailure()
     {
         _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-             .ReturnsAsync((Contact?)null);
+             .ReturnsAsync((ContactDomain?)null);
 
-        var act = () => _sut.GetByIdAsync(Owner, Guid.NewGuid());
+        var result = await _sut.GetByIdAsync(Owner, new GetContactRequest(Guid.NewGuid()));
 
-        await act.Should().ThrowAsync<NotFoundException>();
+        result.IsSuccess.Should().BeFalse();
     }
 
     [Fact]
     public async Task GetAllAsync_ReturnsOnlyCallersContacts()
     {
-        _repo.Setup(r => r.GetByUserAsync(Owner, It.IsAny<CancellationToken>()))
-             .ReturnsAsync(new List<Contact>
-             {
-                 Contact.Create(Guid.NewGuid(), Owner, "Ada", "ada@example.com", null)
-             });
+        var contact = ContactDomain.Create(Guid.NewGuid(), Owner, "Ada", "ada@example.com", null);
+        _repo.Setup(r => r.GetByAccountAsync(
+                Owner,
+                It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool>(),
+                It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+             .ReturnsAsync((new List<ContactDomain> { contact }, 1));
 
-        var result = await _sut.GetAllAsync(Owner);
+        var result = await _sut.GetAllAsync(Owner, new FilterRequest<GetContactRequest>(new GetContactRequest(Guid.Empty)));
 
-        result.Should().HaveCount(1);
-        // Repository is queried scoped to the caller, never "get all contacts".
-        _repo.Verify(r => r.GetByUserAsync(Owner, It.IsAny<CancellationToken>()), Times.Once);
+        result.IsSuccess.Should().BeTrue();
+        result.Data!.Data.Should().HaveCount(1);
+        result.TotalCount.Should().Be(1);
     }
 
     // ---- Update ----
@@ -100,53 +106,55 @@ public class ContactServiceTests
     [Fact]
     public async Task UpdateAsync_WhenOwned_UpdatesAndPersists()
     {
-        var contact = Contact.Create(Guid.NewGuid(), Owner, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), Owner, "Ada", "ada@example.com", null);
         _repo.Setup(r => r.GetByIdAsync(contact.Id, It.IsAny<CancellationToken>())).ReturnsAsync(contact);
 
         var result = await _sut.UpdateAsync(Owner, contact.Id,
             new UpdateContactRequest("Ada L.", "ada.l@example.com", "+1-202-555-0199"));
 
-        result.Name.Should().Be("Ada L.");
+        result.IsSuccess.Should().BeTrue();
+        result.Data!.Name.Should().Be("Ada L.");
         _repo.Verify(r => r.UpdateAsync(
-            It.Is<Contact>(c => c.Id == contact.Id && c.Name == "Ada L."),
+            It.Is<ContactDomain>(c => c.Id == contact.Id && c.Name.Value == "Ada L."),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task UpdateAsync_WhenOwnedByAnother_ThrowsNotFound()
+    public async Task UpdateAsync_WhenOwnedByAnother_ReturnsFailure()
     {
-        var contact = Contact.Create(Guid.NewGuid(), Other, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), Other, "Ada", "ada@example.com", null);
         _repo.Setup(r => r.GetByIdAsync(contact.Id, It.IsAny<CancellationToken>())).ReturnsAsync(contact);
 
-        var act = () => _sut.UpdateAsync(Owner, contact.Id,
+        var result = await _sut.UpdateAsync(Owner, contact.Id,
             new UpdateContactRequest("X", "x@example.com", null));
 
-        await act.Should().ThrowAsync<NotFoundException>();
-        _repo.Verify(r => r.UpdateAsync(It.IsAny<Contact>(), It.IsAny<CancellationToken>()), Times.Never);
+        result.IsSuccess.Should().BeFalse();
+        _repo.Verify(r => r.UpdateAsync(It.IsAny<ContactDomain>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     // ---- Delete ----
 
     [Fact]
-    public async Task DeleteAsync_WhenOwned_Deletes()
+    public async Task DeleteAsync_WhenOwned_ReturnsSuccess()
     {
-        var contact = Contact.Create(Guid.NewGuid(), Owner, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), Owner, "Ada", "ada@example.com", null);
         _repo.Setup(r => r.GetByIdAsync(contact.Id, It.IsAny<CancellationToken>())).ReturnsAsync(contact);
 
-        await _sut.DeleteAsync(Owner, contact.Id);
+        var result = await _sut.DeleteAsync(Owner, new DeleteContactRequest(contact.Id));
 
+        result.IsSuccess.Should().BeTrue();
         _repo.Verify(r => r.DeleteAsync(contact.Id, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenOwnedByAnother_ThrowsNotFound()
+    public async Task DeleteAsync_WhenOwnedByAnother_ReturnsFailure()
     {
-        var contact = Contact.Create(Guid.NewGuid(), Other, "Ada", "ada@example.com", null);
+        var contact = ContactDomain.Create(Guid.NewGuid(), Other, "Ada", "ada@example.com", null);
         _repo.Setup(r => r.GetByIdAsync(contact.Id, It.IsAny<CancellationToken>())).ReturnsAsync(contact);
 
-        var act = () => _sut.DeleteAsync(Owner, contact.Id);
+        var result = await _sut.DeleteAsync(Owner, new DeleteContactRequest(contact.Id));
 
-        await act.Should().ThrowAsync<NotFoundException>();
+        result.IsSuccess.Should().BeFalse();
         _repo.Verify(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

@@ -18,8 +18,14 @@ public class AuthEndpointsTests
         await _factory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
-        var resp = await client.PostAsJsonAsync("/api/auth/register",
-            new { username = "newuser", password = "Secret123!" });
+        var resp = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            username = "newuser",
+            firstName = "New",
+            lastName = "User",
+            email = "newuser@example.com",
+            password = "Secret123!"
+        });
 
         resp.StatusCode.Should().Be(HttpStatusCode.Created);
     }
@@ -31,7 +37,7 @@ public class AuthEndpointsTests
         await _factory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
-        var body = new { username = "dupe", password = "Secret123!" };
+        var body = new { username = "dupe", firstName = "Dupe", lastName = "User", email = "dupe@example.com", password = "Secret123!" };
         await client.PostAsJsonAsync("/api/auth/register", body);
         var resp = await client.PostAsJsonAsync("/api/auth/register", body);
 
@@ -45,8 +51,14 @@ public class AuthEndpointsTests
         await _factory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
-        var resp = await client.PostAsJsonAsync("/api/auth/register",
-            new { username = "shorty", password = "short" });
+        var resp = await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            username = "shorty",
+            firstName = "Short",
+            lastName = "Pwd",
+            email = "shorty@example.com",
+            password = "short"
+        });
 
         resp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -58,8 +70,14 @@ public class AuthEndpointsTests
         await _factory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
-        await client.PostAsJsonAsync("/api/auth/register",
-            new { username = "loginuser", password = "Secret123!" });
+        await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            username = "loginuser",
+            firstName = "Login",
+            lastName = "User",
+            email = "loginuser@example.com",
+            password = "Secret123!"
+        });
 
         var resp = await client.PostAsJsonAsync("/api/auth/login",
             new { username = "loginuser", password = "Secret123!" });
@@ -76,8 +94,14 @@ public class AuthEndpointsTests
         await _factory.ResetDatabaseAsync();
         var client = _factory.CreateClient();
 
-        await client.PostAsJsonAsync("/api/auth/register",
-            new { username = "user2", password = "Secret123!" });
+        await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            username = "user2",
+            firstName = "User",
+            lastName = "Two",
+            email = "user2@example.com",
+            password = "Secret123!"
+        });
 
         var resp = await client.PostAsJsonAsync("/api/auth/login",
             new { username = "user2", password = "WrongPassword!" });

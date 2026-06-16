@@ -60,7 +60,7 @@ public sealed class PostgresTestFixture : IAsyncLifetime
         await using var conn = new NpgsqlConnection(TestConnectionString);
         await conn.OpenAsync();
         await using var cmd = new NpgsqlCommand(
-            "TRUNCATE contacts, users RESTART IDENTITY CASCADE", conn);
+            "TRUNCATE contacts, accounts RESTART IDENTITY CASCADE", conn);
         await cmd.ExecuteNonQueryAsync();
     }
 
@@ -68,22 +68,26 @@ public sealed class PostgresTestFixture : IAsyncLifetime
 
     // Mirrors db/init/01_schema.sql so the integration DB matches production.
     private const string Schema = """
-        CREATE TABLE IF NOT EXISTS users (
-            id            UUID PRIMARY KEY,
+        CREATE TABLE IF NOT EXISTS accounts (
+            id            UUID         PRIMARY KEY,
             username      VARCHAR(100) NOT NULL UNIQUE,
+            first_name    VARCHAR(100) NOT NULL,
+            last_name     VARCHAR(100) NOT NULL,
+            email         VARCHAR(200) NOT NULL UNIQUE,
             password_hash VARCHAR(255) NOT NULL,
-            created_at    TIMESTAMPTZ  NOT NULL DEFAULT now()
+            created_at    TIMESTAMPTZ  NOT NULL DEFAULT now(),
+            updated_at    TIMESTAMPTZ  NOT NULL DEFAULT now()
         );
         CREATE TABLE IF NOT EXISTS contacts (
-            id         UUID PRIMARY KEY,
-            user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            id         UUID         PRIMARY KEY,
+            account_id UUID         NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
             name       VARCHAR(200) NOT NULL,
             email      VARCHAR(200) NOT NULL,
             phone      VARCHAR(50),
             created_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
             updated_at TIMESTAMPTZ  NOT NULL DEFAULT now()
         );
-        CREATE INDEX IF NOT EXISTS ix_contacts_user_id ON contacts(user_id);
+        CREATE INDEX IF NOT EXISTS ix_contacts_account_id ON contacts(account_id);
         """;
 }
 

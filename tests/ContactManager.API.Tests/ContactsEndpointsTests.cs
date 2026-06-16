@@ -12,12 +12,17 @@ public class ContactsEndpointsTests
 
     public ContactsEndpointsTests(ApiTestFactory factory) => _factory = factory;
 
-    /// <summary>Registers a user, logs in, and returns a client with the bearer token set.</summary>
     private async Task<HttpClient> AuthenticatedClientAsync(string username)
     {
         var client = _factory.CreateClient();
-        await client.PostAsJsonAsync("/api/auth/register",
-            new { username, password = "Secret123!" });
+        await client.PostAsJsonAsync("/api/auth/register", new
+        {
+            username,
+            firstName = "Test",
+            lastName = "User",
+            email = $"{username}@example.com",
+            password = "Secret123!"
+        });
         var login = await client.PostAsJsonAsync("/api/auth/login",
             new { username, password = "Secret123!" });
         var token = (await login.Content.ReadFromJsonAsync<TokenResponse>())!.Token;
@@ -50,11 +55,11 @@ public class ContactsEndpointsTests
         create.StatusCode.Should().Be(HttpStatusCode.Created);
         var created = await create.Content.ReadFromJsonAsync<ContactDto>();
 
-        var get = await client.GetAsync($"/api/contacts/{created!.Id}");
+        var get = await client.GetAsync($"/api/contacts/{created!.Data!.Id}");
         get.StatusCode.Should().Be(HttpStatusCode.OK);
         var fetched = await get.Content.ReadFromJsonAsync<ContactDto>();
-        fetched!.Name.Should().Be("Ada");
-        fetched.Email.Should().Be("ada@example.com");
+        fetched!.Data!.Name.Should().Be("Ada");
+        fetched.Data.Email.Should().Be("ada@example.com");
     }
 
     [SkippableFact]
@@ -82,10 +87,10 @@ public class ContactsEndpointsTests
         await alice.PostAsJsonAsync("/api/contacts", new { name = "Ada", email = "ada@example.com", phone = (string?)null });
         await bob.PostAsJsonAsync("/api/contacts", new { name = "Grace", email = "grace@example.com", phone = (string?)null });
 
-        var aliceList = await alice.GetFromJsonAsync<List<ContactDto>>("/api/contacts");
+        var aliceList = await alice.GetFromJsonAsync<ContactListDto>("/api/contacts");
 
-        aliceList.Should().ContainSingle();
-        aliceList![0].Name.Should().Be("Ada");
+        aliceList!.Data!.Data.Should().ContainSingle();
+        aliceList.Data.Data[0].Name.Should().Be("Ada");
     }
 
     [SkippableFact]
@@ -101,8 +106,7 @@ public class ContactsEndpointsTests
             new { name = "Ada", email = "ada@example.com", phone = (string?)null });
         var aliceContact = await create.Content.ReadFromJsonAsync<ContactDto>();
 
-        // Bob tries to read Alice's contact by id → must look not-found, not forbidden.
-        var resp = await bob.GetAsync($"/api/contacts/{aliceContact!.Id}");
+        var resp = await bob.GetAsync($"/api/contacts/{aliceContact!.Data!.Id}");
 
         resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -118,15 +122,15 @@ public class ContactsEndpointsTests
             new { name = "Ada", email = "ada@example.com", phone = (string?)null });
         var created = await create.Content.ReadFromJsonAsync<ContactDto>();
 
-        var update = await client.PutAsJsonAsync($"/api/contacts/{created!.Id}",
+        var update = await client.PutAsJsonAsync($"/api/contacts/{created!.Data!.Id}",
             new { name = "Ada L.", email = "ada.l@example.com", phone = "+1-202-555-0199" });
         update.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await update.Content.ReadFromJsonAsync<ContactDto>())!.Name.Should().Be("Ada L.");
+        (await update.Content.ReadFromJsonAsync<ContactDto>())!.Data!.Name.Should().Be("Ada L.");
 
-        var delete = await client.DeleteAsync($"/api/contacts/{created.Id}");
+        var delete = await client.DeleteAsync($"/api/contacts/{created.Data!.Id}");
         delete.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var getAfter = await client.GetAsync($"/api/contacts/{created.Id}");
+        var getAfter = await client.GetAsync($"/api/contacts/{created.Data!.Id}");
         getAfter.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
@@ -143,14 +147,12 @@ public class ContactsEndpointsTests
             new { name = "Ada", email = "ada@example.com", phone = (string?)null }))
             .Content.ReadFromJsonAsync<ContactDto>();
 
-        // Bob attempts to edit Alice's contact → 404 (ownership not leaked).
-        var resp = await bob.PutAsJsonAsync($"/api/contacts/{created!.Id}",
+        var resp = await bob.PutAsJsonAsync($"/api/contacts/{created!.Data!.Id}",
             new { name = "Hacked", email = "hacked@example.com", phone = (string?)null });
         resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        // And Alice's contact is unchanged.
-        var unchanged = await alice.GetFromJsonAsync<ContactDto>($"/api/contacts/{created.Id}");
-        unchanged!.Name.Should().Be("Ada");
+        var unchanged = await alice.GetFromJsonAsync<ContactDto>($"/api/contacts/{created.Data!.Id}");
+        unchanged!.Data!.Name.Should().Be("Ada");
     }
 
     [SkippableFact]
@@ -166,11 +168,10 @@ public class ContactsEndpointsTests
             new { name = "Ada", email = "ada@example.com", phone = (string?)null }))
             .Content.ReadFromJsonAsync<ContactDto>();
 
-        var resp = await bob.DeleteAsync($"/api/contacts/{created!.Id}");
+        var resp = await bob.DeleteAsync($"/api/contacts/{created!.Data!.Id}");
         resp.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        // The contact still exists for its real owner.
-        var stillThere = await alice.GetAsync($"/api/contacts/{created.Id}");
+        var stillThere = await alice.GetAsync($"/api/contacts/{created.Data!.Id}");
         stillThere.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
@@ -183,9 +184,6 @@ public class ContactsEndpointsTests
         var alice = await AuthenticatedClientAsync("spoof-alice");
         var bob = await AuthenticatedClientAsync("spoof-bob");
 
-        // Bob tries to create a contact "owned" by Alice by smuggling userId/ownerId fields.
-        // The API binds only name/email/phone and takes the owner from the JWT, so these
-        // extra fields are ignored — the contact belongs to Bob, and Alice never sees it.
         var created = await (await bob.PostAsJsonAsync("/api/contacts", new
         {
             name = "Sneaky",
@@ -195,11 +193,10 @@ public class ContactsEndpointsTests
             ownerId = Guid.NewGuid(),
         })).Content.ReadFromJsonAsync<ContactDto>();
 
-        // Bob can see it; Alice cannot.
-        (await bob.GetAsync($"/api/contacts/{created!.Id}")).StatusCode
+        (await bob.GetAsync($"/api/contacts/{created!.Data!.Id}")).StatusCode
             .Should().Be(HttpStatusCode.OK);
-        var aliceList = await alice.GetFromJsonAsync<List<ContactDto>>("/api/contacts");
-        aliceList!.Should().BeEmpty();
+        var aliceList = await alice.GetFromJsonAsync<ContactListDto>("/api/contacts");
+        aliceList!.Data!.Data.Should().BeEmpty();
     }
 
     [SkippableTheory]
@@ -211,7 +208,7 @@ public class ContactsEndpointsTests
     public async Task ContactEndpoints_WithoutToken_Return401(string method, string url)
     {
         Skip.IfNot(_factory.DbAvailable, "PostgreSQL test database not available.");
-        var client = _factory.CreateClient(); // no Authorization header
+        var client = _factory.CreateClient();
 
         var request = new HttpRequestMessage(new HttpMethod(method), url);
         if (method is "POST" or "PUT")
@@ -225,5 +222,8 @@ public class ContactsEndpointsTests
     }
 
     private sealed record TokenResponse(string Token);
-    private sealed record ContactDto(Guid Id, string Name, string Email, string? Phone);
+    private sealed record ContactDataDto(Guid Id, string Name, string Email, string? Phone);
+    private sealed record ContactDto(ContactDataDto? Data, bool IsSuccess, string? Error);
+    private sealed record ContactListInnerDto(List<ContactDataDto> Data, bool IsSuccess, string? Error);
+    private sealed record ContactListDto(ContactListInnerDto? Data, int TotalCount, int Page, int PageSize, bool IsSuccess, string? Error);
 }

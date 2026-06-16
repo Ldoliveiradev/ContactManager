@@ -17,8 +17,9 @@ It documents, honestly and concretely:
 - [`01-task-management-api.md`](01-task-management-api.md) — the brief's explicit GenAI
   exercise: "generate a RESTful API for a task management system." Contains the exact prompt,
   the generated output, and a critique of what was wrong/risky and how it was fixed.
-- Subsequent files (`02-...`, `03-...`) log the real prompts used to build *this* Contact
-  Manager, each paired with the corrections made.
+- [`02-clean-arch-layer-boundary.md`](02-clean-arch-layer-boundary.md) — real decision from
+  this project: where `AuthService` belongs and how to resolve the `ITokenGenerator`
+  dependency inversion problem without letting Application reference Infrastructure.
 
 ## Guiding principle
 
