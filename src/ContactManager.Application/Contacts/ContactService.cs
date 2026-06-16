@@ -4,15 +4,6 @@ using ContactManager.Domain.Entities;
 
 namespace ContactManager.Application.Contacts;
 
-public interface IContactService
-{
-    Task<IReadOnlyList<ContactResponse>> GetAllAsync(Guid userId, CancellationToken ct = default);
-    Task<ContactResponse> GetByIdAsync(Guid userId, Guid contactId, CancellationToken ct = default);
-    Task<ContactResponse> CreateAsync(Guid userId, CreateContactRequest request, CancellationToken ct = default);
-    Task<ContactResponse> UpdateAsync(Guid userId, Guid contactId, UpdateContactRequest request, CancellationToken ct = default);
-    Task DeleteAsync(Guid userId, Guid contactId, CancellationToken ct = default);
-}
-
 /// <summary>
 /// Business logic for contacts. Every operation is scoped to the calling user's id
 /// (supplied by the API from the JWT, never from the request body). Contacts owned by
