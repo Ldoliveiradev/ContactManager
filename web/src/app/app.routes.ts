@@ -6,13 +6,13 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./features/auth/components/login/login').then((m) => m.Login),
+      import('./features/auth/components/login/login.component').then((m) => m.Login),
   },
   {
     path: 'contacts',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/contacts/components/contact-list/contact-list').then(
+      import('./features/contacts/components/contact-list/contact-list.component').then(
         (m) => m.ContactList,
       ),
   },
@@ -20,7 +20,7 @@ export const routes: Routes = [
     path: 'contacts/new',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/contacts/components/contact-form/contact-form').then(
+      import('./features/contacts/components/contact-form/contact-form.component').then(
         (m) => m.ContactForm,
       ),
   },
@@ -28,7 +28,7 @@ export const routes: Routes = [
     path: 'contacts/:id/edit',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/contacts/components/contact-form/contact-form').then(
+      import('./features/contacts/components/contact-form/contact-form.component').then(
         (m) => m.ContactForm,
       ),
   },
@@ -36,7 +36,7 @@ export const routes: Routes = [
     path: 'profile',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/accounts/components/profile/profile').then((m) => m.Profile),
+      import('./features/accounts/components/profile/profile.component').then((m) => m.Profile),
   },
   { path: '**', redirectTo: 'contacts' },
 ];

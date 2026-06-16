@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faMagnifyingGlass, faSort } from '@fortawesome/free-solid-svg-icons';
-import { Pagination } from '../pagination/pagination';
+import { PaginationComponent } from '../pagination/pagination.component';
 import { DataViewActionsDirective } from './data-view-actions.directive';
 import { DataViewCellDirective } from './data-view-cell.directive';
 import { DataViewColumn, SortDirection } from './data-view.types';
@@ -27,11 +27,11 @@ import { DataViewColumn, SortDirection } from './data-view.types';
 @Component({
   selector: 'ui-data-view',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, NgTemplateOutlet, FaIconComponent, Pagination],
-  templateUrl: './data-view.html',
-  styleUrl: './data-view.scss',
+  imports: [FormsModule, NgTemplateOutlet, FaIconComponent, PaginationComponent],
+  templateUrl: './data-view.component.html',
+  styleUrl: './data-view.component.scss',
 })
-export class DataView<T extends object> {
+export class DataViewComponent<T extends object> {
   protected readonly faSearch = faMagnifyingGlass;
   protected readonly faSort = faSort;
 
@@ -43,6 +43,10 @@ export class DataView<T extends object> {
   readonly pageSize = input(0);
   /** Selectable page sizes shown in the pagination control (empty hides the selector). */
   readonly pageSizeOptions = input<number[]>([]);
+  /** Pre-select an active sort column on first render (must match a column key). */
+  readonly initialSortKey = input<(keyof T & string) | null>(null);
+  /** Initial sort direction when initialSortKey is set (default 'asc'). */
+  readonly initialSortDir = input<SortDirection>('asc');
 
   private readonly cellTemplates = contentChildren(DataViewCellDirective);
   private readonly actionsDir = contentChild(DataViewActionsDirective);
@@ -57,6 +61,16 @@ export class DataView<T extends object> {
   constructor() {
     // Seed the effective page size from the input.
     effect(() => this.currentPageSize.set(this.pageSize()));
+
+    // Seed initial sort from inputs (runs once on first signal read).
+    effect(() => {
+      const key = this.initialSortKey();
+      const dir = this.initialSortDir();
+      if (key) {
+        this.sortKey.set(key);
+        this.sortDir.set(dir);
+      }
+    });
 
     // Reset to the first page whenever the result set or page size changes.
     effect(() => {

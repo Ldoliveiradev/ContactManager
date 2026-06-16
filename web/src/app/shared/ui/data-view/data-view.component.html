@@ -3,7 +3,10 @@
     <div class="search">
       <span class="search__icon" aria-hidden="true"><fa-icon [icon]="faSearch" /></span>
       <input
+        id="data-view-search"
+        name="data-view-search"
         type="search"
+        autocomplete="off"
         class="search__input"
         [placeholder]="searchPlaceholder()"
         aria-label="Search"

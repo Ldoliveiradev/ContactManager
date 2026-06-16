@@ -5,14 +5,19 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  @include m.flex(row, center, space-between, t.space(4));
-  padding: t.space(3) t.space(5);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: t.space(4);
+  padding: 0 t.space(5);
+  height: 56px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
 
   .header-left {
-    @include m.flex(row, center, flex-start, t.space(6));
+    @include m.flex(row, center, flex-start, t.space(5));
+    height: 100%;
   }
 
   .brand {
@@ -20,6 +25,7 @@
     font-size: t.font-size('lg');
     color: var(--text);
     text-decoration: none;
+    white-space: nowrap;
 
     &:hover {
       color: var(--primary);
@@ -27,44 +33,63 @@
   }
 
   .header-nav {
-    @include m.flex(row, center, flex-start, t.space(1));
+    @include m.flex(row, center, center, 0);
+    height: 100%;
+    justify-self: center;
   }
 
   .nav-link {
-    padding: t.space(2) t.space(3);
-    border-radius: t.$radius-sm;
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 t.space(4);
     font-size: t.font-size('sm');
     font-weight: t.$font-weight-medium;
     color: var(--text-muted);
     text-decoration: none;
-    transition: color t.$transition-fast, background-color t.$transition-fast;
+    transition: color t.$transition-fast;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: t.space(2);
+      right: t.space(2);
+      height: 2px;
+      background: transparent;
+      border-radius: 2px 2px 0 0;
+      transition: background-color t.$transition-fast;
+    }
 
     &:hover {
       color: var(--text);
-      background: var(--surface-hover);
+
+      &::after {
+        background: var(--border);
+      }
     }
 
     &--active {
       color: var(--primary);
-      background: var(--surface-alt);
+
+      &::after {
+        background: var(--primary);
+      }
     }
   }
 
   .header-actions {
-    @include m.flex(row, center, flex-start, t.space(2));
+    @include m.flex(row, center, flex-end, t.space(2));
   }
 
-  .logout {
-    @include m.button-secondary;
-    width: auto;
-  }
-
-  .icon-btn {
+  .logout,
+  .theme-btn {
     @include m.button-secondary;
     width: auto;
     padding: t.space(2) t.space(3);
-    font-size: t.font-size('base');
-    line-height: 1;
+    font-size: t.font-size('sm');
+    font-weight: t.$font-weight-medium;
   }
 }
 

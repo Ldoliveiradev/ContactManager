@@ -10,14 +10,10 @@ type ButtonType = 'button' | 'submit';
 @Component({
   selector: 'ui-button',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <button [type]="type()" [disabled]="disabled()" [class]="'btn btn--' + variant()">
-      <ng-content />
-    </button>
-  `,
-  styleUrl: './button.scss',
+  templateUrl: './button.component.html',
+  styleUrl: './button.component.scss',
 })
-export class Button {
+export class ButtonComponent {
   readonly variant = input<ButtonVariant>('primary');
   readonly type = input<ButtonType>('button');
   readonly disabled = input(false);

@@ -7,23 +7,10 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 @Component({
   selector: 'ui-form-field',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <label class="field">
-      <span class="field__label">
-        {{ label() }}
-        @if (optional()) {
-          <em class="field__optional">(optional)</em>
-        }
-      </span>
-      <ng-content />
-      @if (error()) {
-        <small class="field__error">{{ error() }}</small>
-      }
-    </label>
-  `,
-  styleUrl: './form-field.scss',
+  templateUrl: './form-field.component.html',
+  styleUrl: './form-field.component.scss',
 })
-export class FormField {
+export class FormFieldComponent {
   readonly label = input.required<string>();
   readonly optional = input(false);
   readonly error = input<string | null>(null);

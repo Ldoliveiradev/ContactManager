@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 @Component({
   selector: 'ui-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<ng-content />`,
-  styleUrl: './card.scss',
+  templateUrl: './card.component.html',
+  styleUrl: './card.component.scss',
 })
-export class Card {}
+export class CardComponent {}

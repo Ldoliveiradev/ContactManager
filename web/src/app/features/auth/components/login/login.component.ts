@@ -2,18 +2,18 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AutofocusDirective } from '../../../../shared/directives/autofocus.directive';
-import { Alert } from '../../../../shared/ui/alert/alert';
-import { Button } from '../../../../shared/ui/button/button';
-import { Card } from '../../../../shared/ui/card/card';
-import { FormField } from '../../../../shared/ui/form-field/form-field';
+import { AlertComponent } from '../../../../shared/ui/alert/alert.component';
+import { ButtonComponent } from '../../../../shared/ui/button/button.component';
+import { CardComponent } from '../../../../shared/ui/card/card.component';
+import { FormFieldComponent } from '../../../../shared/ui/form-field/form-field.component';
 import { RegisterRequest } from '../../models/register-request.interface';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, AutofocusDirective, Alert, Button, Card, FormField],
-  templateUrl: './login.html',
-  styleUrl: './login.scss',
+  imports: [ReactiveFormsModule, AutofocusDirective, AlertComponent, ButtonComponent, CardComponent, FormFieldComponent],
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss',
 })
 export class Login {
   private readonly fb = inject(FormBuilder);

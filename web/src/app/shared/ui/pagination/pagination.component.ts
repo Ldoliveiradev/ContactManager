@@ -11,10 +11,10 @@ import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons
   selector: 'ui-pagination',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FaIconComponent, FormsModule],
-  templateUrl: './pagination.html',
-  styleUrl: './pagination.scss',
+  templateUrl: './pagination.component.html',
+  styleUrl: './pagination.component.scss',
 })
-export class Pagination {
+export class PaginationComponent {
   readonly page = input.required<number>(); // 1-based
   readonly pageSize = input.required<number>();
   readonly totalItems = input.required<number>();

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Alert } from './alert';
+import { AlertComponent } from './alert.component';
 
 @Component({
-  imports: [Alert],
+  imports: [AlertComponent],
   template: `<ui-alert>Something went wrong</ui-alert>`,
 })
 class Host {}

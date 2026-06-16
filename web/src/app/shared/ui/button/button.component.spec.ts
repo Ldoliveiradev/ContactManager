@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Button } from './button';
+import { ButtonComponent } from './button.component';
 
 @Component({
-  imports: [Button],
+  imports: [ButtonComponent],
   template: `<ui-button [variant]="variant" [type]="type" [disabled]="disabled">Save</ui-button>`,
 })
 class Host {

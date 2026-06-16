@@ -7,6 +7,8 @@
         <label class="page-size">
           <span class="page-size__label">Per page:</span>
           <select
+            id="page-size"
+            name="page-size"
             class="page-size__select"
             [ngModel]="pageSize()"
             (ngModelChange)="onSizeChange($event)"

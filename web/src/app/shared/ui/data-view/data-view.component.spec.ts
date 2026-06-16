@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DataView } from './data-view';
+import { DataViewComponent } from './data-view.component';
 import { DataViewColumn } from './data-view.types';
 
 interface Row {
@@ -9,7 +9,7 @@ interface Row {
 }
 
 @Component({
-  imports: [DataView],
+  imports: [DataViewComponent],
   template: `
     <ui-data-view
       [items]="items()"

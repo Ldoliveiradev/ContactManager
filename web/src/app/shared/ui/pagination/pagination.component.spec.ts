@@ -1,9 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Pagination } from './pagination';
+import { PaginationComponent } from './pagination.component';
 
 @Component({
-  imports: [Pagination],
+  imports: [PaginationComponent],
   template: `
     <ui-pagination
       [page]="page()"

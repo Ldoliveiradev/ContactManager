@@ -7,10 +7,10 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AutofocusDirective } from '../../../../shared/directives/autofocus.directive';
-import { Alert } from '../../../../shared/ui/alert/alert';
-import { Button } from '../../../../shared/ui/button/button';
-import { Card } from '../../../../shared/ui/card/card';
-import { FormField } from '../../../../shared/ui/form-field/form-field';
+import { AlertComponent } from '../../../../shared/ui/alert/alert.component';
+import { ButtonComponent } from '../../../../shared/ui/button/button.component';
+import { CardComponent } from '../../../../shared/ui/card/card.component';
+import { FormFieldComponent } from '../../../../shared/ui/form-field/form-field.component';
 import * as v from '../../../../shared/validators/contact.validators';
 import { CreateContactRequest } from '../../models/create-contact-request.interface';
 import { UpdateContactRequest } from '../../models/update-contact-request.interface';
@@ -18,9 +18,9 @@ import { ContactService } from '../../services/contact.service';
 
 @Component({
   selector: 'app-contact-form',
-  imports: [ReactiveFormsModule, AutofocusDirective, Alert, Button, Card, FormField],
-  templateUrl: './contact-form.html',
-  styleUrl: './contact-form.scss',
+  imports: [ReactiveFormsModule, AutofocusDirective, AlertComponent, ButtonComponent, CardComponent, FormFieldComponent],
+  templateUrl: './contact-form.component.html',
+  styleUrl: './contact-form.component.scss',
 })
 export class ContactForm implements OnInit {
   private readonly fb = inject(FormBuilder);

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Card } from './card';
+import { CardComponent } from './card.component';
 
 @Component({
-  imports: [Card],
+  imports: [CardComponent],
   template: `<ui-card><p>Body</p></ui-card>`,
 })
 class Host {}

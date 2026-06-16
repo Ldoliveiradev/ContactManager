@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormField } from './form-field';
+import { FormFieldComponent } from './form-field.component';
 
 @Component({
-  imports: [FormField],
+  imports: [FormFieldComponent],
   template: `
     <ui-form-field [label]="label" [optional]="optional" [error]="error">
       <input type="text" />
@@ -16,7 +16,7 @@ class Host {
   error: string | null = null;
 }
 
-describe('FormField', () => {
+describe('FormFieldComponent', () => {
   let fixture: ComponentFixture<Host>;
 
   beforeEach(async () => {

@@ -2,14 +2,14 @@
   <header class="app-header">
     <div class="header-left">
       <a routerLink="/contacts" class="brand">Contact Manager</a>
-      <nav class="header-nav">
-        <a routerLink="/contacts" routerLinkActive="nav-link--active" class="nav-link">Contacts</a>
-        <a routerLink="/profile" routerLinkActive="nav-link--active" class="nav-link">Profile</a>
-      </nav>
     </div>
+    <nav class="header-nav">
+      <a routerLink="/contacts" routerLinkActive="nav-link--active" class="nav-link">Contacts</a>
+      <a routerLink="/profile" routerLinkActive="nav-link--active" class="nav-link">Profile</a>
+    </nav>
     <div class="header-actions">
-      <button type="button" class="icon-btn" (click)="toggleTheme()" aria-label="Toggle theme">
-        <fa-icon [icon]="themeIcon()" />
+      <button type="button" class="theme-btn" (click)="toggleTheme()">
+        <fa-icon [icon]="themeIcon()" /> {{ themeLabel() }}
       </button>
       <button type="button" class="logout" (click)="logout()">
         <fa-icon [icon]="faLogout" /> Log out

@@ -5,7 +5,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   selector: 'ui-alert',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { role: 'alert' },
-  template: `<ng-content />`,
-  styleUrl: './alert.scss',
+  templateUrl: './alert.component.html',
+  styleUrl: './alert.component.scss',
 })
-export class Alert {}
+export class AlertComponent {}

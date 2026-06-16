@@ -9,12 +9,13 @@ import {
   faTrashCan,
 } from '@fortawesome/free-solid-svg-icons';
 import { PhonePipe } from '../../../../shared/pipes/phone.pipe';
-import { Alert } from '../../../../shared/ui/alert/alert';
-import { Button } from '../../../../shared/ui/button/button';
-import { DataView } from '../../../../shared/ui/data-view/data-view';
+import { AlertComponent } from '../../../../shared/ui/alert/alert.component';
+import { ButtonComponent } from '../../../../shared/ui/button/button.component';
+import { DataViewComponent } from '../../../../shared/ui/data-view/data-view.component';
 import { DataViewActionsDirective } from '../../../../shared/ui/data-view/data-view-actions.directive';
 import { DataViewCellDirective } from '../../../../shared/ui/data-view/data-view-cell.directive';
 import { DataViewColumn } from '../../../../shared/ui/data-view/data-view.types';
+import { SkeletonComponent } from '../../../../shared/ui/skeleton/skeleton.component';
 import { ContactDto } from '../../models/contact-dto.interface';
 import { ContactService } from '../../services/contact.service';
 
@@ -24,14 +25,15 @@ import { ContactService } from '../../services/contact.service';
     RouterLink,
     PhonePipe,
     FaIconComponent,
-    Alert,
-    Button,
-    DataView,
+    AlertComponent,
+    ButtonComponent,
+    DataViewComponent,
     DataViewCellDirective,
     DataViewActionsDirective,
+    SkeletonComponent,
   ],
-  templateUrl: './contact-list.html',
-  styleUrl: './contact-list.scss',
+  templateUrl: './contact-list.component.html',
+  styleUrl: './contact-list.component.scss',
 })
 export class ContactList implements OnInit {
   private readonly contacts = inject(ContactService);
@@ -46,6 +48,8 @@ export class ContactList implements OnInit {
   protected readonly items = signal<ContactDto[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+
+  protected readonly skeletonCards = [0, 1, 2, 3, 4, 5];
 
   protected readonly columns: DataViewColumn<ContactDto>[] = [
     { key: 'name', header: 'Name', sortable: true, searchable: true, cell: 'name' },

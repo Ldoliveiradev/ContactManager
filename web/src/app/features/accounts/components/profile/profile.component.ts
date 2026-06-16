@@ -1,17 +1,17 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Alert } from '../../../../shared/ui/alert/alert';
-import { Button } from '../../../../shared/ui/button/button';
-import { Card } from '../../../../shared/ui/card/card';
-import { FormField } from '../../../../shared/ui/form-field/form-field';
+import { AlertComponent } from '../../../../shared/ui/alert/alert.component';
+import { ButtonComponent } from '../../../../shared/ui/button/button.component';
+import { CardComponent } from '../../../../shared/ui/card/card.component';
+import { FormFieldComponent } from '../../../../shared/ui/form-field/form-field.component';
 import { AccountDto } from '../../models/account-dto.interface';
 import { AccountService } from '../../services/account.service';
 
 @Component({
   selector: 'app-profile',
-  imports: [ReactiveFormsModule, Alert, Button, Card, FormField],
-  templateUrl: './profile.html',
-  styleUrl: './profile.scss',
+  imports: [ReactiveFormsModule, AlertComponent, ButtonComponent, CardComponent, FormFieldComponent],
+  templateUrl: './profile.component.html',
+  styleUrl: './profile.component.scss',
 })
 export class Profile implements OnInit {
   private readonly fb = inject(FormBuilder);

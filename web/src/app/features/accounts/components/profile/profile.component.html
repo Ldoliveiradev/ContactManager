@@ -21,21 +21,21 @@
           label="First name"
           [error]="profileForm.controls.firstName.touched && profileForm.controls.firstName.invalid ? 'First name is required.' : null"
         >
-          <input type="text" formControlName="firstName" aria-label="First name" />
+          <input id="profile-firstName" name="firstName" type="text" autocomplete="given-name" formControlName="firstName" aria-label="First name" />
         </ui-form-field>
 
         <ui-form-field
           label="Last name"
           [error]="profileForm.controls.lastName.touched && profileForm.controls.lastName.invalid ? 'Last name is required.' : null"
         >
-          <input type="text" formControlName="lastName" aria-label="Last name" />
+          <input id="profile-lastName" name="lastName" type="text" autocomplete="family-name" formControlName="lastName" aria-label="Last name" />
         </ui-form-field>
 
         <ui-form-field
           label="Email"
           [error]="profileForm.controls.email.touched && profileForm.controls.email.invalid ? 'Enter a valid email address.' : null"
         >
-          <input type="email" formControlName="email" aria-label="Email" />
+          <input id="profile-email" name="email" type="email" autocomplete="email" formControlName="email" aria-label="Email" />
         </ui-form-field>
 
         <div class="form-actions">
@@ -61,14 +61,14 @@
           label="Current password"
           [error]="passwordForm.controls.currentPassword.touched && passwordForm.controls.currentPassword.invalid ? 'Current password is required.' : null"
         >
-          <input type="password" formControlName="currentPassword" aria-label="Current password" />
+          <input id="currentPassword" name="currentPassword" type="password" formControlName="currentPassword" autocomplete="current-password" aria-label="Current password" />
         </ui-form-field>
 
         <ui-form-field
           label="New password"
           [error]="passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.invalid ? 'New password must be at least 8 characters.' : null"
         >
-          <input type="password" formControlName="newPassword" aria-label="New password" />
+          <input id="newPassword" name="newPassword" type="password" formControlName="newPassword" autocomplete="new-password" aria-label="New password" />
         </ui-form-field>
 
         <div class="form-actions">

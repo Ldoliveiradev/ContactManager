@@ -21,6 +21,7 @@ export class App {
 
   protected readonly faLogout = faRightFromBracket;
   protected readonly themeIcon = computed(() => (this.theme() === 'dark' ? faSun : faMoon));
+  protected readonly themeLabel = computed(() => (this.theme() === 'dark' ? 'Light mode' : 'Dark mode'));
 
   protected toggleTheme(): void {
     this.themeService.toggle();
