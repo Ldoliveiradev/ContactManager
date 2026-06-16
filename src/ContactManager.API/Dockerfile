@@ -8,10 +8,12 @@ WORKDIR /src
 COPY nuget.config ./
 
 # Copy csproj files first for layer-cached restore.
-COPY src/ContactManager.Domain/ContactManager.Domain.csproj           src/ContactManager.Domain/
-COPY src/ContactManager.Application/ContactManager.Application.csproj  src/ContactManager.Application/
-COPY src/ContactManager.Infrastructure/ContactManager.Infrastructure.csproj src/ContactManager.Infrastructure/
-COPY src/ContactManager.API/ContactManager.API.csproj                 src/ContactManager.API/
+COPY src/ContactManager.Domain/ContactManager.Domain.csproj                         src/ContactManager.Domain/
+COPY src/ContactManager.Application/ContactManager.Application.csproj               src/ContactManager.Application/
+COPY src/ContactManager.Infrastructure.Data/ContactManager.Infrastructure.Data.csproj       src/ContactManager.Infrastructure.Data/
+COPY src/ContactManager.Infrastructure.Identity/ContactManager.Infrastructure.Identity.csproj src/ContactManager.Infrastructure.Identity/
+COPY src/ContactManager.Infrastructure.IoC/ContactManager.Infrastructure.IoC.csproj         src/ContactManager.Infrastructure.IoC/
+COPY src/ContactManager.API/ContactManager.API.csproj                               src/ContactManager.API/
 RUN dotnet restore src/ContactManager.API/ContactManager.API.csproj
 
 # Copy the rest of the source and publish.
