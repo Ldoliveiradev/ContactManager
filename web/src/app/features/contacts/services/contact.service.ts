@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
@@ -15,8 +15,12 @@ export class ContactService {
   private readonly baseUrl = `${environment.apiUrl}/contacts`;
 
   getAll(): Observable<ContactDto[]> {
+    // The DataView does search/sort/pagination client-side, so fetch the full
+    // book of business in one request. The API paginates server-side (default
+    // PageSize=10), which would otherwise silently drop contacts past page 1.
+    const params = new HttpParams().set('Page', 1).set('PageSize', 1000);
     return this.http
-      .get<PaginationResponse<ContactListResponse>>(this.baseUrl)
+      .get<PaginationResponse<ContactListResponse>>(this.baseUrl, { params })
       .pipe(map((res) => res.data?.data ?? []));
   }
 

@@ -26,7 +26,7 @@ describe('ContactsComponent', () => {
 
   it('should create', () => {
     fixture.detectChanges();
-    http.expectOne(`${environment.apiUrl}/contacts`).flush({
+    http.expectOne((r) => r.url === `${environment.apiUrl}/contacts`).flush({
       isSuccess: true, error: null, totalCount: 0, page: 1, pageSize: 10,
       totalPages: 0, hasPreviousPage: false, hasNextPage: false,
       data: { isSuccess: true, error: null, data: [] },

@@ -32,8 +32,10 @@ public sealed class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Ex
             };
 
             context.Response.StatusCode = status;
-            context.Response.ContentType = "application/problem+json";
-            await context.Response.WriteAsJsonAsync(problem);
+            // Pass the content type explicitly: WriteAsJsonAsync otherwise resets it to
+            // "application/json", discarding the RFC 7807 problem+json media type.
+            await context.Response.WriteAsJsonAsync(
+                problem, options: null, contentType: "application/problem+json");
         }
     }
 }

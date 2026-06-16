@@ -31,8 +31,8 @@ describe('ContactService', () => {
     let result: ContactDto[] = [];
     service.getAll().subscribe((contacts) => (result = contacts));
 
-    const req = http.expectOne(baseUrl);
-    expect(req.request.method).toBe('GET');
+    const req = http.expectOne((r) => r.url === baseUrl && r.method === 'GET');
+    expect(req.request.params.get('PageSize')).toBe('1000');
     req.flush({
       isSuccess: true, error: null, totalCount: 1, page: 1, pageSize: 10,
       totalPages: 1, hasPreviousPage: false, hasNextPage: false,
@@ -46,7 +46,7 @@ describe('ContactService', () => {
     let result: ContactDto[] = [];
     service.getAll().subscribe((contacts) => (result = contacts));
 
-    http.expectOne(baseUrl).flush({
+    http.expectOne((r) => r.url === baseUrl && r.method === 'GET').flush({
       isSuccess: false, error: 'error', data: null,
       totalCount: 0, page: 1, pageSize: 10, totalPages: 0,
       hasPreviousPage: false, hasNextPage: false,
