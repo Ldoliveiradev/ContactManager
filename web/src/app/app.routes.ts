@@ -22,29 +22,6 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () =>
       import('./features/contacts/components/contacts.component').then((m) => m.ContactsComponent),
-    children: [
-      {
-        path: '',
-        loadComponent: () =>
-          import('./features/contacts/components/contact-list/contact-list.component').then(
-            (m) => m.ContactList,
-          ),
-      },
-      {
-        path: 'new',
-        loadComponent: () =>
-          import('./features/contacts/components/contact-form/contact-form.component').then(
-            (m) => m.ContactForm,
-          ),
-      },
-      {
-        path: ':id/edit',
-        loadComponent: () =>
-          import('./features/contacts/components/contact-form/contact-form.component').then(
-            (m) => m.ContactForm,
-          ),
-      },
-    ],
   },
   {
     path: 'accounts',

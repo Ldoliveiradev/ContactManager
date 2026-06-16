@@ -1,1 +1,12 @@
-<router-outlet />
+@if (view() === 'list') {
+  <app-contact-list
+    (newContact)="showNew()"
+    (editContact)="showEdit($event)"
+  />
+} @else {
+  <app-contact-form
+    [editId]="editId()"
+    (saved)="showList()"
+    (cancelled)="showList()"
+  />
+}

@@ -1,11 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, input, output, signal } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import { AutofocusDirective } from '../../../../shared/directives/autofocus.directive';
 import { AlertComponent } from '../../../../shared/ui/alert/alert.component';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
@@ -25,12 +24,13 @@ import { ContactService } from '../../services/contact.service';
 export class ContactForm implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly contacts = inject(ContactService);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+
+  readonly editId = input<string | null>(null);
+  readonly saved = output<void>();
+  readonly cancelled = output<void>();
 
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
-  protected readonly editId = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, v.notBlank(), v.trimmedLength(2, 200)]],
@@ -67,9 +67,8 @@ export class ContactForm implements OnInit {
   }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    const id = this.editId();
     if (id) {
-      this.editId.set(id);
       this.contacts.getById(id).subscribe({
         next: (c) => {
           if (c) {
@@ -96,7 +95,7 @@ export class ContactForm implements OnInit {
     if (id) {
       const payload: UpdateContactRequest = { name: raw.name, email: raw.email, phone };
       this.contacts.update(id, payload).subscribe({
-        next: () => this.router.navigate(['/contacts']),
+        next: () => this.saved.emit(),
         error: (err) => {
           this.saving.set(false);
           this.error.set(err?.status === 400 ? 'Please check the form fields.' : 'Failed to save contact.');
@@ -105,7 +104,7 @@ export class ContactForm implements OnInit {
     } else {
       const payload: CreateContactRequest = { name: raw.name, email: raw.email, phone };
       this.contacts.create(payload).subscribe({
-        next: () => this.router.navigate(['/contacts']),
+        next: () => this.saved.emit(),
         error: (err) => {
           this.saving.set(false);
           this.error.set(err?.status === 400 ? 'Please check the form fields.' : 'Failed to save contact.');
@@ -115,6 +114,6 @@ export class ContactForm implements OnInit {
   }
 
   protected cancel(): void {
-    this.router.navigate(['/contacts']);
+    this.cancelled.emit();
   }
 }

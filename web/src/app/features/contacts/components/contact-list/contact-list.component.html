@@ -1,8 +1,6 @@
 <header class="list-header">
   <h2>Your contacts</h2>
-  <a class="new-link" routerLink="/contacts/new">
-    <ui-button><fa-icon [icon]="faPlus" /> New contact</ui-button>
-  </a>
+  <ui-button (click)="newContact.emit()"><fa-icon [icon]="faPlus" /> New contact</ui-button>
 </header>
 
 @if (error()) {
@@ -31,7 +29,7 @@
 } @else if (items().length === 0) {
   <div class="empty">
     <p>No contacts yet.</p>
-    <a routerLink="/contacts/new"><ui-button>Add your first contact</ui-button></a>
+    <ui-button (click)="newContact.emit()">Add your first contact</ui-button>
   </div>
 } @else {
   <ui-data-view
@@ -63,7 +61,7 @@
         type="button"
         class="icon-action"
         [attr.aria-label]="'Edit ' + row.name"
-        (click)="editContact(row)"
+        (click)="onEditContact(row)"
       >
         <fa-icon [icon]="faPenToSquare" /> <span>Edit</span>
       </button>

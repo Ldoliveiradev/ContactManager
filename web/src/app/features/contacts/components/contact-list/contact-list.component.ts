@@ -1,5 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, OnInit, inject, output, signal } from '@angular/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import {
   faEnvelope,
@@ -22,7 +21,6 @@ import { ContactService } from '../../services/contact.service';
 @Component({
   selector: 'app-contact-list',
   imports: [
-    RouterLink,
     PhonePipe,
     FaIconComponent,
     AlertComponent,
@@ -37,7 +35,9 @@ import { ContactService } from '../../services/contact.service';
 })
 export class ContactList implements OnInit {
   private readonly contacts = inject(ContactService);
-  private readonly router = inject(Router);
+
+  readonly newContact = output<void>();
+  readonly editContact = output<string>();
 
   protected readonly faPlus = faPlus;
   protected readonly faEnvelope = faEnvelope;
@@ -76,8 +76,8 @@ export class ContactList implements OnInit {
     });
   }
 
-  protected editContact(contact: ContactDto): void {
-    this.router.navigate(['/contacts', contact.id, 'edit']);
+  protected onEditContact(contact: ContactDto): void {
+    this.editContact.emit(contact.id);
   }
 
   protected remove(contact: ContactDto): void {
