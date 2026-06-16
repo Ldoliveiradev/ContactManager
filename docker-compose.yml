@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: contactmanager-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: contactmanager
+      POSTGRES_USER: contactmanager
+      POSTGRES_PASSWORD: contactmanager_dev_pwd
+    ports:
+      # Host 5433 → container 5432, to avoid colliding with any other local Postgres.
+      - "5433:5432"
+    volumes:
+      - contactmanager-pgdata:/var/lib/postgresql/data
+      # Scripts in this folder run automatically on first container start (empty data dir).
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U contactmanager -d contactmanager"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  contactmanager-pgdata:
