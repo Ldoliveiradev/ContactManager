@@ -2,10 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { environment } from '../../../../../environments/environment';
-import { Profile } from './profile';
+import { AccountDto } from '../../models/account-dto.interface';
+import { Profile } from './profile.component';
 
-const mockAccount = {
+const mockAccount: AccountDto = {
   id: '1', username: 'demo', firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com',
 };
 
@@ -27,28 +27,24 @@ describe('Profile', () => {
     fixture = TestBed.createComponent(Profile);
     component = fixture.componentInstance;
     http = TestBed.inject(HttpTestingController);
+    fixture.componentRef.setInput('account', mockAccount);
   });
 
   afterEach(() => http.verify());
 
   it('should create', () => {
-    expect(component).toBeTruthy();
     fixture.detectChanges();
-    http.expectOne(`${environment.apiUrl}/accounts`).flush({ isSuccess: true, error: null, data: mockAccount });
+    expect(component).toBeTruthy();
   });
 
-  it('populates profile form from loaded account', () => {
-    fixture.detectChanges();
-    http.expectOne(`${environment.apiUrl}/accounts`).flush({ isSuccess: true, error: null, data: mockAccount });
+  it('populates profile form from the account input', () => {
     fixture.detectChanges();
 
     expect(component['profileForm'].value.firstName).toBe('Jane');
     expect(component['profileForm'].value.email).toBe('jane@example.com');
   });
 
-  it('shows username on profile page', () => {
-    fixture.detectChanges();
-    http.expectOne(`${environment.apiUrl}/accounts`).flush({ isSuccess: true, error: null, data: mockAccount });
+  it('shows the username on the profile page', () => {
     fixture.detectChanges();
 
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('@demo');
@@ -56,7 +52,6 @@ describe('Profile', () => {
 
   it('password form is invalid when empty', () => {
     fixture.detectChanges();
-    http.expectOne(`${environment.apiUrl}/accounts`).flush({ isSuccess: true, error: null, data: mockAccount });
 
     expect(component['passwordForm'].invalid).toBeTrue();
   });
