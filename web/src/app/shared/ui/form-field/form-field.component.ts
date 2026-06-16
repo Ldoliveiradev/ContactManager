@@ -12,6 +12,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 })
 export class FormFieldComponent {
   readonly label = input.required<string>();
+  readonly for = input<string | null>(null);
   readonly optional = input(false);
   readonly error = input<string | null>(null);
 }

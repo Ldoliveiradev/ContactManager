@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { Login } from './login';
+import { Login } from './login.component';
 
 describe('Login', () => {
   let fixture: ComponentFixture<Login>;
@@ -27,20 +27,17 @@ describe('Login', () => {
     expect(component).toBeTruthy();
   });
 
-  it('starts in login mode', () => {
+  it('renders the sign-in heading', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain('Contact Manager');
-    expect(compiled.querySelector('[aria-label="First name"]')).toBeNull();
+    expect(compiled.querySelector('.auth-card__subtitle')?.textContent).toContain('Sign in');
   });
 
-  it('shows register fields after toggle', () => {
-    const toggleBtn = fixture.nativeElement.querySelectorAll('button')[1] as HTMLButtonElement;
-    toggleBtn.click();
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.querySelector('[aria-label="First name"]')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('[aria-label="Last name"]')).toBeTruthy();
-    expect(fixture.nativeElement.querySelector('[aria-label="Email"]')).toBeTruthy();
+  it('only shows username and password fields', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('[formControlName="username"]')).toBeTruthy();
+    expect(compiled.querySelector('[formControlName="password"]')).toBeTruthy();
+    expect(compiled.querySelector('[formControlName="firstName"]')).toBeNull();
   });
 
   it('marks form invalid on empty submit', () => {
@@ -49,5 +46,15 @@ describe('Login', () => {
     fixture.detectChanges();
 
     expect(component['form'].invalid).toBeTrue();
+  });
+
+  it('emits switchToRegister when the register link is clicked', () => {
+    let switched = false;
+    component.switchToRegister.subscribe(() => (switched = true));
+
+    const ghostBtn = fixture.nativeElement.querySelectorAll('button')[1] as HTMLButtonElement;
+    ghostBtn.click();
+
+    expect(switched).toBeTrue();
   });
 });

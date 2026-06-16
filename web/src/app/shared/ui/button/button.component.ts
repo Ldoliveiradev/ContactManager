@@ -17,4 +17,5 @@ export class ButtonComponent {
   readonly variant = input<ButtonVariant>('primary');
   readonly type = input<ButtonType>('button');
   readonly disabled = input(false);
+  readonly ariaLabel = input<string | null>(null, { alias: 'aria-label' });
 }

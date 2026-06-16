@@ -16,8 +16,8 @@
     </div>
   }
 
-  <div class="sort" role="group" aria-label="Sort">
-    <span class="sort__label">Sort:</span>
+  <fieldset class="sort">
+    <legend class="sort__label">Sort:</legend>
     @for (col of columns(); track col.key) {
       @if (col.sortable) {
         <button
@@ -30,7 +30,7 @@
         </button>
       }
     }
-  </div>
+  </fieldset>
 </div>
 
 @if (visible().length === 0) {

@@ -1,0 +1,87 @@
+name: SonarCloud
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  analyze:
+    name: Analyze (backend + frontend)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history so SonarCloud can assign issues to the right authors / new code period.
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Cache SonarCloud scanner
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      - name: Install SonarScanner for .NET
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Install frontend dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Run frontend unit tests with coverage
+        working-directory: web
+        run: npm run test:ci -- --code-coverage
+        continue-on-error: true
+
+      - name: Begin SonarCloud analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: >
+          dotnet sonarscanner begin
+          /k:"Ldoliveiradev_ContactManager"
+          /o:"ldoliveiradev"
+          /d:sonar.host.url="https://sonarcloud.io"
+          /d:sonar.token="${SONAR_TOKEN}"
+          /d:sonar.scanner.scanAll=false
+          /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+          /d:sonar.javascript.lcov.reportPaths="web/coverage/lcov.info"
+          /d:sonar.sources="src,web/src"
+          /d:sonar.tests="tests,web/src"
+          /d:sonar.test.inclusions="tests/**,web/src/**/*.spec.ts"
+          /d:sonar.exclusions="**/bin/**,**/obj/**,web/node_modules/**,web/dist/**,web/coverage/**,db/**,docs/**"
+          /d:sonar.coverage.exclusions="tests/**,web/src/**/*.spec.ts,web/src/**/*.config.ts,web/src/main.ts,web/src/environments/**"
+
+      - name: Build solution (with coverage)
+        run: >
+          dotnet test ContactManager.slnx
+          --configuration Release
+          /p:CollectCoverage=true
+          /p:CoverletOutputFormat=opencover
+          /p:CoverletOutput=./coverage.opencover.xml
+
+      - name: End SonarCloud analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"

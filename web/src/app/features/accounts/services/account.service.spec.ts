@@ -2,11 +2,12 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../../environments/environment';
+import { AccountDto } from '../models/account-dto.interface';
 import { AccountService } from './account.service';
 
 const baseUrl = `${environment.apiUrl}/accounts`;
 
-const mockAccount = {
+const mockAccount: AccountDto = {
   id: '1', username: 'demo', firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com',
 };
 
@@ -29,19 +30,19 @@ describe('AccountService', () => {
   });
 
   it('getProfile unwraps AccountResponse data', () => {
-    let result: typeof mockAccount | null = null;
+    let result: AccountDto | null = null;
     service.getProfile().subscribe((a) => (result = a));
 
     const req = http.expectOne(baseUrl);
     expect(req.request.method).toBe('GET');
     req.flush({ isSuccess: true, error: null, data: mockAccount });
 
-    expect(result).toEqual(mockAccount);
+    expect<AccountDto | null>(result).toEqual(mockAccount);
   });
 
   it('updateProfile sends PUT and unwraps data', () => {
     const input = { firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com' };
-    let result: typeof mockAccount | null = null;
+    let result: AccountDto | null = null;
     service.updateProfile(input).subscribe((a) => (result = a));
 
     const req = http.expectOne(baseUrl);
@@ -49,7 +50,7 @@ describe('AccountService', () => {
     expect(req.request.body).toEqual(input);
     req.flush({ isSuccess: true, error: null, data: { ...mockAccount, lastName: 'Smith' } });
 
-    expect(result?.lastName).toBe('Smith');
+    expect((result as AccountDto | null)?.lastName).toBe('Smith');
   });
 
   it('updatePassword sends PUT to /password', () => {

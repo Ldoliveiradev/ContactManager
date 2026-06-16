@@ -430,3 +430,6 @@ FodyWeavers.xsd
 
 # Editor settings (project-specific overrides)
 .vscode/
+
+# SonarLint Connected Mode binding (machine-specific)
+.sonarlint/

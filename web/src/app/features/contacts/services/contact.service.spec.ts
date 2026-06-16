@@ -2,11 +2,12 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../../environments/environment';
+import { ContactDto } from '../models/contact-dto.interface';
 import { ContactService } from './contact.service';
 
 const baseUrl = `${environment.apiUrl}/contacts`;
 
-const mockContact = { id: '1', name: 'Jane Doe', email: 'jane@example.com', phone: null };
+const mockContact: ContactDto = { id: '1', name: 'Jane Doe', email: 'jane@example.com', phone: null };
 
 describe('ContactService', () => {
   let service: ContactService;
@@ -27,7 +28,7 @@ describe('ContactService', () => {
   });
 
   it('getAll unwraps PaginationResponse data list', () => {
-    let result: typeof mockContact[] = [];
+    let result: ContactDto[] = [];
     service.getAll().subscribe((contacts) => (result = contacts));
 
     const req = http.expectOne(baseUrl);
@@ -42,7 +43,7 @@ describe('ContactService', () => {
   });
 
   it('getAll returns empty array when data is null', () => {
-    let result: typeof mockContact[] = [mockContact];
+    let result: ContactDto[] = [];
     service.getAll().subscribe((contacts) => (result = contacts));
 
     http.expectOne(baseUrl).flush({
@@ -55,17 +56,17 @@ describe('ContactService', () => {
   });
 
   it('getById unwraps ContactResponse data', () => {
-    let result: typeof mockContact | null = null;
+    let result: ContactDto | null = null;
     service.getById('1').subscribe((c) => (result = c));
 
     http.expectOne(`${baseUrl}/1`).flush({ isSuccess: true, error: null, data: mockContact });
 
-    expect(result).toEqual(mockContact);
+    expect<ContactDto | null>(result).toEqual(mockContact);
   });
 
   it('create sends POST and unwraps data', () => {
     const input = { name: 'Jane', email: 'jane@example.com', phone: null };
-    let result: typeof mockContact | null = null;
+    let result: ContactDto | null = null;
     service.create(input).subscribe((c) => (result = c));
 
     const req = http.expectOne(baseUrl);
@@ -73,19 +74,19 @@ describe('ContactService', () => {
     expect(req.request.body).toEqual(input);
     req.flush({ isSuccess: true, error: null, data: mockContact });
 
-    expect(result).toEqual(mockContact);
+    expect<ContactDto | null>(result).toEqual(mockContact);
   });
 
   it('update sends PUT and unwraps data', () => {
     const input = { name: 'Jane Updated', email: 'jane@example.com', phone: null };
-    let result: typeof mockContact | null = null;
+    let result: ContactDto | null = null;
     service.update('1', input).subscribe((c) => (result = c));
 
     const req = http.expectOne(`${baseUrl}/1`);
     expect(req.request.method).toBe('PUT');
     req.flush({ isSuccess: true, error: null, data: { ...mockContact, name: 'Jane Updated' } });
 
-    expect(result?.name).toBe('Jane Updated');
+    expect((result as ContactDto | null)?.name).toBe('Jane Updated');
   });
 
   it('delete sends DELETE request', () => {
