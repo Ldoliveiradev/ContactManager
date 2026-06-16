@@ -57,6 +57,7 @@
       }
 
       <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+        <input type="text" name="username" autocomplete="username" [value]="account()?.username ?? ''" class="visually-hidden" tabindex="-1" aria-label="Username" />
         <ui-form-field
           label="Current password"
           [error]="passwordForm.controls.currentPassword.touched && passwordForm.controls.currentPassword.invalid ? 'Current password is required.' : null"
