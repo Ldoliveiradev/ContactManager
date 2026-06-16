@@ -13,10 +13,10 @@ import { ContactService } from '../../core/services/contact.service';
 import { PhonePipe } from '../../shared/pipes/phone.pipe';
 import { Alert } from '../../shared/ui/alert/alert';
 import { Button } from '../../shared/ui/button/button';
-import { Grid } from '../../shared/ui/grid/grid';
-import { GridActionsDirective } from '../../shared/ui/grid/grid-actions.directive';
-import { GridCellDirective } from '../../shared/ui/grid/grid-cell.directive';
-import { GridColumn } from '../../shared/ui/grid/grid.types';
+import { DataView } from '../../shared/ui/data-view/data-view';
+import { DataViewActionsDirective } from '../../shared/ui/data-view/data-view-actions.directive';
+import { DataViewCellDirective } from '../../shared/ui/data-view/data-view-cell.directive';
+import { DataViewColumn } from '../../shared/ui/data-view/data-view.types';
 
 @Component({
   selector: 'app-contact-list',
@@ -26,9 +26,9 @@ import { GridColumn } from '../../shared/ui/grid/grid.types';
     FaIconComponent,
     Alert,
     Button,
-    Grid,
-    GridCellDirective,
-    GridActionsDirective,
+    DataView,
+    DataViewCellDirective,
+    DataViewActionsDirective,
   ],
   templateUrl: './contact-list.html',
   styleUrl: './contact-list.scss',
@@ -48,8 +48,8 @@ export class ContactList implements OnInit {
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
 
-  // Column definitions for the generic grid.
-  protected readonly columns: GridColumn<Contact>[] = [
+  // Column definitions for the generic data view.
+  protected readonly columns: DataViewColumn<Contact>[] = [
     { key: 'name', header: 'Name', sortable: true, searchable: true, cell: 'name' },
     { key: 'email', header: 'Email', sortable: true, searchable: true, cell: 'email' },
     { key: 'phone', header: 'Phone', searchable: true, cell: 'phone' },

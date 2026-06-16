@@ -60,15 +60,15 @@
       </li>
     }
   </ul>
+}
 
-  @if (currentPageSize() > 0) {
-    <ui-pagination
-      [page]="page()"
-      [pageSize]="currentPageSize()"
-      [totalItems]="filteredCount()"
-      [pageSizeOptions]="pageSizeOptions()"
-      (pageChange)="setPage($event)"
-      (pageSizeChange)="setPageSize($event)"
-    />
-  }
+@if (currentPageSize() > 0) {
+  <ui-pagination
+    [page]="page()"
+    [pageSize]="currentPageSize()"
+    [totalItems]="filteredCount()"
+    [pageSizeOptions]="pageSizeOptions()"
+    (pageChange)="setPage($event)"
+    (pageSizeChange)="setPageSize($event)"
+  />
 }

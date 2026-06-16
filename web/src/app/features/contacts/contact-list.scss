@@ -47,23 +47,27 @@
 
 .icon-action {
   @include m.flex(row, center, center, t.space(1));
-  background: none;
-  border: none;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
   cursor: pointer;
   font: inherit;
   font-size: t.font-size('sm');
-  color: var(--text-muted);
-  padding: t.space(2);
+  font-weight: t.$font-weight-medium;
+  color: var(--text);
+  padding: t.space(2) t.space(3);
   border-radius: t.$radius-sm;
-  transition: background-color t.$transition-fast, color t.$transition-fast;
+  transition: background-color t.$transition-fast, color t.$transition-fast,
+    border-color t.$transition-fast;
   @include m.focus-ring;
 
   &:hover {
-    background: var(--surface-alt);
-    color: var(--text);
+    background: var(--surface-hover);
+    border-color: var(--primary);
+    color: var(--primary);
   }
 
   &--danger:hover {
+    border-color: var(--danger);
     color: var(--danger);
   }
 }

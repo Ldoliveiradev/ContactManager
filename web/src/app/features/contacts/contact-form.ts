@@ -1,5 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContactInput } from '../../core/models/contact.model';
 import { ContactService } from '../../core/services/contact.service';
@@ -8,6 +13,7 @@ import { Alert } from '../../shared/ui/alert/alert';
 import { Button } from '../../shared/ui/button/button';
 import { Card } from '../../shared/ui/card/card';
 import { FormField } from '../../shared/ui/form-field/form-field';
+import * as v from '../../shared/validators/contact.validators';
 
 @Component({
   selector: 'app-contact-form',
@@ -26,10 +32,40 @@ export class ContactForm implements OnInit {
   protected readonly editId = signal<string | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
-    name: ['', [Validators.required]],
-    email: ['', [Validators.required, Validators.email]],
-    phone: [''],
+    name: ['', [Validators.required, v.notBlank(), v.trimmedLength(2, 200)]],
+    email: ['', [Validators.required, v.email(), v.trimmedLength(3, 200)]],
+    phone: ['', [v.phone()]],
   });
+
+  // Per-field error message tables keyed by validation error name.
+  private static readonly MESSAGES: Record<string, Record<string, string>> = {
+    name: {
+      required: 'Name is required.',
+      blank: 'Name is required.',
+      minLengthTrimmed: 'Name must be at least 2 characters.',
+      maxLengthTrimmed: 'Name must be 200 characters or fewer.',
+    },
+    email: {
+      required: 'Email is required.',
+      blank: 'Email is required.',
+      email: 'Enter a valid email address.',
+      maxLengthTrimmed: 'Email must be 200 characters or fewer.',
+    },
+    phone: {
+      phone: 'Enter a valid phone number.',
+    },
+  };
+
+  /** Maps a control's validation errors to a human-readable message. */
+  protected errorFor(name: 'name' | 'email' | 'phone'): string | null {
+    const control: AbstractControl = this.form.controls[name];
+    if (!control.touched || !control.errors) {
+      return null;
+    }
+    const messages = ContactForm.MESSAGES[name];
+    const firstKey = Object.keys(control.errors).find((key) => messages[key]);
+    return firstKey ? messages[firstKey] : null;
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

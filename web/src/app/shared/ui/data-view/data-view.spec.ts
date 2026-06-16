@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Grid } from './grid';
-import { GridColumn } from './grid.types';
+import { DataView } from './data-view';
+import { DataViewColumn } from './data-view.types';
 
 interface Row {
   name: string;
@@ -9,9 +9,9 @@ interface Row {
 }
 
 @Component({
-  imports: [Grid],
+  imports: [DataView],
   template: `
-    <ui-grid
+    <ui-data-view
       [items]="items()"
       [columns]="columns"
       [pageSize]="pageSize"
@@ -25,7 +25,7 @@ class Host {
     { name: 'Alice', email: 'a@x.com' },
     { name: 'Bob', email: 'b@x.com' },
   ]);
-  columns: GridColumn<Row>[] = [
+  columns: DataViewColumn<Row>[] = [
     { key: 'name', header: 'Name', sortable: true, searchable: true },
     { key: 'email', header: 'Email', searchable: true },
   ];
@@ -33,7 +33,7 @@ class Host {
   pageSizeOptions: number[] = [];
 }
 
-describe('Grid', () => {
+describe('DataView', () => {
   let fixture: ComponentFixture<Host>;
 
   beforeEach(async () => {

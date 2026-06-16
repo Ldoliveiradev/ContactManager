@@ -14,29 +14,29 @@ import { NgTemplateOutlet } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faMagnifyingGlass, faSort } from '@fortawesome/free-solid-svg-icons';
 import { Pagination } from '../pagination/pagination';
-import { GridActionsDirective } from './grid-actions.directive';
-import { GridCellDirective } from './grid-cell.directive';
-import { GridColumn, SortDirection } from './grid.types';
+import { DataViewActionsDirective } from './data-view-actions.directive';
+import { DataViewCellDirective } from './data-view-cell.directive';
+import { DataViewColumn, SortDirection } from './data-view.types';
 
 /**
  * Generic, enterprise-style data grid (card layout). Driven by column definitions;
  * supports built-in search across searchable columns, sortable column headers, and
- * custom cell / row-action templates via the [uiGridCell] and [uiGridActions]
+ * custom cell / row-action templates via the [uiDataViewCell] and [uiDataViewActions]
  * directives. Renders rows as responsive cards rather than a desktop-only table.
  */
 @Component({
-  selector: 'ui-grid',
+  selector: 'ui-data-view',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, NgTemplateOutlet, FaIconComponent, Pagination],
-  templateUrl: './grid.html',
-  styleUrl: './grid.scss',
+  templateUrl: './data-view.html',
+  styleUrl: './data-view.scss',
 })
-export class Grid<T extends object> {
+export class DataView<T extends object> {
   protected readonly faSearch = faMagnifyingGlass;
   protected readonly faSort = faSort;
 
   readonly items = input.required<T[]>();
-  readonly columns = input.required<GridColumn<T>[]>();
+  readonly columns = input.required<DataViewColumn<T>[]>();
   readonly searchPlaceholder = input('Search…');
   readonly emptyMessage = input('No results.');
   /** Initial rows per page; 0 disables pagination. */
@@ -44,8 +44,8 @@ export class Grid<T extends object> {
   /** Selectable page sizes shown in the pagination control (empty hides the selector). */
   readonly pageSizeOptions = input<number[]>([]);
 
-  private readonly cellTemplates = contentChildren(GridCellDirective);
-  private readonly actionsDir = contentChild(GridActionsDirective);
+  private readonly cellTemplates = contentChildren(DataViewCellDirective);
+  private readonly actionsDir = contentChild(DataViewActionsDirective);
 
   protected readonly query = signal('');
   protected readonly sortKey = signal<(keyof T & string) | null>(null);
@@ -111,11 +111,11 @@ export class Grid<T extends object> {
     return this.filtered().slice(start, start + size);
   });
 
-  protected cellTemplateFor(col: GridColumn<T>): TemplateRef<unknown> | null {
+  protected cellTemplateFor(col: DataViewColumn<T>): TemplateRef<unknown> | null {
     if (!col.cell) {
       return null;
     }
-    return this.cellTemplates().find((t) => t.uiGridCell() === col.cell)?.template ?? null;
+    return this.cellTemplates().find((t) => t.uiDataViewCell() === col.cell)?.template ?? null;
   }
 
   protected setQuery(value: string): void {
@@ -130,7 +130,7 @@ export class Grid<T extends object> {
     this.currentPageSize.set(size);
   }
 
-  protected sortBy(col: GridColumn<T>): void {
+  protected sortBy(col: DataViewColumn<T>): void {
     if (!col.sortable) {
       return;
     }
@@ -142,7 +142,7 @@ export class Grid<T extends object> {
     }
   }
 
-  protected sortIndicator(col: GridColumn<T>): string {
+  protected sortIndicator(col: DataViewColumn<T>): string {
     if (this.sortKey() !== col.key) {
       return '';
     }
