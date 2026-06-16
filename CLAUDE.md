@@ -10,8 +10,9 @@ A full-stack **Contact Manager**: an authenticated user manages their own contac
 (create / read / update / delete). Built for a .NET technical interview exercise.
 
 **User story (drives the work):**
-> As a sales rep, I want to manage my contacts (create, view, edit, delete) and log in
-> securely, so my contact list stays current and private to me.
+> As a sales rep, I want to sign up and log in securely, then manage and quickly find my
+> contacts (create, view, search, edit, delete), so my contact list stays current and
+> private to me.
 
 ## Tech stack
 
