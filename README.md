@@ -10,11 +10,19 @@ Angular 20 · JWT auth · Clean Architecture · TDD · Docker.
 
 ## User story
 
-> As a sales rep, I want to manage my contacts (create, view, edit, delete) and log in
-> securely, so my contact list stays current and private to me.
+> As a sales rep, I want to sign up and log in securely, then manage and quickly find my
+> contacts (create, view, search, edit, delete), so my contact list stays current and
+> private to me.
 
-This drives the whole design: contacts are **user-scoped** — every user sees and edits only
-their own.
+This story drove the design end-to-end — each clause maps to a concrete decision:
+
+| Story clause | What it drove |
+| --- | --- |
+| "sign up and log in securely" | Register + login endpoints, JWT auth, PBKDF2 password hashing |
+| "manage … contacts (create, view, edit, delete)" | Full CRUD API + Angular UI |
+| "quickly find my contacts" | Client-side search, sortable columns, pagination with page-size |
+| "stays current" | Edit/delete with optimistic list updates |
+| "private to me" | User-scoped queries; a non-owned contact returns `404`, never leaking that it exists (IDOR protection) |
 
 ---
 
@@ -120,8 +128,8 @@ The database is **seeded on first run** with a demo user and 15 contacts.
 
 **App login** (sign in at the frontend):
 
-| Username | Password   | Notes                                                |
-| -------- | ---------- | ---------------------------------------------------- |
+| Username | Password   | Notes                                                  |
+| -------- | ---------- | ------------------------------------------------------ |
 | `demo`   | `Demo123!` | A **username, not an email**. Owns 15 seeded contacts. |
 
 You can also click **Register** on the login screen to create a fresh account.
