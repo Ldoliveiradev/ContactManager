@@ -14,16 +14,15 @@ public sealed class ContactService(IContactRepository contacts) : IContactServic
     private static readonly CreateContactRequestValidator CreateValidator = new();
     private static readonly UpdateContactRequestValidator UpdateValidator = new();
 
-    public async Task<ContactListResponse> GetAllAsync(
+    public async Task<PaginationResponse<ContactListResponse>> GetAllAsync(
         Guid accountId, GetContactsRequest request, CancellationToken ct = default)
     {
         var f = request.Filter;
         var (items, totalCount) = await contacts.GetByAccountAsync(
             accountId, f.Search, f.SortBy, f.SortDesc, f.Page, f.PageSize, ct);
 
-        return ContactListResponse.Success(
-            items.Select(ToDto).ToList(),
-            totalCount, f.Page, f.PageSize);
+        var listResponse = ContactListResponse.Success(items.Select(ToDto).ToList());
+        return PaginationResponse<ContactListResponse>.Success(listResponse, totalCount, f.Page, f.PageSize);
     }
 
     public async Task<ContactResponse> GetByIdAsync(

@@ -89,8 +89,8 @@ public class ContactsEndpointsTests
 
         var aliceList = await alice.GetFromJsonAsync<ContactListDto>("/api/contacts");
 
-        aliceList!.Data.Should().ContainSingle();
-        aliceList.Data[0].Name.Should().Be("Ada");
+        aliceList!.Data!.Data.Should().ContainSingle();
+        aliceList.Data.Data[0].Name.Should().Be("Ada");
     }
 
     [SkippableFact]
@@ -196,7 +196,7 @@ public class ContactsEndpointsTests
         (await bob.GetAsync($"/api/contacts/{created!.Data!.Id}")).StatusCode
             .Should().Be(HttpStatusCode.OK);
         var aliceList = await alice.GetFromJsonAsync<ContactListDto>("/api/contacts");
-        aliceList!.Data.Should().BeEmpty();
+        aliceList!.Data!.Data.Should().BeEmpty();
     }
 
     [SkippableTheory]
@@ -224,5 +224,6 @@ public class ContactsEndpointsTests
     private sealed record TokenResponse(string Token);
     private sealed record ContactDataDto(Guid Id, string Name, string Email, string? Phone);
     private sealed record ContactDto(ContactDataDto? Data, bool IsSuccess, string? Error);
-    private sealed record ContactListDto(List<ContactDataDto> Data, int TotalCount, int Page, int PageSize, bool IsSuccess, string? Error);
+    private sealed record ContactListInnerDto(List<ContactDataDto> Data, bool IsSuccess, string? Error);
+    private sealed record ContactListDto(ContactListInnerDto? Data, int TotalCount, int Page, int PageSize, bool IsSuccess, string? Error);
 }

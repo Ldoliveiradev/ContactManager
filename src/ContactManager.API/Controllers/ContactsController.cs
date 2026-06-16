@@ -14,7 +14,7 @@ namespace ContactManager.API.Controllers;
 public sealed class ContactsController(IContactService contacts) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<ContactListResponse>> GetAll(
+    public async Task<ActionResult<PaginationResponse<ContactListResponse>>> GetAll(
         [FromQuery] string? search,
         [FromQuery] string? sortBy,
         [FromQuery] bool sortDesc = false,
