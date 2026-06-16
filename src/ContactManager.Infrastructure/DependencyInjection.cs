@@ -23,6 +23,7 @@ public static class DependencyInjection
 
         services.AddSingleton(jwtOptions);
         services.AddScoped<IUserRepository>(_ => new UserRepository(connectionString));
+        services.AddScoped<IContactRepository>(_ => new ContactRepository(connectionString));
         services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddSingleton<IJwtTokenGenerator>(_ => new JwtTokenGenerator(jwtOptions));
 

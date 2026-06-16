@@ -23,6 +23,7 @@ public sealed class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Ex
             {
                 ValidationException => (StatusCodes.Status400BadRequest, ex.Message),
                 InvalidCredentialsException => (StatusCodes.Status401Unauthorized, ex.Message),
+                NotFoundException => (StatusCodes.Status404NotFound, ex.Message),
                 UsernameAlreadyExistsException => (StatusCodes.Status409Conflict, ex.Message),
                 _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred.")
             };
