@@ -53,7 +53,17 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseHttpsRedirection();
+
+// Only redirect to HTTPS when an HTTPS endpoint is actually configured. In the
+// container we serve plain HTTP on 8080 (TLS is terminated upstream), so redirecting
+// would just emit warnings and break requests. Locally, launchSettings provides one.
+var httpsConfigured = builder.Configuration["ASPNETCORE_HTTPS_PORTS"] is not null
+    || (builder.Configuration["ASPNETCORE_URLS"]?.Contains("https", StringComparison.OrdinalIgnoreCase) ?? false);
+if (httpsConfigured)
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseCors(CorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
