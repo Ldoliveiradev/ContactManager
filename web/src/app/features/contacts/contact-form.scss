@@ -1,10 +1,11 @@
 .form-wrapper {
   max-width: 480px;
   margin: 0 auto;
-  background: #fff;
+  background: var(--surface);
   padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px var(--shadow);
+  color: var(--text);
 
   h2 {
     margin-top: 0;
@@ -23,15 +24,17 @@
     font-size: 0.9rem;
 
     em {
-      color: #999;
+      color: var(--text-muted);
       font-style: normal;
     }
 
     input {
       padding: 0.6rem 0.75rem;
-      border: 1px solid #ccd;
+      border: 1px solid var(--input-border);
       border-radius: 8px;
       font-size: 1rem;
+      background: var(--surface-alt);
+      color: var(--text);
     }
   }
 }
@@ -43,8 +46,8 @@
 }
 
 .btn-primary {
-  background: #3b5bdb;
-  color: #fff;
+  background: var(--primary);
+  color: var(--primary-contrast);
   padding: 0.6rem 1.1rem;
   border: none;
   border-radius: 8px;
@@ -58,22 +61,22 @@
 }
 
 .btn-secondary {
-  background: #eee;
-  color: #333;
+  background: var(--surface-alt);
+  color: var(--text);
   padding: 0.6rem 1.1rem;
-  border: none;
+  border: 1px solid var(--border);
   border-radius: 8px;
   cursor: pointer;
 }
 
 .alert {
-  background: #fdecea;
-  color: #b71c1c;
+  background: var(--danger-bg);
+  color: var(--danger);
   padding: 0.6rem 0.75rem;
   border-radius: 8px;
   margin-bottom: 1rem;
 }
 
 .field-error {
-  color: #b71c1c;
+  color: var(--danger);
 }

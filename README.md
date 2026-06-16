@@ -33,21 +33,28 @@ All data access is hand-written, parameterized SQL via Npgsql.
 
 ## Quick start
 
-There are two ways to run the backend.
-
-### Option A — everything in Docker (one command)
+### Option A — everything in Docker (recommended, one command)
 
 ```bash
 docker compose up -d --build
 ```
 
-Brings up PostgreSQL **and** the API together. On the Docker network the API reaches the
-database by its service name (`Host=postgres`), not `localhost`.
+Brings up the whole stack: **frontend + API + PostgreSQL + pgAdmin**. On the Docker network
+the API reaches the database by its service name (`Host=postgres`) and the frontend's nginx
+proxies `/api` to the API container — so no host ports or CORS are involved between them.
 
-- API:      <http://localhost:8085>
-- Postgres: `localhost:5433`
+| Service  | URL                              | Notes                                |
+| -------- | -------------------------------- | ------------------------------------ |
+| Frontend | <http://localhost:4300>          | the app — start here                 |
+| API      | <http://localhost:8085>          | direct access (Swagger at `/openapi`)|
+| pgAdmin  | <http://localhost:5051>          | DB browser (see logins below)        |
+| Postgres | `localhost:5433`                 | for external tools (DBeaver, etc.)   |
 
-### Option B — DB in Docker, API on your host (handy for debugging)
+> Ports use non-default host values (4300 / 8085 / 5433 / 5051) to avoid colliding with
+> other local services. Change the left-hand side of each `ports:` mapping in
+> `docker-compose.yml` if needed.
+
+### Option B — DB in Docker, API + frontend on your host (handy for debugging)
 
 ```bash
 # 1. Start only PostgreSQL (schema + seed applied automatically on first run)
@@ -55,29 +62,36 @@ docker compose up -d postgres
 
 # 2. Run the API on your machine (uses Host=localhost:5433 from appsettings.json)
 dotnet run --project src/ContactManager.API
-```
 
-### Frontend (either option)
-
-```bash
+# 3. Run the frontend dev server (in another terminal)
 cd web && npm install   # first time only
-npm start               # Angular dev server on http://localhost:4200
+npm start               # http://localhost:4200
 ```
 
-The SPA (Angular 20, standalone components + signals) provides login/registration and
-full contact CRUD. It calls the API at the URL in
-[`web/src/environments/environment.ts`](web/src/environments/environment.ts) — set to the
-containerized API (`http://localhost:8085/api`) by default; change it if running the API
-via `dotnet run`. The JWT is attached by an HTTP interceptor and routes are protected by an
-auth guard.
+The SPA (Angular 20, standalone components + signals) provides login/registration and full
+contact CRUD, with light/dark theming, a JWT HTTP interceptor, and route guards. In dev it
+calls the API URL in
+[`web/src/environments/environment.ts`](web/src/environments/environment.ts).
 
-### Demo credentials
+## Test users & logins
 
-| Username | Password   |
-| -------- | ---------- |
-| `demo`   | `Demo123!` |
+**App login (use these to sign in at the frontend):**
 
-The seed also creates a few demo contacts owned by this user.
+| Username | Password   | Notes                                                    |
+| -------- | ---------- | -------------------------------------------------------- |
+| `demo`   | `Demo123!` | Seeded user. **Username, not an email.** Has 3 contacts. |
+
+> You can also click **Register** on the login screen to create your own account.
+
+**pgAdmin login** (<http://localhost:5051>):
+
+| Email                      | Password |
+| -------------------------- | -------- |
+| `admin@contactmanager.com` | `admin`  |
+
+Inside pgAdmin, register the server with **Host `postgres`, Port `5432`**, database
+`contactmanager`, user `contactmanager`, password `contactmanager_dev_pwd`.
+(Use `postgres:5432` — the internal service name — not `localhost:5433`.)
 
 ## Development
 

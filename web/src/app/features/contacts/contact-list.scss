@@ -8,12 +8,13 @@
 
   h2 {
     margin: 0;
+    color: var(--text);
   }
 }
 
 .btn-primary {
-  background: #3b5bdb;
-  color: #fff;
+  background: var(--primary);
+  color: var(--primary-contrast);
   padding: 0.55rem 0.9rem;
   border-radius: 8px;
   text-decoration: none;
@@ -26,24 +27,25 @@
 .contacts-table {
   width: 100%;
   border-collapse: collapse;
-  background: #fff;
+  background: var(--surface);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px var(--shadow);
+  color: var(--text);
 
   th,
   td {
     text-align: left;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border);
   }
 
   th {
-    background: #f5f6f8;
+    background: var(--surface-alt);
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    color: #555;
+    color: var(--text-muted);
   }
 
   .actions {
@@ -53,14 +55,14 @@
 }
 
 .btn-link {
-  color: #3b5bdb;
+  color: var(--primary);
   text-decoration: none;
 }
 
 .btn-danger {
   background: none;
   border: none;
-  color: #c62828;
+  color: var(--danger);
   cursor: pointer;
   padding: 0;
 }
@@ -68,7 +70,7 @@
 .empty {
   text-align: center;
   padding: 3rem 1rem;
-  color: #666;
+  color: var(--text-muted);
 
   .btn-primary {
     margin-top: 1rem;
@@ -76,15 +78,15 @@
 }
 
 .alert {
-  background: #fdecea;
-  color: #b71c1c;
+  background: var(--danger-bg);
+  color: var(--danger);
   padding: 0.6rem 0.75rem;
   border-radius: 8px;
   margin-bottom: 1rem;
 }
 
 .muted {
-  color: #888;
+  color: var(--text-muted);
 }
 
 /* Responsive: collapse the table into stacked cards on narrow screens. */
@@ -103,7 +105,7 @@
 
   .contacts-table tr {
     margin-bottom: 1rem;
-    border: 1px solid #eee;
+    border: 1px solid var(--border);
     border-radius: 10px;
     padding: 0.5rem;
   }
@@ -117,7 +119,7 @@
     &::before {
       content: attr(data-label);
       font-weight: 600;
-      color: #555;
+      color: var(--text-muted);
     }
   }
 
