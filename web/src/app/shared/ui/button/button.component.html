@@ -1,3 +1,3 @@
-<button [type]="type()" [disabled]="disabled()" [class]="'btn btn--' + variant()">
+<button [type]="type()" [disabled]="disabled()" [class]="'btn btn--' + variant()" [attr.aria-label]="ariaLabel()">
   <ng-content />
 </button>

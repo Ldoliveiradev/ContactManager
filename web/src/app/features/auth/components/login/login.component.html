@@ -10,41 +10,26 @@
     }
 
     <ui-form-field
+      for="username"
       label="Username"
       [error]="form.controls.username.touched && form.controls.username.invalid ? 'Username is required.' : null"
     >
-      <input
-        id="username"
-        name="username"
-        type="text"
-        formControlName="username"
-        autocomplete="username"
-        aria-label="Username"
-        placeholder="your-username"
-        appAutofocus
-      />
+      <input id="username" name="username" type="text" formControlName="username" autocomplete="username" aria-label="Username" placeholder="your-username" appAutofocus />
     </ui-form-field>
 
     <ui-form-field
+      for="password"
       label="Password"
       [error]="form.controls.password.touched && form.controls.password.invalid ? 'Password must be at least 8 characters.' : null"
     >
-      <input
-        id="password"
-        name="password"
-        type="password"
-        formControlName="password"
-        autocomplete="current-password"
-        aria-label="Password"
-        placeholder="••••••••"
-      />
+      <input id="password" name="password" type="password" formControlName="password" autocomplete="current-password" aria-label="Password" placeholder="••••••••" />
     </ui-form-field>
 
     <ui-button type="submit" [disabled]="loading()">
       {{ loading() ? 'Please wait…' : 'Sign in' }}
     </ui-button>
 
-    <ui-button type="button" variant="ghost" (click)="switchToRegister.emit()">
+    <ui-button type="button" variant="ghost" (click)="switchToRegister.emit()" (keydown.enter)="switchToRegister.emit()">
       Don't have an account? Register
     </ui-button>
   </form>

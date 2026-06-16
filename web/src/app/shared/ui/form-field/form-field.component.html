@@ -1,12 +1,12 @@
-<label class="field">
-  <span class="field__label">
+<div class="field">
+  <label [for]="for()" class="field__label">
     {{ label() }}
     @if (optional()) {
       <em class="field__optional">(optional)</em>
     }
-  </span>
+  </label>
   <ng-content />
   @if (error()) {
     <small class="field__error">{{ error() }}</small>
   }
-</label>
+</div>

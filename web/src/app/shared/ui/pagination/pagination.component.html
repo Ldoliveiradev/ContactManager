@@ -12,7 +12,6 @@
             class="page-size__select"
             [ngModel]="pageSize()"
             (ngModelChange)="onSizeChange($event)"
-            aria-label="Items per page"
           >
             @for (size of pageSizeOptions(); track size) {
               <option [value]="size">{{ size }}</option>
