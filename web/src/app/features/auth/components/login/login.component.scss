@@ -1,0 +1,26 @@
+@use 'tokens' as t;
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: t.space(4);
+  }
+
+  &__head {
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: t.font-size('xl');
+  }
+
+  &__subtitle {
+    margin: t.space(2) 0 0;
+    color: var(--text-muted);
+  }
+}

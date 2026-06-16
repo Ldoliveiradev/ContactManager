@@ -4,26 +4,23 @@ import { authGuard } from './core/guards/auth.guard';
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'contacts' },
   {
-    path: 'login',
-    loadComponent: () => import('./features/auth/login').then((m) => m.Login),
+    path: 'auth',
+    loadComponent: () =>
+      import('./features/auth/components/auth.component').then((m) => m.AuthComponent),
   },
+  { path: 'login', redirectTo: 'auth', pathMatch: 'full' },
   {
     path: 'contacts',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/contacts/contact-list').then((m) => m.ContactList),
+      import('./features/contacts/components/contacts.component').then((m) => m.ContactsComponent),
   },
   {
-    path: 'contacts/new',
+    path: 'accounts',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/contacts/contact-form').then((m) => m.ContactForm),
+      import('./features/accounts/components/accounts.component').then((m) => m.AccountsComponent),
   },
-  {
-    path: 'contacts/:id/edit',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/contacts/contact-form').then((m) => m.ContactForm),
-  },
+  { path: 'profile', redirectTo: 'accounts', pathMatch: 'full' },
   { path: '**', redirectTo: 'contacts' },
 ];

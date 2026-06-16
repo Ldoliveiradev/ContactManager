@@ -1,0 +1,43 @@
+<ui-data-view
+  [items]="items()"
+  [columns]="columns"
+  [pageSize]="6"
+  [pageSizeOptions]="[6, 12, 24]"
+  initialSortKey="name"
+  searchPlaceholder="Search contacts…"
+  emptyMessage="No contacts match your search."
+>
+  <ng-template uiDataViewCell="name" let-row>
+    <div class="cell-name">
+      <span class="cell-name__avatar" aria-hidden="true">{{ row.name.charAt(0) }}</span>
+      <span class="cell-name__text" [title]="row.name">{{ row.name }}</span>
+    </div>
+  </ng-template>
+
+  <ng-template uiDataViewCell="email" let-row>
+    <span class="cell-muted" [title]="row.email"><fa-icon [icon]="faEnvelope" /> {{ row.email }}</span>
+  </ng-template>
+
+  <ng-template uiDataViewCell="phone" let-row>
+    <span class="cell-muted"><fa-icon [icon]="faPhone" /> {{ row.phone | phone }}</span>
+  </ng-template>
+
+  <ng-template uiDataViewActions let-row>
+    <button
+      type="button"
+      class="icon-action"
+      [attr.aria-label]="'Edit ' + row.name"
+      (click)="onEditContact(row)"
+    >
+      <fa-icon [icon]="faPenToSquare" /> <span>Edit</span>
+    </button>
+    <button
+      type="button"
+      class="icon-action icon-action--danger"
+      [attr.aria-label]="'Delete ' + row.name"
+      (click)="remove(row)"
+    >
+      <fa-icon [icon]="faTrashCan" /> <span>Delete</span>
+    </button>
+  </ng-template>
+</ui-data-view>

@@ -1,0 +1,49 @@
+@if (view() === 'list') {
+  <header class="list-header">
+    <h2>Your contacts</h2>
+    <ui-button (click)="showNew()"><fa-icon [icon]="faPlus" /> New contact</ui-button>
+  </header>
+
+  @if (error()) {
+    <ui-alert>{{ error() }}</ui-alert>
+  }
+
+  @if (loading()) {
+    <div class="sk-grid">
+      @for (card of skeletonCards; track card) {
+        <div class="sk-card">
+          <div class="sk-fields">
+            <div class="sk-name-row">
+              <ui-skeleton variant="circle" width="40px" height="40px" />
+              <ui-skeleton variant="line" width="55%" />
+            </div>
+            <ui-skeleton variant="line" width="75%" />
+            <ui-skeleton variant="line" width="45%" />
+          </div>
+          <div class="sk-actions">
+            <ui-skeleton variant="rect" width="64px" height="32px" />
+            <ui-skeleton variant="rect" width="64px" height="32px" />
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (items().length === 0) {
+    <div class="empty">
+      <p>No contacts yet.</p>
+      <ui-button (click)="showNew()">Add your first contact</ui-button>
+    </div>
+  } @else {
+    <app-contact-list
+      [items]="items()"
+      (editContact)="showEdit($event)"
+      (deleted)="onDelete($event)"
+      (deleteError)="onDeleteError($event)"
+    />
+  }
+} @else {
+  <app-contact-form
+    [editId]="editId()"
+    (saved)="showList()"
+    (cancelled)="showList()"
+  />
+}

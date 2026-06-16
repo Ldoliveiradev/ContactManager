@@ -1,0 +1,64 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { environment } from '../../../../environments/environment';
+import { AccountService } from './account.service';
+
+const baseUrl = `${environment.apiUrl}/accounts`;
+
+const mockAccount = {
+  id: '1', username: 'demo', firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com',
+};
+
+describe('AccountService', () => {
+  let service: AccountService;
+  let http: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(AccountService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => http.verify());
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  it('getProfile unwraps AccountResponse data', () => {
+    let result: typeof mockAccount | null = null;
+    service.getProfile().subscribe((a) => (result = a));
+
+    const req = http.expectOne(baseUrl);
+    expect(req.request.method).toBe('GET');
+    req.flush({ isSuccess: true, error: null, data: mockAccount });
+
+    expect(result).toEqual(mockAccount);
+  });
+
+  it('updateProfile sends PUT and unwraps data', () => {
+    const input = { firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com' };
+    let result: typeof mockAccount | null = null;
+    service.updateProfile(input).subscribe((a) => (result = a));
+
+    const req = http.expectOne(baseUrl);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(input);
+    req.flush({ isSuccess: true, error: null, data: { ...mockAccount, lastName: 'Smith' } });
+
+    expect(result?.lastName).toBe('Smith');
+  });
+
+  it('updatePassword sends PUT to /password', () => {
+    const input = { currentPassword: 'Old123!', newPassword: 'New123!' };
+    service.updatePassword(input).subscribe();
+
+    const req = http.expectOne(`${baseUrl}/password`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(input);
+    req.flush(null);
+  });
+});

@@ -1,0 +1,79 @@
+<div class="profile-page">
+  <ui-card class="profile-card">
+    <h2>Profile</h2>
+
+    @if (account()) {
+      <p class="username">@{{ account()!.username }}</p>
+    }
+
+    @if (profileError()) {
+      <ui-alert>{{ profileError() }}</ui-alert>
+    }
+    @if (profileSuccess()) {
+      <ui-alert>{{ profileSuccess() }}</ui-alert>
+    }
+
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      <ui-form-field
+        label="First name"
+        [error]="profileForm.controls.firstName.touched && profileForm.controls.firstName.invalid ? 'First name is required.' : null"
+      >
+        <input id="profile-firstName" name="firstName" type="text" autocomplete="given-name" formControlName="firstName" aria-label="First name" />
+      </ui-form-field>
+
+      <ui-form-field
+        label="Last name"
+        [error]="profileForm.controls.lastName.touched && profileForm.controls.lastName.invalid ? 'Last name is required.' : null"
+      >
+        <input id="profile-lastName" name="lastName" type="text" autocomplete="family-name" formControlName="lastName" aria-label="Last name" />
+      </ui-form-field>
+
+      <ui-form-field
+        label="Email"
+        [error]="profileForm.controls.email.touched && profileForm.controls.email.invalid ? 'Enter a valid email address.' : null"
+      >
+        <input id="profile-email" name="email" type="email" autocomplete="email" formControlName="email" aria-label="Email" />
+      </ui-form-field>
+
+      <div class="form-actions">
+        <ui-button type="submit" [disabled]="savingProfile()">
+          {{ savingProfile() ? 'Saving…' : 'Save profile' }}
+        </ui-button>
+      </div>
+    </form>
+  </ui-card>
+
+  <ui-card class="profile-card">
+    <h2>Change password</h2>
+
+    @if (passwordError()) {
+      <ui-alert>{{ passwordError() }}</ui-alert>
+    }
+    @if (passwordSuccess()) {
+      <ui-alert>{{ passwordSuccess() }}</ui-alert>
+    }
+
+    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+      <input type="text" name="username" autocomplete="username" [value]="account()?.username ?? ''" class="visually-hidden" tabindex="-1" aria-label="Username" />
+      <ui-form-field
+        label="Current password"
+        [error]="passwordForm.controls.currentPassword.touched && passwordForm.controls.currentPassword.invalid ? 'Current password is required.' : null"
+      >
+        <input id="currentPassword" name="currentPassword" type="password" formControlName="currentPassword" autocomplete="current-password" aria-label="Current password" />
+      </ui-form-field>
+
+      <ui-form-field
+        label="New password"
+        [error]="passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.invalid ? 'New password must be at least 8 characters.' : null"
+      >
+        <input id="newPassword" name="newPassword" type="password" formControlName="newPassword" autocomplete="new-password" aria-label="New password" />
+      </ui-form-field>
+
+      <div class="form-actions">
+        <ui-button type="submit" [disabled]="savingPassword()">
+          {{ savingPassword() ? 'Saving…' : 'Change password' }}
+        </ui-button>
+      </div>
+    </form>
+  </ui-card>
+</div>

@@ -1,0 +1,61 @@
+@if (totalPages() > 1 || showSizeSelector()) {
+  <nav class="pagination" aria-label="Pagination">
+    <div class="pagination__meta">
+      <span class="pagination__range">{{ rangeLabel() }}</span>
+
+      @if (showSizeSelector()) {
+        <label class="page-size">
+          <span class="page-size__label">Per page:</span>
+          <select
+            id="page-size"
+            name="page-size"
+            class="page-size__select"
+            [ngModel]="pageSize()"
+            (ngModelChange)="onSizeChange($event)"
+            aria-label="Items per page"
+          >
+            @for (size of pageSizeOptions(); track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+        </label>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination__controls">
+        <button
+          type="button"
+          class="pagination__btn"
+          [disabled]="!canPrev()"
+          (click)="go(page() - 1)"
+          aria-label="Previous page"
+        >
+          <fa-icon [icon]="faPrev" />
+        </button>
+
+        @for (p of pages(); track p) {
+          <button
+            type="button"
+            class="pagination__btn"
+            [class.is-active]="p === page()"
+            [attr.aria-current]="p === page() ? 'page' : null"
+            (click)="go(p)"
+          >
+            {{ p }}
+          </button>
+        }
+
+        <button
+          type="button"
+          class="pagination__btn"
+          [disabled]="!canNext()"
+          (click)="go(page() + 1)"
+          aria-label="Next page"
+        >
+          <fa-icon [icon]="faNext" />
+        </button>
+      </div>
+    }
+  </nav>
+}

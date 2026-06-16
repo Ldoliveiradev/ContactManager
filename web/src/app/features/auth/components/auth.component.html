@@ -1,0 +1,7 @@
+<div class="auth-page">
+  @if (view() === 'login') {
+    <app-login (switchToRegister)="view.set('register')" />
+  } @else {
+    <app-register (switchToLogin)="view.set('login')" />
+  }
+</div>

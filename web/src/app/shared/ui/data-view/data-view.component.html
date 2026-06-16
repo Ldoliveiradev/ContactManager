@@ -1,0 +1,77 @@
+<div class="grid-toolbar">
+  @if (hasSearch()) {
+    <div class="search">
+      <span class="search__icon" aria-hidden="true"><fa-icon [icon]="faSearch" /></span>
+      <input
+        id="data-view-search"
+        name="data-view-search"
+        type="search"
+        autocomplete="off"
+        class="search__input"
+        [placeholder]="searchPlaceholder()"
+        aria-label="Search"
+        [ngModel]="query()"
+        (ngModelChange)="setQuery($event)"
+      />
+    </div>
+  }
+
+  <div class="sort" role="group" aria-label="Sort">
+    <span class="sort__label">Sort:</span>
+    @for (col of columns(); track col.key) {
+      @if (col.sortable) {
+        <button
+          type="button"
+          class="sort__btn"
+          [class.is-active]="sortKey() === col.key"
+          (click)="sortBy(col)"
+        >
+          {{ col.header }} <span class="sort__dir">{{ sortIndicator(col) }}</span>
+        </button>
+      }
+    }
+  </div>
+</div>
+
+@if (visible().length === 0) {
+  <p class="no-results">{{ emptyMessage() }}</p>
+} @else {
+  <ul class="grid">
+    @for (row of visible(); track $index) {
+      <li class="grid-card">
+        <div class="grid-card__fields">
+          @for (col of columns(); track col.key) {
+            <div class="grid-card__field">
+              @if (cellTemplateFor(col); as tpl) {
+                <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{ $implicit: row }" />
+              } @else {
+                <span class="grid-card__label">{{ col.header }}</span>
+                <span class="grid-card__value">{{ row[col.key] }}</span>
+              }
+            </div>
+          }
+        </div>
+
+        @if (actionsTemplate) {
+          <div class="grid-card__actions">
+            <ng-container
+              [ngTemplateOutlet]="actionsTemplate"
+              [ngTemplateOutletContext]="{ $implicit: row }"
+            />
+          </div>
+        }
+      </li>
+    }
+  </ul>
+}
+
+@if (currentPageSize() > 0) {
+  <ui-pagination
+    [page]="page()"
+    [pageSize]="currentPageSize()"
+    [totalItems]="filteredCount()"
+    [pageSizeOptions]="pageSizeOptions()"
+    (pageChange)="setPage($event)"
+    (pageSizeChange)="setPageSize($event)"
+  />
+}
