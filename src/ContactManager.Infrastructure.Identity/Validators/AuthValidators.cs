@@ -1,5 +1,5 @@
+using ContactManager.Application.Auth.Models;
 using ContactManager.Application.Common;
-using ContactManager.Infrastructure.Identity.Models;
 using FluentValidation;
 
 namespace ContactManager.Infrastructure.Identity.Validators;

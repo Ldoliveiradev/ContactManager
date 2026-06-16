@@ -1,5 +1,5 @@
-using ContactManager.Infrastructure.Identity.Interfaces;
-using ContactManager.Infrastructure.Identity.Models;
+using ContactManager.Application.Auth.Interfaces;
+using ContactManager.Application.Auth.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

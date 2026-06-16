@@ -1,4 +1,4 @@
-using ContactManager.Infrastructure.Identity.Models;
+using ContactManager.Application.Auth.Models;
 using ContactManager.Infrastructure.Identity.Validators;
 using FluentAssertions;
 

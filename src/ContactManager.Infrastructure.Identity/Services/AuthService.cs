@@ -1,8 +1,8 @@
+using ContactManager.Application.Auth.Interfaces;
+using ContactManager.Application.Auth.Models;
 using ContactManager.Domain.Interfaces;
 using ContactManager.Domain.Models;
 using ContactManager.Infrastructure.Identity.Exceptions;
-using ContactManager.Infrastructure.Identity.Interfaces;
-using ContactManager.Infrastructure.Identity.Models;
 using ContactManager.Infrastructure.Identity.Security;
 using ContactManager.Infrastructure.Identity.Validators;
 using FluentValidation;

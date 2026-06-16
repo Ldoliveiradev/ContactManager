@@ -5,7 +5,7 @@ using ContactManager.Application.Contacts.Interfaces;
 using ContactManager.Application.Contacts.Services;
 using ContactManager.Domain.Interfaces;
 using ContactManager.Infrastructure.Data.Repositories;
-using ContactManager.Infrastructure.Identity.Interfaces;
+using ContactManager.Application.Auth.Interfaces;
 using ContactManager.Infrastructure.Identity.Security;
 using ContactManager.Infrastructure.Identity.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

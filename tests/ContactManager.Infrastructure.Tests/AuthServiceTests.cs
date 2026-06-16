@@ -1,7 +1,6 @@
 using ContactManager.Domain.Models;
 using ContactManager.Infrastructure.Identity.Exceptions;
-using ContactManager.Infrastructure.Identity.Interfaces;
-using ContactManager.Infrastructure.Identity.Models;
+using ContactManager.Application.Auth.Models;
 using ContactManager.Infrastructure.Identity.Security;
 using ContactManager.Infrastructure.Identity.Services;
 using ContactManager.Domain.Interfaces;
