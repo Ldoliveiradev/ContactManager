@@ -1,0 +1,35 @@
+@use 'tokens' as t;
+
+.status-page {
+  width: 100%;
+  max-width: 560px;
+  margin: 12vh auto 0;
+  padding: t.space(5);
+  text-align: center;
+
+  h1 {
+    margin: 0 0 t.space(2);
+    font-size: t.font-size('2xl');
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-muted);
+  }
+
+  &__code {
+    display: inline-block;
+    margin-bottom: t.space(3);
+    font-size: t.font-size('4xl');
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: t.space(3);
+    margin-top: t.space(5);
+    flex-wrap: wrap;
+  }
+}

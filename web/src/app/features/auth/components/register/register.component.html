@@ -1,0 +1,45 @@
+<ui-card class="auth-card">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <header class="auth-card__head">
+      <h1>Contact Manager</h1>
+      <p class="auth-card__subtitle">Create an account</p>
+    </header>
+
+    @if (error()) {
+      <ui-alert>{{ error() }}</ui-alert>
+    }
+
+    <ui-form-field for="reg-username" label="Username" [error]="errorFor('username')">
+      <input id="reg-username" name="username" type="text" formControlName="username" autocomplete="username" aria-label="Username" placeholder="your-username" appAutofocus />
+    </ui-form-field>
+
+    <ui-form-field for="reg-firstName" label="First name" [error]="errorFor('firstName')">
+      <input id="reg-firstName" name="firstName" type="text" formControlName="firstName" autocomplete="given-name" aria-label="First name" placeholder="Jane" />
+    </ui-form-field>
+
+    <ui-form-field for="reg-lastName" label="Last name" [error]="errorFor('lastName')">
+      <input id="reg-lastName" name="lastName" type="text" formControlName="lastName" autocomplete="family-name" aria-label="Last name" placeholder="Doe" />
+    </ui-form-field>
+
+    <ui-form-field for="reg-email" label="Email" [error]="errorFor('email')">
+      <input id="reg-email" name="email" type="email" formControlName="email" autocomplete="email" aria-label="Email" placeholder="jane@example.com" />
+    </ui-form-field>
+
+    <ui-form-field for="reg-password" label="Password" [error]="errorFor('password')">
+      <input id="reg-password" name="password" type="password" formControlName="password" autocomplete="new-password" aria-label="Password" placeholder="••••••••" />
+    </ui-form-field>
+    <ui-password-strength [value]="passwordValue()" />
+
+    <ui-form-field for="reg-confirmPassword" label="Confirm password" [error]="errorFor('confirmPassword')">
+      <input id="reg-confirmPassword" name="confirmPassword" type="password" formControlName="confirmPassword" autocomplete="new-password" aria-label="Confirm password" placeholder="••••••••" />
+    </ui-form-field>
+
+    <ui-button type="submit" [disabled]="loading() || form.invalid" [tooltip]="form.invalid ? 'Please fill in all required fields correctly.' : null">
+      {{ loading() ? 'Please wait…' : 'Register' }}
+    </ui-button>
+
+    <ui-button type="button" variant="ghost" (click)="switchToLogin.emit()" (keydown.enter)="switchToLogin.emit()">
+      Already have an account? Sign in
+    </ui-button>
+  </form>
+</ui-card>

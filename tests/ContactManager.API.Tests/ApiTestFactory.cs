@@ -1,0 +1,102 @@
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Npgsql;
+
+namespace ContactManager.API.Tests;
+
+/// <summary>
+/// Boots the real API in-memory via WebApplicationFactory, pointed at a dedicated
+/// contactmanager_test_api database so endpoint tests exercise the full stack
+/// (controller → service → Npgsql repository → Postgres). Skips gracefully when
+/// the database is not reachable.
+/// </summary>
+public sealed class ApiTestFactory : WebApplicationFactory<Program>, IAsyncLifetime
+{
+    private const string AdminConnectionString =
+        "Host=localhost;Port=5433;Database=contactmanager;Username=contactmanager;Password=contactmanager_dev_pwd";
+
+    public const string TestConnectionString =
+        "Host=localhost;Port=5433;Database=contactmanager_test_api;Username=contactmanager;Password=contactmanager_dev_pwd";
+
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        builder.ConfigureHostConfiguration(config =>
+        {
+            config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:Postgres"] = TestConnectionString,
+                ["Jwt:Secret"] = "integration-test-signing-secret-at-least-32-characters",
+                ["Jwt:Issuer"] = "contactmanager-tests",
+                ["Jwt:Audience"] = "contactmanager-test-clients",
+                ["Jwt:ExpiryMinutes"] = "60",
+            });
+        });
+
+        return base.CreateHost(builder);
+    }
+
+    public async Task InitializeAsync()
+    {
+        // No try/catch: if the PostgreSQL test database is unreachable, this throws
+        // and every integration test fails loudly rather than silently skipping.
+        await using (var admin = new NpgsqlConnection(AdminConnectionString))
+        {
+            await admin.OpenAsync();
+            await using var check = new NpgsqlCommand(
+                "SELECT 1 FROM pg_database WHERE datname = 'contactmanager_test_api'", admin);
+            if (await check.ExecuteScalarAsync() is null)
+            {
+                await using var create = new NpgsqlCommand("CREATE DATABASE contactmanager_test_api", admin);
+                await create.ExecuteNonQueryAsync();
+            }
+        }
+
+        await using var conn = new NpgsqlConnection(TestConnectionString);
+        await conn.OpenAsync();
+        await using var schema = new NpgsqlCommand(Schema, conn);
+        await schema.ExecuteNonQueryAsync();
+    }
+
+    public static async Task ResetDatabaseAsync()
+    {
+        await using var conn = new NpgsqlConnection(TestConnectionString);
+        await conn.OpenAsync();
+        await using var cmd = new NpgsqlCommand("TRUNCATE contacts, accounts, users RESTART IDENTITY CASCADE", conn);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    async Task IAsyncLifetime.DisposeAsync() => await DisposeAsync();
+
+    private const string Schema = """
+        DROP TABLE IF EXISTS contacts, accounts, users CASCADE;
+        CREATE TABLE IF NOT EXISTS users (
+            id            UUID         PRIMARY KEY,
+            username      VARCHAR(100) NOT NULL UNIQUE,
+            password_hash VARCHAR(255) NOT NULL,
+            created_at    TIMESTAMPTZ  NOT NULL DEFAULT now(),
+            updated_at    TIMESTAMPTZ  NOT NULL DEFAULT now()
+        );
+        CREATE TABLE IF NOT EXISTS accounts (
+            id         UUID         PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+            first_name VARCHAR(100) NOT NULL,
+            last_name  VARCHAR(100) NOT NULL,
+            email      VARCHAR(200) NOT NULL UNIQUE,
+            created_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
+            updated_at TIMESTAMPTZ  NOT NULL DEFAULT now()
+        );
+        CREATE TABLE IF NOT EXISTS contacts (
+            id         UUID         PRIMARY KEY,
+            account_id UUID         NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+            name       VARCHAR(200) NOT NULL,
+            email      VARCHAR(200) NOT NULL,
+            phone      VARCHAR(50),
+            created_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
+            updated_at TIMESTAMPTZ  NOT NULL DEFAULT now()
+        );
+        CREATE INDEX IF NOT EXISTS ix_contacts_account_id ON contacts(account_id);
+        """;
+}
+
+[CollectionDefinition("api")]
+public sealed class ApiCollection : ICollectionFixture<ApiTestFactory>;

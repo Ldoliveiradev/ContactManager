@@ -1,0 +1,14 @@
+<section class="home-page">
+  <ui-card class="hero-card">
+    <span class="hero-card__eyebrow">Contact Manager</span>
+    <h1>Keep your contacts organized without losing control of your data.</h1>
+    <p>
+      Manage people, update your profile, and keep account access scoped to the authenticated user.
+    </p>
+
+    <div class="hero-card__actions">
+      <ui-button [routerLink]="primaryLink()">{{ primaryLabel() }}</ui-button>
+      <ui-button [routerLink]="secondaryLink()" variant="secondary">{{ secondaryLabel() }}</ui-button>
+    </div>
+  </ui-card>
+</section>

@@ -1,0 +1,43 @@
+@use 'tokens' as t;
+
+.home-page {
+  display: flex;
+  justify-content: center;
+  padding-top: 10vh;
+}
+
+.hero-card {
+  width: 100%;
+  max-width: 760px;
+  padding: t.space(6);
+
+  h1 {
+    margin: 0 0 t.space(3);
+    font-size: clamp(2rem, 4vw, 3.25rem);
+    line-height: 1.05;
+  }
+
+  p {
+    margin: 0;
+    max-width: 56ch;
+    color: var(--text-muted);
+    font-size: t.font-size('md');
+  }
+
+  &__eyebrow {
+    display: inline-block;
+    margin-bottom: t.space(3);
+    color: var(--primary);
+    font-size: t.font-size('sm');
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__actions {
+    display: flex;
+    gap: t.space(3);
+    margin-top: t.space(5);
+    flex-wrap: wrap;
+  }
+}
