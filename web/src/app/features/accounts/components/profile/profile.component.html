@@ -1,0 +1,57 @@
+<div class="profile-page">
+  <ui-card class="profile-card">
+    <h2>Profile</h2>
+
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      @if (profileError()) {
+        <ui-alert>{{ profileError() }}</ui-alert>
+      }
+      <ui-form-field for="profile-firstName" label="First name" [error]="profileErrorFor('firstName')">
+        <input id="profile-firstName" name="firstName" type="text" autocomplete="given-name" formControlName="firstName" aria-label="First name" />
+      </ui-form-field>
+
+      <ui-form-field for="profile-lastName" label="Last name" [error]="profileErrorFor('lastName')">
+        <input id="profile-lastName" name="lastName" type="text" autocomplete="family-name" formControlName="lastName" aria-label="Last name" />
+      </ui-form-field>
+
+      <ui-form-field for="profile-email" label="Email" [error]="profileErrorFor('email')">
+        <input id="profile-email" name="email" type="email" autocomplete="email" formControlName="email" aria-label="Email" />
+      </ui-form-field>
+
+      <div class="form-actions">
+        <ui-button type="submit" [disabled]="savingProfile() || profileForm.invalid" [tooltip]="profileForm.invalid ? 'Please fill in all required fields correctly.' : null">
+          {{ savingProfile() ? 'Saving…' : 'Save profile' }}
+        </ui-button>
+      </div>
+    </form>
+  </ui-card>
+
+  <ui-card class="profile-card">
+    <h2>Change password</h2>
+
+    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+      @if (passwordError()) {
+        <ui-alert>{{ passwordError() }}</ui-alert>
+      }
+
+      <ui-form-field for="currentPassword" label="Current password" [error]="passwordErrorFor('currentPassword')" hint="Required to confirm your identity before changing your password.">
+        <input id="currentPassword" name="currentPassword" type="password" formControlName="currentPassword" autocomplete="current-password" aria-label="Current password" />
+      </ui-form-field>
+
+      <ui-form-field for="newPassword" label="New password" [error]="passwordErrorFor('newPassword')">
+        <input id="newPassword" name="newPassword" type="password" formControlName="newPassword" autocomplete="new-password" aria-label="New password" />
+      </ui-form-field>
+      <ui-password-strength [value]="newPasswordValue()" />
+
+      <ui-form-field for="confirmNewPassword" label="Confirm new password" [error]="passwordErrorFor('confirmNewPassword')">
+        <input id="confirmNewPassword" name="confirmNewPassword" type="password" formControlName="confirmNewPassword" autocomplete="new-password" aria-label="Confirm new password" />
+      </ui-form-field>
+
+      <div class="form-actions">
+        <ui-button type="submit" [disabled]="savingPassword() || passwordForm.invalid" [tooltip]="passwordForm.invalid ? 'Please fill in all required fields correctly.' : null">
+          {{ savingPassword() ? 'Saving…' : 'Change password' }}
+        </ui-button>
+      </div>
+    </form>
+  </ui-card>
+</div>

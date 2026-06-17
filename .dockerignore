@@ -1,0 +1,19 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+
+# Frontend
+web/node_modules/
+web/dist/
+web/.angular/
+
+# IDE / VCS
+.git/
+.vs/
+.vscode/
+**/.idea/
+
+# Misc
+**/*.user
+docs/

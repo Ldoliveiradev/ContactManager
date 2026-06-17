@@ -1,0 +1,736 @@
+{
+  "info": {
+    "_postman_id": "57409b05-28d3-48fd-bf7d-3893afb2d8aa",
+    "name": "ContactManager API",
+    "description": "Postman collection for demonstrating Contact Manager auth, accounts, contacts, and security cases.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Setup - Dynamic User Flow",
+      "description": "Run these in order to demonstrate register, login, account fetch, password change, and login again with the new password.",
+      "item": [
+        {
+          "name": "Register unique user",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const suffix = Date.now();",
+                  "pm.environment.set('registerUsername', `postman_${suffix}`);",
+                  "pm.environment.set('registerEmail', `postman_${suffix}@example.com`);",
+                  "pm.environment.set('registerFirstName', 'Postman');",
+                  "pm.environment.set('registerLastName', 'Runner');",
+                  "pm.environment.set('registerPassword', 'Postman123!');",
+                  "pm.environment.set('changedPassword', 'Postman456!');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.isSuccess).to.eql(true);",
+                  "pm.environment.set('registeredUserId', json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{registerUsername}}\",\n  \"firstName\": \"{{registerFirstName}}\",\n  \"lastName\": \"{{registerLastName}}\",\n  \"email\": \"{{registerEmail}}\",\n  \"password\": \"{{registerPassword}}\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/auth/register"
+          },
+          "response": []
+        },
+        {
+          "name": "Login registered user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.isSuccess).to.eql(true);",
+                  "pm.environment.set('token', json.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{registerUsername}}\",\n  \"password\": \"{{registerPassword}}\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/auth/login"
+          },
+          "response": []
+        },
+        {
+          "name": "Get current account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.isSuccess).to.eql(true);",
+                  "pm.environment.set('userId', json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": "{{apiBaseUrl}}/accounts"
+          },
+          "response": []
+        },
+        {
+          "name": "Change password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 204', function () { pm.response.to.have.status(204); });",
+                  "pm.environment.set('registerPassword', pm.environment.get('changedPassword'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"currentPassword\": \"{{registerPassword}}\",\n  \"newPassword\": \"{{changedPassword}}\",\n  \"confirmNewPassword\": \"{{changedPassword}}\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/auth/change-password"
+          },
+          "response": []
+        },
+        {
+          "name": "Login registered user with changed password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.isSuccess).to.eql(true);",
+                  "pm.environment.set('token', json.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{registerUsername}}\",\n  \"password\": \"{{registerPassword}}\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/auth/login"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth - Seeded and Error Cases",
+      "description": "Seeded-user auth checks and common failure paths.",
+      "item": [
+        {
+          "name": "Login demo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.isSuccess).to.eql(true);",
+                  "pm.environment.set('token', json.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{demoUsername}}\",\n  \"password\": \"{{demoPassword}}\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/auth/login"
+          },
+          "response": []
+        },
+        {
+          "name": "Login sales2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.isSuccess).to.eql(true);",
+                  "pm.environment.set('token', json.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{secondUsername}}\",\n  \"password\": \"{{secondPassword}}\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/auth/login"
+          },
+          "response": []
+        },
+        {
+          "name": "Login invalid credentials (expect 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{demoUsername}}\",\n  \"password\": \"WrongPassword123!\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/auth/login"
+          },
+          "response": []
+        },
+        {
+          "name": "Register duplicate username (expect 409)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const suffix = Date.now();",
+                  "pm.environment.set('contactEmail', `dup_username_${suffix}@example.com`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{demoUsername}}\",\n  \"firstName\": \"Duplicate\",\n  \"lastName\": \"User\",\n  \"email\": \"{{contactEmail}}\",\n  \"password\": \"Demo123!\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/auth/register"
+          },
+          "response": []
+        },
+        {
+          "name": "Register duplicate email (expect 409)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const suffix = Date.now();",
+                  "pm.environment.set('contactName', `dup_email_${suffix}`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{contactName}}\",\n  \"firstName\": \"Duplicate\",\n  \"lastName\": \"Email\",\n  \"email\": \"{{demoEmail}}\",\n  \"password\": \"Demo123!\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/auth/register"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Accounts",
+      "description": "Use after logging in. The GET request stores userId automatically.",
+      "item": [
+        {
+          "name": "Get current account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.isSuccess).to.eql(true);",
+                  "pm.environment.set('userId', json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": "{{apiBaseUrl}}/accounts"
+          },
+          "response": []
+        },
+        {
+          "name": "Update current account",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('registerEmail')) {",
+                  "  pm.environment.set('registerEmail', `postman.account.${Date.now()}@example.com`);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Postman\",\n  \"lastName\": \"Updated\",\n  \"email\": \"{{registerEmail}}\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/accounts"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Contacts CRUD",
+      "description": "Use after logging in. Create stores contactId. Get-all stores the first owned contact id in ownedContactId.",
+      "item": [
+        {
+          "name": "Get my contacts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.isSuccess).to.eql(true);",
+                  "if (Array.isArray(json.data) && json.data.length > 0) {",
+                  "  pm.environment.set('ownedContactId', json.data[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": "{{apiBaseUrl}}/contacts?page=1&pageSize=10&sortBy=name&sortDesc=false"
+          },
+          "response": []
+        },
+        {
+          "name": "Create contact",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const suffix = Date.now();",
+                  "pm.environment.set('contactName', `Postman Contact ${suffix}`);",
+                  "pm.environment.set('contactEmail', `postman.contact.${suffix}@example.com`);",
+                  "pm.environment.set('contactPhone', '(202) 555-0199');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.isSuccess).to.eql(true);",
+                  "pm.environment.set('contactId', json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{contactName}}\",\n  \"email\": \"{{contactEmail}}\",\n  \"phone\": \"{{contactPhone}}\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/contacts"
+          },
+          "response": []
+        },
+        {
+          "name": "Get created contact",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": "{{apiBaseUrl}}/contacts/{{contactId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Update created contact",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{contactName}} Updated\",\n  \"email\": \"{{contactEmail}}\",\n  \"phone\": \"(202) 555-0111\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/contacts/{{contactId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete created contact",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
+            "method": "DELETE",
+            "url": "{{apiBaseUrl}}/contacts/{{contactId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Security Cases",
+      "description": "Run in order to demonstrate unauthorized and forbidden access.",
+      "item": [
+        {
+          "name": "Get contacts without token (expect 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{apiBaseUrl}}/contacts"
+          },
+          "response": []
+        },
+        {
+          "name": "Login demo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('token', json.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{demoUsername}}\",\n  \"password\": \"{{demoPassword}}\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/auth/login"
+          },
+          "response": []
+        },
+        {
+          "name": "Capture demo-owned contact id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.isSuccess).to.eql(true);",
+                  "pm.expect(Array.isArray(json.data)).to.eql(true);",
+                  "pm.expect(json.data.length).to.be.above(0);",
+                  "pm.environment.set('ownedContactId', json.data[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": "{{apiBaseUrl}}/contacts?page=1&pageSize=1"
+          },
+          "response": []
+        },
+        {
+          "name": "Login sales2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('token', json.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{secondUsername}}\",\n  \"password\": \"{{secondPassword}}\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/auth/login"
+          },
+          "response": []
+        },
+        {
+          "name": "Get demo contact as sales2 (expect 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": "{{apiBaseUrl}}/contacts/{{ownedContactId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Update demo contact as sales2 (expect 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Forbidden Update\",\n  \"email\": \"forbidden@example.com\",\n  \"phone\": \"(202) 555-0101\"\n}"
+            },
+            "url": "{{apiBaseUrl}}/contacts/{{ownedContactId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete demo contact as sales2 (expect 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{token}}", "type": "string" }
+              ]
+            },
+            "method": "DELETE",
+            "url": "{{apiBaseUrl}}/contacts/{{ownedContactId}}"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [],
+  "variable": []
+}

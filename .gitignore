@@ -172,6 +172,7 @@ _TeamCity*
 !.axoCover/settings.json
 
 # Coverlet is a free, cross platform Code Coverage Tool
+coverage/
 coverage*.json
 coverage*.xml
 coverage*.info
@@ -427,3 +428,15 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Editor settings (project-specific overrides)
+.vscode/
+
+# SonarLint Connected Mode binding (machine-specific)
+.sonarlint/
+
+# Local dev secrets (DB password, JWT signing key) — use the .example template
+src/ContactManager.API/appsettings.Development.json
+
+# pgAdmin password file — contains DB credentials
+db/pgadmin/pgpass

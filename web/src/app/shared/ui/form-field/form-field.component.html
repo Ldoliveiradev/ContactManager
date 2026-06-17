@@ -1,0 +1,14 @@
+<div class="field">
+  <label [for]="for()" class="field__label">
+    {{ label() }}
+    @if (optional()) {
+      <em class="field__optional">(optional)</em>
+    }
+  </label>
+  <ng-content />
+  @if (error()) {
+    <small class="field__error">{{ error() }}</small>
+  } @else if (hint()) {
+    <small class="field__hint">{{ hint() }}</small>
+  }
+</div>

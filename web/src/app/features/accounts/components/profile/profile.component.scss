@@ -1,0 +1,46 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: t.space(6);
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.profile-card {
+  h2 {
+    margin-top: 0;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: t.space(4);
+    margin-top: t.space(4);
+  }
+}
+
+.username {
+  color: var(--text-muted);
+  font-size: t.font-size('sm');
+  margin: 0 0 t.space(2);
+}
+
+.form-actions {
+  @include m.flex(row, center, flex-end, t.space(3));
+  margin-top: t.space(2);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

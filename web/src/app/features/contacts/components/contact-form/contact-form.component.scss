@@ -1,0 +1,22 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.form-card {
+  max-width: 480px;
+  margin: 0 auto;
+
+  h2 {
+    margin-top: 0;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: t.space(4);
+  }
+}
+
+.form-actions {
+  @include m.flex(row, center, flex-end, t.space(3));
+  margin-top: t.space(2);
+}

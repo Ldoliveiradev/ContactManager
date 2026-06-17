@@ -1,0 +1,16 @@
+<div class="toast-container" aria-live="polite" aria-atomic="false">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div
+      class="toast"
+      [class.toast--success]="toast.variant === 'success'"
+      [class.toast--error]="toast.variant === 'error'"
+      role="log"
+    >
+      <div class="toast__body">
+        <span class="toast__message">{{ toast.message }}</span>
+        <button type="button" class="toast__close" aria-label="Dismiss" (click)="toastService.dismiss(toast.id)">✕</button>
+      </div>
+      <div class="toast__progress" [style.animation-duration]="toast.durationMs + 'ms'"></div>
+    </div>
+  }
+</div>

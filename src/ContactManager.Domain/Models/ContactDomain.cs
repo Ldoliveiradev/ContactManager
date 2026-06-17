@@ -1,0 +1,45 @@
+using ContactManager.Domain.ValueObjects;
+
+namespace ContactManager.Domain.Models;
+
+public sealed class ContactDomain
+{
+    public Guid Id { get; }
+    public Guid AccountId { get; }
+    public ContactName Name { get; private set; }
+    public Email Email { get; private set; }
+    public PhoneNumber? Phone { get; private set; }
+
+    private ContactDomain(Guid id, Guid accountId, ContactName name, Email email, PhoneNumber? phone)
+    {
+        Id = id;
+        AccountId = accountId;
+        Name = name;
+        Email = email;
+        Phone = phone;
+    }
+
+    public static ContactDomain Create(Guid id, Guid accountId, string name, string email, string? phone)
+    {
+        if (id == Guid.Empty)
+            throw new ArgumentException("Contact id must not be empty.", nameof(id));
+        if (accountId == Guid.Empty)
+            throw new ArgumentException("Account id must not be empty.", nameof(accountId));
+
+        var contact = new ContactDomain(
+            id,
+            accountId,
+            ContactName.From(name),
+            Email.From(email),
+            string.IsNullOrWhiteSpace(phone) ? null : PhoneNumber.From(phone));
+
+        return contact;
+    }
+
+    public void Update(string name, string email, string? phone)
+    {
+        Name = ContactName.From(name);
+        Email = Email.From(email);
+        Phone = string.IsNullOrWhiteSpace(phone) ? null : PhoneNumber.From(phone);
+    }
+}
