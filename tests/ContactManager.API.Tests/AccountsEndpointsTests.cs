@@ -122,6 +122,45 @@ public class AccountsEndpointsTests
     }
 
     [Fact]
+    public async Task UpdateProfile_WithEmailBelongingToAnotherAccount_Returns409()
+    {
+        // Arrange
+        await ApiTestFactory.ResetDatabaseAsync();
+        var (alice, aliceName) = await AuthenticatedClientAsync("dup-alice");
+        var (bob, _) = await AuthenticatedClientAsync("dup-bob");
+
+        // Act — Bob tries to take Alice's email.
+        var resp = await bob.PutAsJsonAsync("/api/v1/accounts",
+            new { firstName = "Bob", lastName = "Taker", email = $"{aliceName}@example.com" });
+
+        // Assert
+        resp.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        // Alice keeps her email; Bob's was not changed.
+        var aliceAccount = (await (await alice.GetAsync("/api/v1/accounts"))
+            .Content.ReadFromJsonAsync<AccountResponse>())!.Data!;
+        aliceAccount.Email.Should().Be($"{aliceName}@example.com");
+    }
+
+    [Fact]
+    public async Task UpdateProfile_KeepingOwnEmail_Succeeds()
+    {
+        // Arrange
+        await ApiTestFactory.ResetDatabaseAsync();
+        var (client, username) = await AuthenticatedClientAsync("same-email-user");
+
+        // Act — change only the name, keep the same email.
+        var resp = await client.PutAsJsonAsync("/api/v1/accounts",
+            new { firstName = "Renamed", lastName = "User", email = $"{username}@example.com" });
+
+        // Assert
+        resp.StatusCode.Should().Be(HttpStatusCode.OK);
+        var updated = (await resp.Content.ReadFromJsonAsync<AccountResponse>())!.Data!;
+        updated.FirstName.Should().Be("Renamed");
+        updated.Email.Should().Be($"{username}@example.com");
+    }
+
+    [Fact]
     public async Task UpdateProfile_WithoutToken_Returns401()
     {
         // Arrange

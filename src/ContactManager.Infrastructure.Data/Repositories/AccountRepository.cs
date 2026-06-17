@@ -56,7 +56,15 @@ public sealed class AccountRepository(string connectionString)
         await using var conn = await OpenConnectionAsync(ct);
         await using var cmd = new NpgsqlCommand(sql, conn);
         BindAccount(cmd, account);
-        await cmd.ExecuteNonQueryAsync(ct);
+        try
+        {
+            await cmd.ExecuteNonQueryAsync(ct);
+        }
+        catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViolation)
+        {
+            // Safety net for a race between the service's uniqueness pre-check and this write.
+            throw new DuplicateAccountEmailException(account.Email.Value);
+        }
     }
 
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken ct = default)
@@ -68,6 +76,21 @@ public sealed class AccountRepository(string connectionString)
         await using var conn = await OpenConnectionAsync(ct);
         await using var cmd = new NpgsqlCommand(sql, conn);
         cmd.Parameters.AddWithValue("@email", email);
+        return await cmd.ExecuteScalarAsync(ct) is not null;
+    }
+
+    public async Task<bool> ExistsByEmailAsync(string email, Guid excludeId, CancellationToken ct = default)
+    {
+        const string sql = """
+            SELECT 1 FROM accounts
+            WHERE lower(email) = lower(@email) AND id <> @excludeId
+            LIMIT 1
+            """;
+
+        await using var conn = await OpenConnectionAsync(ct);
+        await using var cmd = new NpgsqlCommand(sql, conn);
+        cmd.Parameters.AddWithValue("@email", email);
+        cmd.Parameters.AddWithValue("@excludeId", excludeId);
         return await cmd.ExecuteScalarAsync(ct) is not null;
     }
 

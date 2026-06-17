@@ -37,6 +37,9 @@ public sealed class AccountService(IAccountRepository accounts) : IAccountServic
         if (account is null)
             return AccountResponse.Failure(ErrorMessages.Account.NotFound);
 
+        if (await accounts.ExistsByEmailAsync(request.Email, excludeId: accountId, ct))
+            return AccountResponse.Failure(ErrorMessages.Account.EmailDuplicate);
+
         account.UpdateProfile(request.FirstName, request.LastName, request.Email);
         await accounts.UpdateAsync(account, ct);
         return AccountResponse.Success(ToDto(account));

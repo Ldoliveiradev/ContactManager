@@ -40,6 +40,7 @@ public static class ErrorMessages
         public const string EmailInvalid = "A valid email is required.";
         public const string EmailTooLong = "Email must be 200 characters or fewer.";
         public const string InvalidCurrentPassword = "Current password is incorrect.";
+        public const string EmailDuplicate = "An account with this email already exists.";
     }
 
     public static class Contact

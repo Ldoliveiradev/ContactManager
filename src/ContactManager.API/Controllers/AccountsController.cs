@@ -29,13 +29,17 @@ public sealed class AccountsController(IAccountService accounts) : ControllerBas
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<AccountResponse>> UpdateProfile(UpdateAccountRequest request, CancellationToken ct)
     {
         var result = await accounts.UpdateProfileAsync(User.GetUserId(), request, ct);
         if (!result.IsSuccess)
-            return result.Error == ErrorMessages.Account.NotFound
-                ? this.NotFoundProblem(result.Error)
-                : this.ValidationProblem(result.Error);
+            return result.Error switch
+            {
+                ErrorMessages.Account.NotFound => this.NotFoundProblem(result.Error),
+                ErrorMessages.Account.EmailDuplicate => this.ConflictProblem(result.Error),
+                _ => this.ValidationProblem(result.Error),
+            };
         return Ok(result);
     }
 }

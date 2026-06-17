@@ -87,6 +87,45 @@ public class AccountServiceTests
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    [Fact]
+    public async Task UpdateProfileAsync_WhenEmailBelongsToAnotherAccount_ReturnsDuplicateFailure()
+    {
+        // Arrange
+        var account = MakeAccount();
+        _repo.Setup(r => r.GetByIdAsync(OwnerId, It.IsAny<CancellationToken>())).ReturnsAsync(account);
+        // The email is taken by some OTHER account (excludeId = OwnerId filters out self).
+        _repo.Setup(r => r.ExistsByEmailAsync("taken@example.com", OwnerId, It.IsAny<CancellationToken>()))
+             .ReturnsAsync(true);
+
+        // Act
+        var result = await _sut.UpdateProfileAsync(OwnerId,
+            new UpdateAccountRequest("Jane", "Smith", "taken@example.com"));
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Be(ErrorMessages.Account.EmailDuplicate);
+        _repo.Verify(r => r.UpdateAsync(It.IsAny<AccountDomain>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateProfileAsync_WhenEmailUnchanged_DoesNotFlagOwnEmailAsDuplicate()
+    {
+        // Arrange
+        var account = MakeAccount();
+        _repo.Setup(r => r.GetByIdAsync(OwnerId, It.IsAny<CancellationToken>())).ReturnsAsync(account);
+        // Own email never collides because the account itself is excluded from the check.
+        _repo.Setup(r => r.ExistsByEmailAsync("john@example.com", OwnerId, It.IsAny<CancellationToken>()))
+             .ReturnsAsync(false);
+
+        // Act — same email, only the name changes.
+        var result = await _sut.UpdateProfileAsync(OwnerId,
+            new UpdateAccountRequest("Johnny", "Doe", "john@example.com"));
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        _repo.Verify(r => r.UpdateAsync(It.IsAny<AccountDomain>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     [Theory]
     [InlineData("", "Doe", "john@example.com")]
     [InlineData("John", "", "john@example.com")]
