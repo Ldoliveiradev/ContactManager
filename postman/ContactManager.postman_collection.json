@@ -450,7 +450,7 @@
                   "const suffix = Date.now();",
                   "pm.environment.set('contactName', `Postman Contact ${suffix}`);",
                   "pm.environment.set('contactEmail', `postman.contact.${suffix}@example.com`);",
-                  "pm.environment.set('contactPhone', '(202) 555-0199');"
+                  "pm.environment.set('contactPhone', '2025550199');"
                 ]
               }
             },
@@ -515,7 +515,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"{{contactName}} Updated\",\n  \"email\": \"{{contactEmail}}\",\n  \"phone\": \"(202) 555-0111\"\n}"
+              "raw": "{\n  \"name\": \"{{contactName}} Updated\",\n  \"email\": \"{{contactEmail}}\",\n  \"phone\": \"2025550111\"\n}"
             },
             "url": "{{apiBaseUrl}}/contacts/{{contactId}}"
           },
@@ -697,7 +697,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Forbidden Update\",\n  \"email\": \"forbidden@example.com\",\n  \"phone\": \"(202) 555-0101\"\n}"
+              "raw": "{\n  \"name\": \"Forbidden Update\",\n  \"email\": \"forbidden@example.com\",\n  \"phone\": \"2025550101\"\n}"
             },
             "url": "{{apiBaseUrl}}/contacts/{{ownedContactId}}"
           },
