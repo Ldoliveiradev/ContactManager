@@ -140,13 +140,27 @@ to the API container, so no host ports or CORS are involved between them.
 # 1. Start only PostgreSQL (schema + seed applied automatically on first run)
 docker compose up -d postgres
 
-# 2. Run the API (uses Host=localhost:5433 from appsettings.json)
+# 2. Provide the API's local config (connection string + JWT secret).
+#    These are NOT committed; create the file from the example and fill it in.
+cp src/ContactManager.API/appsettings.Development.json.example \
+   src/ContactManager.API/appsettings.Development.json
+#    Set ConnectionStrings:Postgres to Host=localhost;Port=5433 and a 32+ char Jwt:Secret.
+
+# 3. Run the API — it listens on http://localhost:5050
 dotnet run --project src/ContactManager.API
 
-# 3. Run the Angular dev server (another terminal)
+# 4. Run the Angular dev server (another terminal)
 cd web && npm install     # first time only
 npm start                 # http://localhost:4200
 ```
+
+> The Angular dev server (`:4200`) can call **either** API — both allow CORS from
+> `http://localhost:4200`. Set `apiUrl` in
+> [`web/src/environments/environment.ts`](web/src/environments/environment.ts) to
+> `http://localhost:5050/api/v1` for the host-run API, or keep `http://localhost:8085/api/v1`
+> to reuse the Docker API (then you can skip steps 2–3). See
+> [`docs/setup-from-scratch.md`](docs/setup-from-scratch.md#option-b--run-the-app-locally-on-the-host)
+> for the full walkthrough.
 
 ---
 
